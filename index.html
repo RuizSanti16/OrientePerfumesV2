@@ -1,0 +1,447 @@
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>OrientPerfumes – Fragancias Orientales · Nicho · Diseñador</title>
+
+    <!--
+    ============================================================
+    FUENTES
+    - "Cormorant Garamond": elegante serif para títulos grandes
+    - "Cinzel": mayúsculas romanas para etiquetas y nav
+    - "Lato": sans-serif limpio para cuerpo de texto
+    ============================================================
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+    <!--
+    Hoja de estilos principal — separada en css/styles.css
+    para mejor organización y mantenimiento.
+    -->
+    <link rel="stylesheet" href="css/style.css"/>
+    
+    <!-- Estilos de sesión → incluidos en css/style.css -->
+</head>
+    <body>
+
+    <!-- ============================================================
+        ANNOUNCEMENT BAR
+        Mensaje promocional que se desplaza en bucle
+    ============================================================ -->
+    <div class="announcement-bar" role="banner" aria-label="Promociones">
+        <div class="announcement-bar__track" aria-hidden="true">
+        <!-- Se duplica el contenido para el efecto marquee infinito -->
+        <span class="announcement-bar__text">
+            Envío gratuito en pedidos superiores a $150.000
+            <span>·</span>
+            Fragancias 100% Originales
+            <span>·</span>
+            Más de 500 referencias exclusivas
+            <span>·</span>
+            Atención personalizada
+            <span>·</span>
+            Envío gratuito en pedidos superiores a $150.000
+            <span>·</span>
+            Fragancias 100% Originales
+            <span>·</span>
+            Más de 500 referencias exclusivas
+            <span>·</span>
+            Atención personalizada
+            <span>·</span>
+        </span>
+        </div>
+    </div>
+
+    <!-- ============================================================
+        HEADER PRINCIPAL
+        Logo, búsqueda, acciones y botón de menú
+    ============================================================ -->
+    <header class="header" id="header" role="banner">
+
+        <!-- Logo -->
+        <a href="#" class="header__logo" aria-label="OrientPerfumes – Inicio">
+        <!-- SVG del emblema: marco cuadrado dorado con letra B ornamental y detalles de filigrana -->
+        <div class="logo-icon" aria-hidden="true">
+            <img src="assets/logo.png" alt="OrientPerfumes logo" width="56" height="56" />
+        </div>
+        <div class="logo-text">
+            <div class="logo-text__name">OrientPerfumes</div>
+            <div class="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
+        </div>
+        </a>
+
+        <!-- Buscador -->
+        <div class="header__search" role="search">
+        <label for="search-input" class="sr-only"></label>
+        <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar productos..."
+            aria-label="Buscar productos"
+        />
+        <button aria-label="Buscar">🔍</button>
+        </div>
+
+        <!-- Iconos de acción -->
+        <div class="header__actions" role="navigation" aria-label="Acciones de usuario">
+
+        <!-- Mi cuenta / Sesión
+             JS en app.js detecta si hay sesión activa:
+             - Sin sesión  → redirige a login.html
+             - Con sesión  → muestra nombre + botón cerrar sesión
+        -->
+        <div class="account-wrap" id="account-wrap">
+          <!-- Estado A: sin sesión — botón que lleva al login -->
+          <a href="login.html" class="action-btn" id="btn-account"
+             aria-label="Iniciar sesión" title="Iniciar sesión">
+            <span aria-hidden="true">👤</span>
+          </a>
+          <!-- Estado B: con sesión — nombre + cerrar sesión (oculto por defecto) -->
+          <div class="session-info" id="session-info" hidden>
+            <span class="session-info__name" id="session-username"></span>
+            <button class="session-info__logout" id="btn-logout"
+                    title="Cerrar sesión" aria-label="Cerrar sesión">
+              Salir
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de deseos (wishlist) con contador -->
+        <button class="action-btn" aria-label="Lista de deseos (0 items)" title="Lista de deseos">
+            <span aria-hidden="true">🤍</span>
+            <span class="action-btn__badge" aria-hidden="true">0</span>
+        </button>
+
+        <!-- Carrito de compras con contador -->
+        <button class="action-btn" aria-label="Carrito de compras (0 items)" title="Carrito">
+            <span aria-hidden="true">🛍</span>
+            <span class="action-btn__badge" aria-hidden="true">0</span>
+        </button>
+
+        <!-- Botón menú lateral (drawer) -->
+        <button class="menu-btn" id="menu-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        </div>
+    </header>
+
+    <!-- ============================================================
+        HERO CARRUSEL
+        3 slides con fondo degradado simulando imágenes de perfumes
+    ============================================================ -->
+    <section class="hero" aria-label="Presentación principal" aria-roledescription="carrusel">
+
+        <!-- SLIDE 1: Tesoros Olfativos -->
+        <div class="hero__slide active" role="group" aria-label="Slide 1 de 3" aria-roledescription="diapositiva">
+        <div class="hero__bg" style="background: 
+            radial-gradient(ellipse at 70% 50%, rgba(139,105,20,0.25) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 80%, rgba(80,55,10,0.3) 0%, transparent 50%),
+            linear-gradient(135deg, #1a1208 0%, #0a0a08 50%, #12100a 100%);"
+            aria-hidden="true">
+        </div>
+        <div class="hero__overlay" aria-hidden="true"></div>
+        <div class="hero__content">
+            <div class="hero__label">Perfumería Nicho</div>
+            <h1 class="hero__title">Tesoros<br>Olfativos</h1>
+            <p class="hero__subtitle">Las más exclusivas casas de nicho en un solo lugar</p>
+            <div class="hero__cta">
+            <a href="#categorias" class="btn-primary">Descubrir Nicho</a>
+            <a href="#productos" class="btn-secondary">Ver Catálogo</a>
+            </div>
+        </div>
+        </div>
+
+        <!-- SLIDE 2: Fragancias Orientales -->
+        <div class="hero__slide" role="group" aria-label="Slide 2 de 3" aria-roledescription="diapositiva">
+        <div class="hero__bg" style="background:
+            radial-gradient(ellipse at 65% 40%, rgba(120,80,15,0.3) 0%, transparent 55%),
+            radial-gradient(ellipse at 90% 70%, rgba(60,40,8,0.35) 0%, transparent 50%),
+            linear-gradient(150deg, #100d06 0%, #0a0a08 55%, #15120a 100%);"
+            aria-hidden="true">
+        </div>
+        <div class="hero__overlay" aria-hidden="true"></div>
+        <div class="hero__content">
+            <div class="hero__label">Colección Oriental</div>
+            <h2 class="hero__title">Aromas<br>del Oriente</h2>
+            <p class="hero__subtitle">Oud, Ambar, Sándalo y Musk en su máxima expresión</p>
+            <div class="hero__cta">
+            <a href="#categorias" class="btn-primary">Explorar Colección</a>
+            <a href="#productos" class="btn-secondary">Ver Novedades</a>
+            </div>
+        </div>
+        </div>
+
+        <!-- SLIDE 3: Grandes Diseñadores -->
+        <div class="hero__slide" role="group" aria-label="Slide 3 de 3" aria-roledescription="diapositiva">
+        <div class="hero__bg" style="background:
+            radial-gradient(ellipse at 60% 50%, rgba(100,70,10,0.28) 0%, transparent 60%),
+            radial-gradient(ellipse at 85% 60%, rgba(70,45,5,0.3) 0%, transparent 50%),
+            linear-gradient(120deg, #0e0b05 0%, #0a0a08 50%, #131009 100%);"
+            aria-hidden="true">
+        </div>
+        <div class="hero__overlay" aria-hidden="true"></div>
+        <div class="hero__content">
+            <div class="hero__label">Alta Perfumería</div>
+            <h2 class="hero__title">Firmas<br>de Autor</h2>
+            <p class="hero__subtitle">Chanel, Dior, Tom Ford, Creed y las grandes maisons</p>
+            <div class="hero__cta">
+            <a href="#categorias" class="btn-primary">Ver Diseñadores</a>
+            <a href="#productos" class="btn-secondary">Nuestras Marcas</a>
+            </div>
+        </div>
+        </div>
+
+        <!-- Flecha anterior -->
+        <button class="hero__arrow hero__arrow--prev" id="hero-prev" aria-label="Slide anterior">&#8249;</button>
+        <!-- Flecha siguiente -->
+        <button class="hero__arrow hero__arrow--next" id="hero-next" aria-label="Siguiente slide">&#8250;</button>
+
+        <!-- Indicadores de posición (puntos) -->
+        <div class="hero__dots" role="tablist" aria-label="Navegación del carrusel">
+        <button class="hero__dot active" role="tab" aria-selected="true"  aria-label="Ir al slide 1"></button>
+        <button class="hero__dot"        role="tab" aria-selected="false" aria-label="Ir al slide 2"></button>
+        <button class="hero__dot"        role="tab" aria-selected="false" aria-label="Ir al slide 3"></button>
+        </div>
+
+    </section>
+
+    <!-- ============================================================
+        SECCIÓN: CATEGORÍAS
+        4 tarjetas con imagen de fondo representando cada categoría
+    ============================================================ -->
+    <section class="section" id="categorias" aria-labelledby="cat-title">
+
+        <div class="section__header">
+        <div class="section__eyebrow">Descubre</div>
+        <h2 class="section__title" id="cat-title">Nuestras Colecciones</h2>
+        <p class="section__subtitle">Cada fragancia, una historia única</p>
+        </div>
+
+        <div class="categories-grid" role="list">
+
+        <!-- Categoría 1: Nicho -->
+        <article class="category-card" role="listitem" tabindex="0" aria-label="Categoría Nicho">
+            <div class="category-card__bg" style="background: 
+            radial-gradient(circle at 50% 30%, rgba(180,130,30,0.18) 0%, transparent 55%),
+            linear-gradient(to bottom, #1a1510, #0a0a08);"
+            aria-hidden="true"></div>
+            <div class="category-card__overlay" aria-hidden="true"></div>
+            <div class="category-card__content">
+            <div class="category-card__icon" aria-hidden="true">🏺</div>
+            <div class="category-card__name">Nicho</div>
+            <div class="category-card__count">+120 fragancias</div>
+            </div>
+            <div class="category-card__line" aria-hidden="true"></div>
+        </article>
+
+        <!-- Categoría 2: Oriental -->
+        <article class="category-card" role="listitem" tabindex="0" aria-label="Categoría Oriental">
+            <div class="category-card__bg" style="background:
+            radial-gradient(circle at 60% 40%, rgba(160,100,10,0.2) 0%, transparent 55%),
+            linear-gradient(to bottom, #130e08, #0a0a08);"
+            aria-hidden="true"></div>
+            <div class="category-card__overlay" aria-hidden="true"></div>
+            <div class="category-card__content">
+            <div class="category-card__icon" aria-hidden="true">🌙</div>
+            <div class="category-card__name">Oriental</div>
+            <div class="category-card__count">+85 fragancias</div>
+            </div>
+            <div class="category-card__line" aria-hidden="true"></div>
+        </article>
+
+        <!-- Categoría 3: Diseñador -->
+        <article class="category-card" role="listitem" tabindex="0" aria-label="Categoría Diseñador">
+            <div class="category-card__bg" style="background:
+            radial-gradient(circle at 40% 35%, rgba(140,95,15,0.18) 0%, transparent 55%),
+            linear-gradient(to bottom, #151209, #0a0a08);"
+            aria-hidden="true"></div>
+            <div class="category-card__overlay" aria-hidden="true"></div>
+            <div class="category-card__content">
+            <div class="category-card__icon" aria-hidden="true">💎</div>
+            <div class="category-card__name">Diseñador</div>
+            <div class="category-card__count">+200 fragancias</div>
+            </div>
+            <div class="category-card__line" aria-hidden="true"></div>
+        </article>
+
+        <!-- Categoría 4: Exclusivos -->
+        <article class="category-card" role="listitem" tabindex="0" aria-label="Categoría Exclusivos">
+            <div class="category-card__bg" style="background:
+            radial-gradient(circle at 55% 45%, rgba(170,120,20,0.2) 0%, transparent 55%),
+            linear-gradient(to bottom, #18140c, #0a0a08);"
+            aria-hidden="true"></div>
+            <div class="category-card__overlay" aria-hidden="true"></div>
+            <div class="category-card__content">
+            <div class="category-card__icon" aria-hidden="true">✨</div>
+            <div class="category-card__name">Exclusivos</div>
+            <div class="category-card__count">+45 fragancias</div>
+            </div>
+            <div class="category-card__line" aria-hidden="true"></div>
+        </article>
+
+        </div>
+    </section>
+
+    <!-- ============================================================
+        BANNER INTERMEDIO
+        Frase de marca inspiracional centrada
+    ============================================================ -->
+    <div class="banner-mid" aria-hidden="true">
+        <div class="banner-mid__ornament">❧</div>
+        <h2 class="banner-mid__title">
+        El perfume es la forma más intensa del <em>recuerdo</em>
+        </h2>
+        <a href="#productos" class="btn-primary">Descubrir Ahora</a>
+    </div>
+
+    <!-- ============================================================
+        SECCIÓN: PRODUCTOS DESTACADOS
+        Grid de 4 productos con nombre, marca, precio y acciones
+    ============================================================ -->
+    <section class="products-section" id="productos" aria-labelledby="prod-title">
+
+        <div class="section__header">
+        <div class="section__eyebrow">Selección</div>
+        <h2 class="section__title" id="prod-title">Productos Destacados</h2>
+        <p class="section__subtitle">Los favoritos de nuestra clientela</p>
+        </div>
+
+        <div class="products-grid" role="list">
+
+        <!-- Producto 1 -->
+        <article class="product-card" role="listitem" tabindex="0">
+            <div class="product-card__img-wrap">
+            <span class="product-card__placeholder" aria-hidden="true">🫙</span>
+            <span class="product-card__badge badge--new" aria-label="Producto nuevo">Nuevo</span>
+            <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
+            <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
+            </div>
+            <div class="product-card__info">
+            <div class="product-card__brand">Maison Francis Kurkdjian</div>
+            <div class="product-card__name">Baccarat Rouge 540 EDP</div>
+            <div class="product-card__price">$320.00</div>
+            </div>
+        </article>
+
+        <!-- Producto 2 -->
+        <article class="product-card" role="listitem" tabindex="0">
+            <div class="product-card__img-wrap">
+            <span class="product-card__placeholder" aria-hidden="true">🫙</span>
+            <span class="product-card__badge badge--excl" aria-label="Producto exclusivo">Exclusivo</span>
+            <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
+            <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
+            </div>
+            <div class="product-card__info">
+            <div class="product-card__brand">Tom Ford</div>
+            <div class="product-card__name">Oud Wood EDP 100ml</div>
+            <div class="product-card__price">$285.00</div>
+            </div>
+        </article>
+
+        <!-- Producto 3 -->
+        <article class="product-card" role="listitem" tabindex="0">
+            <div class="product-card__img-wrap">
+            <span class="product-card__placeholder" aria-hidden="true">🫙</span>
+            <span class="product-card__badge badge--sale" aria-label="Producto en oferta">Oferta</span>
+            <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
+            <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
+            </div>
+            <div class="product-card__info">
+            <div class="product-card__brand">Creed</div>
+            <div class="product-card__name">Aventus EDP 100ml</div>
+            <div class="product-card__price">
+                <s>$350.00</s> $295.00
+            </div>
+            </div>
+        </article>
+
+        <!-- Producto 4 -->
+        <article class="product-card" role="listitem" tabindex="0">
+            <div class="product-card__img-wrap">
+            <span class="product-card__placeholder" aria-hidden="true">🫙</span>
+            <span class="product-card__badge badge--new" aria-label="Producto nuevo">Nuevo</span>
+            <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
+            <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
+            </div>
+            <div class="product-card__info">
+            <div class="product-card__brand">Xerjoff</div>
+            <div class="product-card__name">Naxos EDP 50ml</div>
+            <div class="product-card__price">$230.00</div>
+            </div>
+        </article>
+
+        </div>
+    </section>
+
+    <!-- ============================================================
+        SECCIÓN: MARCAS
+        Lista de marcas representadas en la tienda
+    ============================================================ -->
+    <section class="brands-section" aria-labelledby="brands-title">
+        <div class="section__header">
+        <div class="section__eyebrow">Trabajamos con</div>
+        <h2 class="section__title" id="brands-title" style="font-size:28px;">Grandes Maisons</h2>
+        </div>
+        <nav class="brands-list" aria-label="Marcas disponibles">
+        <span class="brand-item">Chanel</span>
+        <span class="brand-item">Dior</span>
+        <span class="brand-item">Tom Ford</span>
+        <span class="brand-item">Creed</span>
+        <span class="brand-item">Xerjoff</span>
+        <span class="brand-item">MFK</span>
+        <span class="brand-item">Amouage</span>
+        <span class="brand-item">Roja Parfums</span>
+        <span class="brand-item">Byredo</span>
+        <span class="brand-item">Initio</span>
+        </nav>
+    </section>
+
+    <!-- ============================================================
+        FOOTER
+    ============================================================ -->
+    <footer class="footer" role="contentinfo">
+        <p class="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
+        <a href="#" class="footer__back" aria-label="Volver al inicio de la página">↑ Volver Arriba</a>
+    </footer>
+
+    <!-- ============================================================
+        MENÚ LATERAL (DRAWER)
+        Panel navegacional que se desliza desde la derecha
+    ============================================================ -->
+    <!-- Overlay oscuro que cierra el drawer al hacer clic -->
+    <div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+
+    <nav class="drawer" id="drawer" role="navigation" aria-label="Menú principal" aria-hidden="true">
+        <button class="drawer__close" id="drawer-close" aria-label="Cerrar menú">✕</button>
+        <div class="drawer__logo" aria-hidden="true">OrientPerfumes</div>
+        <ul class="drawer__nav">
+        <li><a href="#categorias">Fragancias Orientales</a></li>
+        <li><a href="#categorias">Perfumería Nicho</a></li>
+        <li><a href="#categorias">Grandes Diseñadores</a></li>
+        <li><a href="#productos">Novedades</a></li>
+        <li><a href="#productos">Ofertas</a></li>
+        <li><a href="#productos">Exclusivos</a></li>
+        <li><a href="#">Acerca de Nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- ============================================================
+        JAVASCRIPT
+        Toda la lógica de interacción en un único bloque al final
+    ============================================================ -->
+    <!--
+    Lógica de interacción — separada en js/main.js
+    Se carga al final del body para no bloquear el renderizado.
+    -->
+    <script src="js/app.js"></script>
+
+</body>
+</html>
