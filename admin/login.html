@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — OrientPerfumes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Cinzel:wght@400;500;600&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A;
+      --dark: #0A0A08; --dark-mid: #111110; --dark-surface: #1A1916;
+      --cream: #F5F0E8; --cream-muted: #C8C0B0;
+      --danger: #E05252;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-label: 'Cinzel', serif;
+      --font-body: 'Lato', sans-serif;
+      --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-weight: 300;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Ornamental background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201,168,76,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,168,76,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-brand img {
+      width: 64px; height: 64px;
+      object-fit: contain;
+      margin: 0 auto 14px;
+      filter: drop-shadow(0 0 10px rgba(201,168,76,0.35));
+    }
+    .login-brand__name {
+      font-family: var(--font-label);
+      font-size: 16px;
+      letter-spacing: 0.28em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .login-brand__sub {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      color: var(--cream-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .login-card {
+      background: var(--dark-surface);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 10px;
+      padding: 36px 32px;
+    }
+
+    .login-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--cream);
+      text-align: center;
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+    }
+    .login-subtitle {
+      font-size: 12px;
+      color: var(--cream-muted);
+      text-align: center;
+      margin-bottom: 28px;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block;
+      font-family: var(--font-label);
+      font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 7px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--dark-mid);
+      border: 1px solid rgba(201,168,76,0.18);
+      border-radius: 4px;
+      padding: 11px 14px;
+      color: var(--cream); font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color var(--transition);
+    }
+    .form-input:focus { border-color: var(--gold); }
+    .form-input::placeholder { color: var(--cream-muted); opacity: 0.5; }
+
+    .btn-login {
+      width: 100%;
+      background: var(--gold);
+      color: var(--dark);
+      border: none;
+      border-radius: 4px;
+      padding: 13px;
+      font-family: var(--font-label);
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--transition);
+      margin-top: 8px;
+    }
+    .btn-login:hover { background: var(--gold-light); }
+
+    .error-msg {
+      background: rgba(224,82,82,0.1);
+      border: 1px solid rgba(224,82,82,0.3);
+      border-radius: 4px;
+      color: var(--danger);
+      font-size: 12px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .login-hint {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .login-hint a {
+      font-size: 11px;
+      color: var(--cream-muted);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color var(--transition);
+    }
+    .login-hint a:hover { color: var(--gold); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0 18px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: rgba(201,168,76,0.12);
+    }
+    .divider span {
+      font-family: var(--font-label);
+      font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(201,168,76,0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <img src="../assets/logo.png" alt="OrientPerfumes">
+      <div class="login-brand__name">OrientPerfumes</div>
+      <div class="login-brand__sub">Panel de Administración</div>
+    </div>
+
+    <div class="login-card">
+      <h1 class="login-title">Acceso Restringido</h1>
+      <p class="login-subtitle">Introduce tus credenciales de administrador</p>
+
+      <div class="error-msg" id="errorMsg">Credenciales incorrectas. Inténtalo de nuevo.</div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="emailInput">Correo Electrónico</label>
+          <input type="email" id="emailInput" class="form-input" placeholder="admin@perfumeria.com" required autocomplete="username email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="passInput">Contraseña</label>
+          <input type="password" id="passInput" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
+      </form>
+
+      <div class="divider"><span>Acceso rápido</span></div>
+      <div style="font-size:11px;color:var(--cream-muted);text-align:center;line-height:1.8;">
+        <span style="color:var(--gold);">admin@perfumeria.com</span> / admin123<br>
+        <span style="color:var(--gold);">manager@perfumeria.com</span> / manager123
+      </div>
+    </div>
+
+    <div class="login-hint">
+      <a href="../index.html">← Volver a la tienda</a>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_SESSION_KEY = 'op_admin_session';
+    const ADMIN_USERS = [
+      { id: '1', email: 'admin@perfumeria.com',   password: 'admin123',   name: 'Administrator', role: 'admin' },
+      { id: '2', email: 'manager@perfumeria.com', password: 'manager123', name: 'Store Manager',  role: 'manager' },
+    ];
+
+    // Redirect if already logged in
+    (function () {
+      var raw = localStorage.getItem(ADMIN_SESSION_KEY);
+      if (raw) { try { if (JSON.parse(raw)) window.location.href = 'index.html'; } catch (e) {} }
+    })();
+
+    function handleLogin(e) {
+      e.preventDefault();
+      var email = document.getElementById('emailInput').value.trim().toLowerCase();
+      var pass  = document.getElementById('passInput').value;
+      var errEl = document.getElementById('errorMsg');
+
+      var user = ADMIN_USERS.find(function (u) { return u.email === email && u.password === pass; });
+      if (user) {
+        var session = { id: user.id, email: user.email, name: user.name, role: user.role };
+        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+        window.location.href = 'index.html';
+      } else {
+        errEl.classList.add('show');
+        document.getElementById('passInput').value = '';
+        document.getElementById('passInput').focus();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos — OrientPerfumes Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-main">
+    <header class="admin-header">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="admin-header__right">
+        <div class="admin-user-info">
+          <span class="admin-user-info__name" id="adminUserName">Admin</span>
+          <span class="admin-user-info__role" id="adminUserRole">(admin)</span>
+        </div>
+        <button class="btn-logout" onclick="adminLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Salir
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="page-header">
+        <h1 class="page-title">Productos</h1>
+        <p class="page-subtitle">Gestiona el catálogo de fragancias</p>
+      </div>
+
+      <div class="page-toolbar">
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar productos...">
+        </div>
+        <button class="btn btn-gold" onclick="openProductModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Nuevo Producto
+        </button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card__body table-wrapper">
+          <table class="admin-table">
+            <thead><tr>
+              <th>Producto</th><th>Marca</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Nuevo Producto</h3>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" id="modalSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/admin-data.js"></script>
+<script src="js/admin-core.js"></script>
+<script>
+  var editingId = null;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    initAdminLayout();
+    renderTable();
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+      renderTable(this.value);
+    });
+  });
+
+  function renderTable(search) {
+    search = (search || '').toLowerCase();
+    var items = AdminDB.get('products').filter(function (p) {
+      return !search || p.name.toLowerCase().includes(search) || (p.brand || '').toLowerCase().includes(search);
+    });
+    var tbody = document.getElementById('tableBody');
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--cream-muted)">No se encontraron productos</td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(function (p) {
+      var stockClass = p.stock < 20 ? 'stock-low' : 'stock-ok';
+      return '<tr>' +
+        '<td><strong style="color:var(--cream);">' + p.name + '</strong></td>' +
+        '<td>' + (p.brand || '—') + '</td>' +
+        '<td>' + (p.category || '—') + '</td>' +
+        '<td class="bold">€' + p.price + '</td>' +
+        '<td class="' + stockClass + '">' + p.stock + (p.stock < 20 ? ' ⚠' : '') + '</td>' +
+        '<td><div class="action-btns">' +
+          '<button class="btn btn-outline btn-sm" onclick="openProductModal(\'' + p.id + '\')">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>' +
+          '</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteProduct(\'' + p.id + '\')">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+          '</button>' +
+        '</div></td></tr>';
+    }).join('');
+  }
+
+  function openProductModal(id) {
+    editingId = id || null;
+    var brands     = AdminDB.get('brands');
+    var categories = AdminDB.get('categories');
+    var prod = id ? AdminDB.getOne('products', id) : null;
+
+    var brandOpts = brands.map(function (b) {
+      return '<option value="' + b.name + '"' + (prod && prod.brand === b.name ? ' selected' : '') + '>' + b.name + '</option>';
+    }).join('');
+    var catOpts = categories.map(function (c) {
+      return '<option value="' + c.name + '"' + (prod && prod.category === c.name ? ' selected' : '') + '>' + c.name + '</option>';
+    }).join('');
+
+    var body =
+      '<div class="form-group"><label class="form-label">Nombre *</label>' +
+        '<input class="form-input" id="fName" value="' + (prod ? prod.name : '') + '" placeholder="Nombre del producto"></div>' +
+      '<div class="form-grid-2">' +
+        '<div class="form-group"><label class="form-label">Marca *</label>' +
+          '<select class="form-select" id="fBrand"><option value="">Seleccionar</option>' + brandOpts + '</select></div>' +
+        '<div class="form-group"><label class="form-label">Categoría</label>' +
+          '<select class="form-select" id="fCategory"><option value="">Seleccionar</option>' + catOpts + '</select></div>' +
+      '</div>' +
+      '<div class="form-group"><label class="form-label">Descripción</label>' +
+        '<textarea class="form-textarea" id="fDesc" placeholder="Descripción del producto">' + (prod ? prod.description : '') + '</textarea></div>' +
+      '<div class="form-grid-2">' +
+        '<div class="form-group"><label class="form-label">Precio (€) *</label>' +
+          '<input class="form-input" id="fPrice" type="number" min="0" value="' + (prod ? prod.price : '') + '" placeholder="0.00"></div>' +
+        '<div class="form-group"><label class="form-label">Stock</label>' +
+          '<input class="form-input" id="fStock" type="number" min="0" value="' + (prod ? prod.stock : '') + '" placeholder="0"></div>' +
+      '</div>' +
+      '<div class="form-group"><label class="form-label">URL de Imagen</label>' +
+        '<input class="form-input" id="fImage" value="' + (prod && prod.images && prod.images[0] ? prod.images[0] : '') + '" placeholder="https://..."></div>';
+
+    openModal(id ? 'Editar Producto' : 'Nuevo Producto', body, saveProduct);
+  }
+
+  function saveProduct() {
+    var name  = document.getElementById('fName').value.trim();
+    var brand = document.getElementById('fBrand').value;
+    var price = parseFloat(document.getElementById('fPrice').value);
+
+    if (!name || !brand || isNaN(price)) {
+      showToast('Completa los campos requeridos (Nombre, Marca, Precio)', 'error');
+      return;
+    }
+    var data = {
+      name: name,
+      brand: brand,
+      category: document.getElementById('fCategory').value,
+      description: document.getElementById('fDesc').value.trim(),
+      price: price,
+      stock: parseInt(document.getElementById('fStock').value) || 0,
+      images: [document.getElementById('fImage').value.trim()],
+      featured: false,
+    };
+    if (editingId) {
+      AdminDB.update('products', editingId, data);
+      showToast('Producto actualizado', 'success');
+    } else {
+      AdminDB.create('products', data);
+      showToast('Producto creado', 'success');
+    }
+    closeModal();
+    renderTable();
+  }
+
+  function deleteProduct(id) {
+    confirmAction('¿Eliminar este producto?', function () {
+      AdminDB.delete('products', id);
+      showToast('Producto eliminado', 'info');
+      renderTable();
+    });
+  }
+</script>
+</body>
+</html>

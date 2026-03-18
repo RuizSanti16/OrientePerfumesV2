@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario — OrientPerfumes Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-main">
+    <header class="admin-header">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="admin-header__right">
+        <div class="admin-user-info">
+          <span class="admin-user-info__name" id="adminUserName">Admin</span>
+          <span class="admin-user-info__role" id="adminUserRole">(admin)</span>
+        </div>
+        <button class="btn-logout" onclick="adminLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Salir
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="page-header">
+        <h1 class="page-title">Inventario</h1>
+        <p class="page-subtitle">Control de stock y movimientos</p>
+      </div>
+
+      <!-- Stock actual -->
+      <div class="admin-card" style="margin-bottom:24px;">
+        <div class="admin-card__header">
+          <span class="admin-card__title">Stock Actual por Producto</span>
+          <button class="btn btn-gold btn-sm" onclick="openAdjustModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Ajustar Stock
+          </button>
+        </div>
+        <div class="admin-card__body table-wrapper">
+          <table class="admin-table" id="stockTable">
+            <thead><tr><th>Producto</th><th>Marca</th><th>Categoría</th><th>Precio</th><th>Stock Actual</th><th>Estado</th></tr></thead>
+            <tbody id="stockBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Movimientos -->
+      <div class="admin-card">
+        <div class="admin-card__header"><span class="admin-card__title">Historial de Movimientos</span></div>
+        <div class="admin-card__body table-wrapper">
+          <table class="admin-table">
+            <thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Motivo</th></tr></thead>
+            <tbody id="movBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Ajustar Stock</h3>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" id="modalSaveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/admin-data.js"></script>
+<script src="js/admin-core.js"></script>
+<script>
+  var TYPE_LABELS = { entrada: 'Entrada', salida: 'Salida', ajuste: 'Ajuste' };
+  var TYPE_CLASS  = { entrada: 'badge-green', salida: 'badge-red', ajuste: 'badge-orange' };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    initAdminLayout();
+    renderStock();
+    renderMovements();
+  });
+
+  function renderStock() {
+    var products = AdminDB.get('products');
+    var tbody = document.getElementById('stockBody');
+    if (products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--cream-muted)">No hay productos</td></tr>';
+      return;
+    }
+    tbody.innerHTML = products.map(function (p) {
+      var isLow = p.stock < 20;
+      return '<tr>' +
+        '<td><strong style="color:var(--cream);">' + p.name + '</strong></td>' +
+        '<td>' + (p.brand || '—') + '</td>' +
+        '<td>' + (p.category || '—') + '</td>' +
+        '<td class="bold">€' + p.price + '</td>' +
+        '<td class="' + (isLow ? 'stock-low' : 'stock-ok') + ' bold">' + p.stock + '</td>' +
+        '<td>' + (isLow
+          ? '<span class="badge badge-red">Stock Bajo</span>'
+          : '<span class="badge badge-green">OK</span>') + '</td></tr>';
+    }).join('');
+  }
+
+  function renderMovements() {
+    var movs = AdminDB.get('inventory').sort(function (a, b) { return b.date > a.date ? 1 : -1; });
+    var tbody = document.getElementById('movBody');
+    if (movs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--cream-muted)">No hay movimientos</td></tr>';
+      return;
+    }
+    tbody.innerHTML = movs.map(function (m) {
+      var qtyDisplay = m.type === 'salida' ? '-' + Math.abs(m.quantity) : (m.type === 'ajuste' ? (m.quantity >= 0 ? '+' + m.quantity : m.quantity) : '+' + m.quantity);
+      return '<tr>' +
+        '<td>' + m.date + '</td>' +
+        '<td><strong style="color:var(--cream);">' + m.productName + '</strong></td>' +
+        '<td><span class="badge ' + (TYPE_CLASS[m.type] || 'badge-gray') + '">' + (TYPE_LABELS[m.type] || m.type) + '</span></td>' +
+        '<td class="bold">' + qtyDisplay + '</td>' +
+        '<td>' + (m.reason || '—') + '</td></tr>';
+    }).join('');
+  }
+
+  function openAdjustModal() {
+    var products = AdminDB.get('products');
+    var prodOpts = products.map(function (p) {
+      return '<option value="' + p.id + '">' + p.name + ' (stock actual: ' + p.stock + ')</option>';
+    }).join('');
+    var body =
+      '<div class="form-group"><label class="form-label">Producto *</label>' +
+        '<select class="form-select" id="fProduct"><option value="">Seleccionar</option>' + prodOpts + '</select></div>' +
+      '<div class="form-grid-2">' +
+        '<div class="form-group"><label class="form-label">Tipo de Movimiento</label>' +
+          '<select class="form-select" id="fType">' +
+            '<option value="entrada">Entrada</option>' +
+            '<option value="salida">Salida</option>' +
+            '<option value="ajuste">Ajuste</option>' +
+          '</select></div>' +
+        '<div class="form-group"><label class="form-label">Cantidad *</label>' +
+          '<input class="form-input" id="fQty" type="number" placeholder="0" value="0"></div>' +
+      '</div>' +
+      '<div class="form-group"><label class="form-label">Motivo</label>' +
+        '<input class="form-input" id="fReason" placeholder="Ej: Compra, Venta, Daño..."></div>';
+    openModal('Ajustar Stock', body, saveAdjust);
+  }
+
+  function saveAdjust() {
+    var prodSel = document.getElementById('fProduct');
+    var qty     = parseInt(document.getElementById('fQty').value) || 0;
+    var type    = document.getElementById('fType').value;
+    if (!prodSel.value || qty === 0) { showToast('Selecciona producto y cantidad válida', 'error'); return; }
+    var prod = AdminDB.getOne('products', prodSel.value);
+    if (!prod) return;
+    var delta = type === 'salida' ? -Math.abs(qty) : (type === 'ajuste' ? qty : Math.abs(qty));
+    var newStock = Math.max(0, prod.stock + delta);
+    AdminDB.update('products', prod.id, { stock: newStock });
+    AdminDB.create('inventory', {
+      date: new Date().toISOString().split('T')[0],
+      productId: prod.id,
+      productName: prod.name,
+      type: type,
+      quantity: delta,
+      reason: document.getElementById('fReason').value.trim() || type,
+    });
+    showToast('Stock actualizado a ' + newStock + ' unidades', 'success');
+    closeModal();
+    renderStock();
+    renderMovements();
+  }
+</script>
+</body>
+</html>
