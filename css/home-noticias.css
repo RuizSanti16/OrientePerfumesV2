@@ -1,0 +1,147 @@
+/*
+==============================================================
+  home-noticias.css — Estilos del preview de Noticias en index
+  OrientPerfumes · Versión 1.0
+
+  AGREGAR AL FINAL DE css/style.css
+  (o importar como archivo separado desde index.html)
+
+  Este bloque estiliza:
+  - La sección .home-noticias que aparece en el inicio
+  - Las tarjetas .home-launch-card del grid de preview
+==============================================================
+*/
+
+/* ============================================================
+   SECCIÓN NOTICIAS PREVIEW — En el inicio (index.html)
+   Reutiliza .section__header y .section__eyebrow de style.css.
+   Solo agrega el grid y las tarjetas específicas.
+============================================================ */
+.home-noticias {
+  
+  padding: 80px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Separador visual respecto a la sección de marcas */
+  border-top: 1px solid rgba(201,168,76,0.15);
+}
+
+/* Grid 2x2 de tarjetas de lanzamiento */
+.home-noticias__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* Botón "Ver todas las noticias" centrado */
+.home-noticias__cta {
+  display: flex;
+  justify-content: center;
+}
+
+.home-noticias__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 2px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: #C9A84C;
+  text-transform: uppercase;
+  transition: background 0.28s ease, color 0.28s ease, transform 0.28s ease;
+}
+
+.home-noticias__btn:hover {
+  background: #C9A84C;
+  color: #0a0a08;
+  transform: translateY(-1px);
+}
+
+/* ── Tarjeta de lanzamiento en el home ──────────────────── */
+.home-launch-card {
+  background: #111109;
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.28s ease, transform 0.28s ease;
+}
+
+.home-launch-card:hover {
+  border-color: #C9A84C;
+  transform: translateY(-3px);
+}
+
+/* Imagen real del producto */
+.home-launch-card__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/* Placeholder cuando no hay imagen */
+.home-launch-card__img-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #1a1a14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+/* Bloque de info debajo de la imagen */
+.home-launch-card__info {
+  padding: 12px 14px 16px;
+}
+
+/* Etiqueta / badge */
+.home-launch-card__badge {
+  display: inline-block;
+  padding: 2px 10px;
+  margin-bottom: 6px;
+  border: 1px solid #C9A84C;
+  border-radius: 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: #C9A84C;
+  text-transform: uppercase;
+}
+
+/* Nombre del producto */
+.home-launch-card__name {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #f5f0e8;
+  margin-bottom: 4px;
+}
+
+/* Descripción corta */
+.home-launch-card__desc {
+  font-size: 0.75rem;
+  color: #888880;
+  line-height: 1.5;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .home-noticias__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .home-noticias {
+    padding: 60px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-noticias__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}

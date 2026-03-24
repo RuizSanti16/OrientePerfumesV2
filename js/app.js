@@ -279,3 +279,40 @@
 
     // Arrancar el módulo de sesión al cargar el DOM
     document.addEventListener('DOMContentLoaded', initSession);
+// ============================================================
+// app.js — Lógica principal de OrientPerfumes
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ── DRAWER (Menú lateral) ──────────────────────────────────
+  const toggle  = document.getElementById('menu-toggle');
+  const close   = document.getElementById('drawer-close');
+  const overlay = document.getElementById('drawer-overlay');
+  const drawer  = document.getElementById('drawer');
+
+  function abrirDrawer() {
+    drawer.classList.add('active');
+    overlay.classList.add('active');
+    drawer.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarDrawer() {
+    drawer.classList.remove('active');
+    overlay.classList.remove('active');
+    drawer.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', abrirDrawer);
+  close?.addEventListener('click', cerrarDrawer);
+  overlay?.addEventListener('click', cerrarDrawer);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarDrawer();
+  });
+
+});
