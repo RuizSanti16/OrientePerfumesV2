@@ -1,0 +1,936 @@
+/*
+==============================================================
+  noticias.css — Hoja de estilos de la sección Noticias
+  OrientPerfumes · Versión 1.0
+
+  ESTRUCTURA DE ESTE ARCHIVO:
+  1. Variables CSS (tokens de diseño)
+  2. Reset y base
+  3. Announcement Bar
+  4. Header & Navegación
+  5. Hero de Noticias
+  6. Grid principal (2 columnas)
+  7. Sección Video
+  8. Sección Comentarios
+  9. Sección Nuevos Lanzamientos
+  10. Footer
+  11. Drawer (menú lateral)
+  12. Utilidades y estados
+  13. Media Queries (responsive)
+==============================================================
+*/
+
+/* ============================================================
+   1. VARIABLES CSS — Design Tokens
+   Mismo sistema de color/tipografía que index.html
+============================================================ */
+:root {
+  /* Paleta principal */
+  --black:       #0a0a08;         /* negro profundo de fondo */
+  --black-mid:   #111109;         /* negro medio para cards */
+  --black-light: #1a1a14;         /* negro claro para hover/borders */
+  --gold:        #C9A84C;         /* dorado principal */
+  --gold-light:  #e8c96d;         /* dorado más brillante (hover) */
+  --gold-dim:    rgba(201,168,76,0.15); /* dorado muy tenue (fondos) */
+  --gold-border: rgba(201,168,76,0.25); /* dorado para bordes */
+  --white:       #f5f0e8;         /* blanco cálido para texto */
+  --grey:        #888880;         /* gris para texto secundario */
+  --grey-light:  rgba(245,240,232,0.08); /* gris muy tenue */
+
+  /* Tipografía */
+  --font-serif:  'Cormorant Garamond', Georgia, serif;
+  --font-roman:  'Cinzel', serif;
+  --font-sans:   'Lato', system-ui, sans-serif;
+
+  /* Espaciado */
+  --gap-sm:   12px;
+  --gap-md:   24px;
+  --gap-lg:   40px;
+  --gap-xl:   64px;
+
+  /* Radio de borde */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* Transiciones */
+  --transition: 0.28s ease;
+
+  /* Ancho máximo del layout */
+  --max-width: 1200px;
+}
+
+/* ============================================================
+   2. RESET Y BASE
+============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--black);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+/* Clase utilitaria para ocultar visualmente */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Oculta un elemento completamente */
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   3. ANNOUNCEMENT BAR
+   Barra superior de anuncios con texto que se desplaza.
+   Mismo componente que index.html.
+============================================================ */
+.announcement-bar {
+  background: var(--black-mid);
+  border-bottom: 1px solid var(--gold-border);
+  overflow: hidden;
+  height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+.announcement-bar__track {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  white-space: nowrap;
+}
+
+.announcement-bar__text {
+  font-family: var(--font-roman);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  padding: 0 var(--gap-xl);
+}
+
+.announcement-bar__text span {
+  margin: 0 var(--gap-md);
+  opacity: 0.5;
+}
+
+/* Animación del marquee infinito */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   4. HEADER & NAVEGACIÓN
+   Header fijo con logo, nav y acciones. 
+   Idéntico al de index.html para coherencia.
+============================================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  padding: 0 var(--gap-lg);
+  height: 80px;
+  background: rgba(10,10,8,0.97);
+  border-bottom: 1px solid var(--gold-border);
+  backdrop-filter: blur(12px);
+}
+
+/* Logo */
+.header__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  flex-shrink: 0;
+  color: var(--gold);
+  transition: opacity var(--transition);
+}
+
+.header__logo:hover { opacity: 0.8; }
+
+.logo-icon svg rect, .logo-icon svg text {
+  transition: all var(--transition);
+}
+
+.logo-text__name {
+  font-family: var(--font-roman);
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+}
+
+.logo-text__tagline {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--grey);
+  margin-top: 2px;
+}
+
+/* Navegación principal (visible en escritorio) */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  margin: 0 auto;
+}
+
+.nav-link {
+  font-family: var(--font-roman);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: var(--white);
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 2px;
+  transition: color var(--transition);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width var(--transition);
+}
+
+.nav-link:hover,
+.nav-link--active {
+  color: var(--gold);
+}
+
+.nav-link:hover::after,
+.nav-link--active::after {
+  width: 100%;
+}
+
+/* Iconos de acción */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  transition: background var(--transition), transform var(--transition);
+  position: relative;
+}
+
+.action-btn:hover {
+  background: var(--gold-dim);
+  transform: translateY(-1px);
+}
+
+/* Botón hamburguesa */
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.menu-btn span {
+  display: block;
+  width: 22px; height: 1.5px;
+  background: var(--gold);
+  transition: all var(--transition);
+}
+
+.menu-btn:hover { background: var(--gold-dim); }
+
+/* ============================================================
+   5. HERO DE NOTICIAS
+   Encabezado de la sección con título ornamental.
+============================================================ */
+.noticias-hero {
+  text-align: center;
+  padding: var(--gap-xl) var(--gap-lg) var(--gap-lg);
+  position: relative;
+}
+
+/* Etiqueta pequeña sobre el título */
+.section__eyebrow {
+  font-family: var(--font-roman);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--gap-sm);
+}
+
+.noticias-hero__title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1.1;
+  margin-bottom: var(--gap-sm);
+}
+
+/* La palabra en cursiva dentro del título */
+.noticias-hero__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--white);
+}
+
+/* Ornamento decorativo tipográfico */
+.noticias-hero__ornament {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--gold-border);
+  margin-top: var(--gap-sm);
+}
+
+/* ============================================================
+   6. GRID PRINCIPAL — Dos columnas
+   Izquierda: 60% → Video + Comentarios
+   Derecha:   38% → Nuevos Lanzamientos
+============================================================ */
+.noticias-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gap-lg) var(--gap-xl);
+}
+
+.noticias-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--gap-lg);
+  align-items: start;
+}
+
+/* Etiquetas de sección internas */
+.section-label {
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid var(--gold-border);
+}
+
+/* ============================================================
+   7. SECCIÓN VIDEO
+   Reproductor de video con aspect ratio 16:9.
+   Muestra un placeholder elegante cuando no hay video.
+============================================================ */
+.video-section {
+  margin-bottom: var(--gap-lg);
+}
+
+/* Contenedor con proporción 16:9 */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--black-mid);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* Placeholder visible antes de configurar un video */
+.video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-md);
+  background: linear-gradient(135deg, #111109 0%, #0a0a08 100%);
+}
+
+.video-placeholder__icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--gold);
+  transition: background var(--transition), transform var(--transition);
+}
+
+.video-placeholder:hover .video-placeholder__icon {
+  background: rgba(201,168,76,0.25);
+  transform: scale(1.06);
+}
+
+.video-placeholder__text {
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--grey);
+}
+
+/* El video ocupa todo el wrapper cuando está visible */
+.main-video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* Iframe embebido (YouTube, Vimeo) cuando el admin pega URL */
+.video-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* Info debajo del video */
+.video-info {
+  padding: var(--gap-md) 0 0;
+}
+
+.video-info__title {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.video-info__desc {
+  font-size: 0.9rem;
+  color: var(--grey);
+  line-height: 1.7;
+}
+
+/* ============================================================
+   8. SECCIÓN COMENTARIOS
+   Formulario para dejar comentarios + lista de comentarios
+   aprobados. Cada comentario tiene botones de reacción.
+============================================================ */
+.comentarios-section {
+  margin-bottom: var(--gap-lg);
+}
+
+/* Formulario */
+.comentario-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-md);
+  background: var(--black-mid);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+}
+
+.form-input,
+.form-textarea {
+  background: var(--black-light);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color var(--transition);
+  resize: vertical;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--grey);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Botón primario (reutilizable) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+  color: var(--black);
+  transform: translateY(-1px);
+}
+
+/* Lista de comentarios */
+.comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Tarjeta individual de comentario */
+.comentario-card {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: var(--gap-sm);
+  align-items: start;
+  padding: var(--gap-sm) var(--gap-md);
+  background: var(--black-mid);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+  animation: fadeInUp 0.35s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Avatar circular */
+.comentario-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+/* Nombre y texto del comentario */
+.comentario-body {}
+
+.comentario-nombre {
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.comentario-texto {
+  font-size: 0.85rem;
+  color: var(--white);
+  line-height: 1.55;
+}
+
+/* Acciones: like / dislike */
+.comentario-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.reaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--grey);
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+}
+
+/* Like */
+.reaction-btn--like:hover,
+.reaction-btn--like.active {
+  color: #4caf50;
+  border-color: rgba(76,175,80,0.4);
+  background: rgba(76,175,80,0.08);
+}
+
+/* Dislike */
+.reaction-btn--dislike:hover,
+.reaction-btn--dislike.active {
+  color: #f44336;
+  border-color: rgba(244,67,54,0.4);
+  background: rgba(244,67,54,0.08);
+}
+
+/* Mensaje cuando no hay comentarios aún */
+.comentarios-empty {
+  text-align: center;
+  padding: var(--gap-lg);
+  color: var(--grey);
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   9. SECCIÓN NUEVOS LANZAMIENTOS
+   Grilla 2x2 de tarjetas de producto en la columna derecha.
+============================================================ */
+.lanzamientos-section {
+  position: sticky;
+  top: 96px; /* header height + gap */
+}
+
+.lanzamientos-title {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-md);
+  border-bottom: 1px solid var(--gold-border);
+}
+
+/* Grid 2 columnas para las tarjetas */
+.lanzamientos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-sm);
+}
+
+/* Tarjeta de lanzamiento */
+.launch-card {
+  background: var(--black-mid);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color var(--transition), transform var(--transition);
+  cursor: pointer;
+}
+
+.launch-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+/* Encabezado de la tarjeta */
+.launch-card__header {
+  padding: var(--gap-sm) var(--gap-sm) 4px;
+  font-family: var(--font-roman);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--grey);
+  text-transform: uppercase;
+}
+
+/* Badge "Próximamente" */
+.launch-card__badge {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 0 var(--gap-sm) var(--gap-sm);
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  font-family: var(--font-roman);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Descripción corta */
+.launch-card__desc {
+  padding: 0 var(--gap-sm) var(--gap-sm);
+  font-size: 0.75rem;
+  color: var(--grey);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Imagen del producto */
+.launch-card__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--black-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Placeholder cuando no hay imagen */
+.launch-card__img-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--black-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-roman);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--grey);
+}
+
+/* Cuando no hay lanzamientos configurados */
+.lanzamientos-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--gap-lg);
+  color: var(--grey);
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   10. FOOTER
+   Mismo footer minimalista que index.html.
+============================================================ */
+.footer {
+  border-top: 1px solid var(--gold-border);
+  padding: var(--gap-md) var(--gap-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--black-mid);
+}
+
+.footer__copy {
+  font-family: var(--font-roman);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--grey);
+}
+
+.footer__back {
+  font-family: var(--font-roman);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  transition: opacity var(--transition);
+}
+
+.footer__back:hover { opacity: 0.7; }
+
+/* ============================================================
+   11. DRAWER (Menú lateral)
+   Panel que aparece desde la derecha al pulsar el botón ≡.
+============================================================ */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+.drawer-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: min(360px, 90vw);
+  height: 100%;
+  background: var(--black-mid);
+  border-left: 1px solid var(--gold-border);
+  z-index: 201;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  padding: var(--gap-xl) var(--gap-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.drawer.active {
+  transform: translateX(0);
+}
+
+.drawer__close {
+  position: absolute;
+  top: var(--gap-md); right: var(--gap-md);
+  font-size: 18px;
+  color: var(--grey);
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+}
+
+.drawer__close:hover {
+  color: var(--white);
+  background: var(--grey-light);
+}
+
+.drawer__logo {
+  font-family: var(--font-roman);
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.drawer__nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer__nav li a {
+  display: block;
+  padding: 10px 0;
+  font-family: var(--font-roman);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: var(--white);
+  border-bottom: 1px solid var(--grey-light);
+  transition: color var(--transition), padding-left var(--transition);
+}
+
+.drawer__nav li a:hover {
+  color: var(--gold);
+  padding-left: 6px;
+}
+
+/* ============================================================
+   12. UTILIDADES Y ESTADOS
+============================================================ */
+
+/* Mensaje de éxito al enviar comentario */
+.toast {
+  position: fixed;
+  bottom: var(--gap-md);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gold);
+  color: var(--black);
+  font-family: var(--font-roman);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   13. MEDIA QUERIES — Diseño Responsivo
+============================================================ */
+
+/* Tableta (≤ 900px): layout de una columna */
+@media (max-width: 900px) {
+  .noticias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lanzamientos-section {
+    position: static;
+    /* La sección de lanzamientos aparece arriba en móvil */
+    order: -1;
+  }
+
+  .lanzamientos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header__nav {
+    display: none; /* Se accede por el drawer en móvil */
+  }
+
+  .header {
+    padding: 0 var(--gap-md);
+    gap: var(--gap-md);
+  }
+}
+
+/* Móvil pequeño (≤ 480px) */
+@media (max-width: 480px) {
+  .noticias-hero__title {
+    font-size: 2rem;
+  }
+
+  .lanzamientos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: var(--gap-sm);
+    text-align: center;
+  }
+
+  .noticias-main {
+    padding: 0 var(--gap-md) var(--gap-lg);
+  }
+}
