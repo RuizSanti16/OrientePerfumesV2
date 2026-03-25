@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noticias — OrientPerfumes Admin</title>
+
+  <!--
+    RUTA CSS:
+    Este archivo está en admin/noticias.html
+    El CSS del admin está en admin/css/admin.css → ruta relativa: css/admin.css
+  -->
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-main">
+    <header class="admin-header">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <div class="admin-header__right">
+        <div class="admin-user-info">
+          <span class="admin-user-info__name" id="adminUserName">Admin</span>
+          <span class="admin-user-info__role" id="adminUserRole">(admin)</span>
+        </div>
+        <button class="btn-logout" onclick="adminLogout()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Salir
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <div class="page-header">
+        <h1 class="page-title">Noticias</h1>
+        <p class="page-subtitle">Gestiona el video, los lanzamientos y los comentarios de la sección pública</p>
+      </div>
+
+      <!--
+        TABS DE NAVEGACIÓN
+        Tres pestañas: Video · Lanzamientos · Comentarios
+        El JS activa/desactiva los paneles según la pestaña seleccionada.
+      -->
+      <div class="noticias-tabs">
+        <button class="noticias-tab active" data-tab="video">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Video Principal
+        </button>
+        <button class="noticias-tab" data-tab="lanzamientos">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+          </svg>
+          Lanzamientos
+          <span class="noticias-tab__badge" id="badgeLanzamientos">0</span>
+        </button>
+        <button class="noticias-tab" data-tab="comentarios">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          Comentarios
+          <span class="noticias-tab__badge noticias-tab__badge--pending" id="badgePendientes" style="display:none;">0</span>
+        </button>
+      </div>
+
+      <!-- ============================================================
+          PANEL 1 — VIDEO PRINCIPAL
+      ============================================================ -->
+      <div class="noticias-panel" id="panel-video">
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <span class="admin-card__title">Configuración del Video</span>
+            <!--
+              Enlace a la página pública de noticias.
+              RUTA: admin/noticias.html → ../noticias.html (raíz del proyecto)
+            -->
+            <a href="../noticias.html" target="_blank" class="btn btn-outline btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="12" height="12">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+              Ver página pública
+            </a>
+          </div>
+          <div class="admin-card__padded">
+
+            <div class="form-group">
+              <label class="form-label">Tipo de Video</label>
+              <select class="form-select" id="videoTipo" style="max-width:280px;" onchange="onVideoTipoChange()">
+                <option value="file">Archivo / URL directa (.mp4, .webm…)</option>
+                <option value="youtube">YouTube</option>
+                <option value="vimeo">Vimeo</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL del Video</label>
+              <input class="form-input" id="videoUrl"
+                placeholder="https://ejemplo.com/video.mp4  ·  https://youtu.be/ID  ·  https://vimeo.com/ID"
+                oninput="actualizarPreviewVideo()"/>
+              <div style="font-size:11px;color:var(--cream-muted);margin-top:5px;">
+                Para YouTube o Vimeo pega la URL normal — el sistema la convierte automáticamente al formato embed.
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Título <span style="color:var(--cream-muted);font-family:var(--font-body);text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                <input class="form-input" id="videoTitulo" placeholder="Ej: Nueva Colección Primavera 2025" maxlength="100"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Descripción <span style="color:var(--cream-muted);font-family:var(--font-body);text-transform:none;letter-spacing:0;">(opcional)</span></label>
+                <input class="form-input" id="videoDescripcion" placeholder="Breve descripción del video…" maxlength="200"/>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+              <button class="btn btn-gold" onclick="guardarVideo()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                Guardar Video
+              </button>
+              <button class="btn btn-danger" onclick="eliminarVideo()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar Video
+              </button>
+            </div>
+
+            <!-- Previsualización en tiempo real -->
+            <div id="videoPreviewWrap" style="display:none;">
+              <div style="font-family:var(--font-label);font-size:9px;letter-spacing:0.16em;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:10px;">Vista Previa</div>
+              <div id="videoPreviewContainer"
+                style="position:relative;width:100%;max-width:640px;aspect-ratio:16/9;background:var(--dark-mid);border:1px solid rgba(201,168,76,0.15);border-radius:6px;overflow:hidden;">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /panel-video -->
+
+      <!-- ============================================================
+          PANEL 2 — NUEVOS LANZAMIENTOS
+      ============================================================ -->
+      <div class="noticias-panel" id="panel-lanzamientos" style="display:none;">
+
+        <!-- Formulario agregar / editar -->
+        <div class="admin-card" style="margin-bottom:20px;">
+          <div class="admin-card__header">
+            <span class="admin-card__title" id="lanzFormTitulo">Agregar Lanzamiento</span>
+          </div>
+          <div class="admin-card__padded">
+            <!-- ID oculto: vacío = nuevo · con valor = editando -->
+            <input type="hidden" id="lanzId"/>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Nombre del Producto *</label>
+                <input class="form-input" id="lanzNombre" placeholder="Ej: Baccarat Rouge 540" maxlength="60"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Etiqueta / Badge</label>
+                <input class="form-input" id="lanzBadge" placeholder="Próximamente · Nuevo · Exclusivo" maxlength="30"/>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Descripción corta</label>
+              <textarea class="form-textarea" id="lanzDesc" rows="2" maxlength="150"
+                placeholder="Breve descripción que aparecerá en la tarjeta…"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">URL de Imagen <span style="color:var(--cream-muted);font-family:var(--font-body);text-transform:none;letter-spacing:0;">(opcional)</span></label>
+              <input class="form-input" id="lanzImagen" type="url"
+                placeholder="https://ejemplo.com/imagen.jpg"
+                oninput="actualizarThumbLanz()"/>
+              <!-- Miniatura de previsualización -->
+              <div id="lanzImagenThumb" style="display:none;margin-top:10px;">
+                <img id="lanzThumbImg" src="" alt="Preview"
+                  style="height:72px;width:72px;object-fit:cover;border-radius:4px;border:1px solid rgba(201,168,76,0.2);"/>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-gold" onclick="guardarLanzamiento()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span id="lanzBtnLabel">Agregar Lanzamiento</span>
+              </button>
+              <button class="btn btn-ghost" id="btnCancelarLanz" onclick="cancelarEdicionLanz()" style="display:none;">
+                Cancelar edición
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de lanzamientos existentes -->
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <span class="admin-card__title">Lanzamientos Actuales</span>
+            <span id="lanzCount" style="font-size:11px;color:var(--cream-muted);">0 registros</span>
+          </div>
+          <div class="admin-card__body table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width:60px;">Imagen</th>
+                  <th>Nombre</th>
+                  <th>Badge</th>
+                  <th>Descripción</th>
+                  <th style="width:120px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="lanzTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /panel-lanzamientos -->
+
+      <!-- ============================================================
+          PANEL 3 — COMENTARIOS (MODERACIÓN)
+      ============================================================ -->
+      <div class="noticias-panel" id="panel-comentarios" style="display:none;">
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+          <button class="btn btn-gold btn-sm filter-coment active" data-filter="pendientes">
+            Pendientes
+            <span id="cntPendientes" class="noticias-tab__badge" style="background:rgba(224,160,82,0.2);color:var(--warning);">0</span>
+          </button>
+          <button class="btn btn-outline btn-sm filter-coment" data-filter="aprobados">Aprobados</button>
+          <button class="btn btn-outline btn-sm filter-coment" data-filter="todos">Todos</button>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card__header">
+            <span class="admin-card__title" id="comentTableTitle">Comentarios Pendientes</span>
+          </div>
+          <div class="admin-card__body table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Comentario</th>
+                  <th>Fecha</th>
+                  <th>Reacciones</th>
+                  <th>Estado</th>
+                  <th style="width:160px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="comentTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /panel-comentarios -->
+
+    </main>
+  </div>
+</div><!-- /admin-layout -->
+
+<!-- Modal genérico reutilizable -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Confirmar</h3>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" id="modalSaveBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Estilos propios de esta página (tabs y utilidades visuales) -->
+<style>
+  /* ── Tabs ─────────────────────────────────────────────────── */
+  .noticias-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+  }
+  .noticias-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    font-family: var(--font-label);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: var(--transition);
+    background: none;
+    border-radius: 0;
+  }
+  .noticias-tab:hover { color: var(--cream); }
+  .noticias-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .noticias-tab svg { opacity: 0.65; }
+  .noticias-tab.active svg { opacity: 1; }
+
+  /* Badge numérico en el tab */
+  .noticias-tab__badge {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    background: rgba(201,168,76,0.14);
+    color: var(--gold);
+    border-radius: 10px;
+    font-size: 9px;
+    font-family: var(--font-body);
+    font-weight: 700;
+  }
+  .noticias-tab__badge--pending {
+    background: rgba(224,160,82,0.18);
+    color: var(--warning);
+  }
+
+  /* Miniaturas en tabla de lanzamientos */
+  .launch-thumb {
+    width: 44px; height: 44px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid rgba(201,168,76,0.18);
+  }
+  .launch-thumb-placeholder {
+    width: 44px; height: 44px;
+    background: var(--dark-mid);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: var(--cream-muted);
+  }
+
+  /* Texto truncado en celdas */
+  .cell-truncate {
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    color: var(--cream-muted);
+  }
+</style>
+
+<!--
+  SCRIPTS:
+  Orden obligatorio:
+    1. admin-data.js  → capa de datos (AdminDB, localStorage)
+    2. admin-core.js  → layout, sidebar, auth, toasts, modales
+    3. noticias-admin.js → lógica específica de esta página
+
+  RUTAS: este HTML está en admin/ → los JS están en admin/js/
+-->
+<script src="js/admin-data.js"></script>
+<script src="js/admin-core.js"></script>
+<script src="js/noticias-admin.js"></script>
+
+</body>
+</html>
