@@ -93,7 +93,7 @@ input, select, textarea { font-family: var(--font-body); color: var(--cream); }
   flex: 1;
   padding: 14px 0;
   overflow-y: auto;
-  height: 100%;
+  max-height: 100vh;
 }
 .admin-nav::-webkit-scrollbar { width: 3px; }
 .admin-nav::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.15); border-radius: 2px; }
