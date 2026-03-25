@@ -316,3 +316,50 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
+
+    // ── NOTICIAS PREVIEW (sección en el inicio) ──────────────────
+    // Lee los lanzamientos del localStorage y los muestra en el grid
+    // del inicio (#home-lanzamientos-grid).
+    // Se ejecuta al cargar la página junto con el resto de app.js. -->
+
+      (function renderLanzamientosHome() {
+          const grid = document.getElementById('home-lanzamientos-grid');
+          if (!grid) return;
+
+          let lanzamientos = [];
+          try {
+            const raw = localStorage.getItem('op_lanzamientos');
+              lanzamientos = raw ? JSON.parse(raw) : [];
+          } catch(e) { lanzamientos = []; }
+
+        if (lanzamientos.length === 0) {
+            // Sin datos: mostrar 4 tarjetas placeholder decorativas
+            grid.innerHTML = Array(4).fill(0).map((_, i) => `
+              <article class="home-launch-card" role="listitem">
+                  <div class="home-launch-card__img-placeholder" aria-hidden="true">🫙</div>
+                  <div class="home-launch-card__info">
+                  <div class="home-launch-card__badge">Próximamente</div>
+                <div class="home-launch-card__name">Nuevo Lanzamiento</div>
+                  <p class="home-launch-card__desc">Descripción disponible próximamente</p>
+                </div>
+          </article>`).join('');
+        return;
+  } 
+
+      // Mostrar máximo 4 lanzamientos
+      grid.innerHTML = lanzamientos.slice(0, 4).map(item => `
+          <article class="home-launch-card" role="listitem">
+        ${item.imagen
+                ? `<img class="home-launch-card__img" src="${item.imagen}" alt="${item.nombre}" loading="lazy"/>`
+              : `<div class="home-launch-card__img-placeholder" aria-hidden="true">🫙</div>`
+            }
+            <div class="home-launch-card__info">
+                <div class="home-launch-card__badge">${item.badge || 'Próximamente'}</div>
+                <div class="home-launch-card__name">${item.nombre || ''}</div>
+              <p class="home-launch-card__desc">${item.descripcion || ''}</p>
+            </div>
+            </article>`).join('');
+      })();
+    // ── FIN NOTICIAS PREVIEW ──────────────────────────────────────
+    // ================================================================ -->git 
