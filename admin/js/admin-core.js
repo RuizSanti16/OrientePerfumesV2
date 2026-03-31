@@ -151,10 +151,14 @@ function buildSidebar() {
 
   var current = window.location.pathname.split('/').pop() || 'index.html';
 
-  var html = '<div class="sidebar-brand">' +
-    '<img src="../assets/logo.png" alt="OrientPerfumes">' +
-    '<div><div class="sidebar-brand__name">OrientPerfumes</div>' +
-    '<div class="sidebar-brand__sub">Panel Admin</div></div></div>' +
+  var html =
+    '<div class="sidebar-brand">' +
+    '<img class="sidebar-brand__logo" src="../assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes">' + 
+      '<div class="sidebar-brand__text">' +
+        '<div class="sidebar-brand__name">OrientPerfumes</div>' +
+        '<div class="sidebar-brand__sub">Panel Admin</div>' +
+      '</div>' +
+    '</div>' +
     '<nav class="admin-nav">';
 
   SIDEBAR_ITEMS.forEach(function (item) {

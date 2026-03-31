@@ -50,7 +50,9 @@ input, select, textarea { font-family: var(--font-body); color: var(--cream); }
 /* ── Sidebar ──────────────────────────────────────────────── */
 .admin-sidebar {
   width: var(--sidebar-w);
-  min-height: 100vh;
+  /* CORRECCIÓN: height:100vh (no min-height) para que el nav
+     hijo pueda calcular su espacio disponible y hacer scroll */
+  height: 100vh;
   background: var(--dark-mid);
   border-right: 1px solid rgba(201,168,76,0.12);
   display: flex;
@@ -59,41 +61,65 @@ input, select, textarea { font-family: var(--font-body); color: var(--cream); }
   top: 0; left: 0;
   z-index: 200;
   transition: transform var(--transition);
+  /* Oculta cualquier desbordamiento del propio sidebar */
+  overflow: hidden;
 }
 
+/* ── Cabecera del sidebar: logo + nombre ──────────────────── */
 .sidebar-brand {
-  padding: 20px 20px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid rgba(201,168,76,0.1);
   display: flex;
   align-items: center;
   gap: 12px;
+  /* Altura fija para que el nav ocupe el espacio restante */
+  flex-shrink: 0;
 }
-.sidebar-brand img {
-  width: 40px; height: 40px;
+
+/* Logo: tamaño más generoso para que se vea bien */
+.sidebar-brand__logo {
+  width: 52px;
+  height: 52px;
   object-fit: contain;
-  border-radius: 2px;
-  filter: drop-shadow(0 0 6px rgba(201,168,76,0.25));
+  /* Sin border-radius para respetar la forma del logo */
+  border-radius: 0;
+  /* Brillo dorado sutil */
+  filter: drop-shadow(0 0 8px rgba(201,168,76,0.35));
+  flex-shrink: 0;
 }
+
+/* Contenedor del texto junto al logo */
+.sidebar-brand__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0; /* permite que el texto se trunque si es necesario */
+}
+
 .sidebar-brand__name {
   font-family: var(--font-label);
   font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--gold);
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sidebar-brand__sub {
   font-size: 8px;
   letter-spacing: 0.15em;
   color: var(--cream-muted);
   text-transform: uppercase;
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
+/* ── Nav: ocupa todo el espacio restante y hace scroll ─────── */
 .admin-nav {
-  flex: 1;
+  flex: 1;          /* ocupa todo lo que queda después del .sidebar-brand */
   padding: 14px 0;
-  overflow-y: auto;
-  max-height: 100vh;
+  overflow-y: auto; /* scroll cuando el contenido supera la altura */
+  overflow-x: hidden;
 }
 .admin-nav::-webkit-scrollbar { width: 3px; }
 .admin-nav::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.15); border-radius: 2px; }
@@ -534,4 +560,4 @@ input, select, textarea { font-family: var(--font-body); color: var(--cream); }
   .page-toolbar { flex-direction: column; align-items: stretch; }
   .search-box { max-width: 100%; }
   .admin-content { padding: 16px; }
-}
+  }
