@@ -139,6 +139,7 @@ var SIDEBAR_ITEMS = [
   { id: 'inventory',  href: 'inventory.html',  label: 'Inventario',  icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>' },
   { id: 'reports',    href: 'reports.html',    label: 'Reportes',    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>' },
   { section: 'Contenido' },
+  { id: 'carrusel',   href: 'carrusel.html',   label: 'Carrusel',    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
   { id: 'noticias',   href: 'noticias.html',   label: 'Noticias',    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 12h6m-6-4h6"/>' },
   { section: 'Sistema' },
   { id: 'users',      href: 'users.html',      label: 'Usuarios',    icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' },
@@ -151,14 +152,10 @@ function buildSidebar() {
 
   var current = window.location.pathname.split('/').pop() || 'index.html';
 
-  var html =
-    '<div class="sidebar-brand">' +
-    '<img class="sidebar-brand__logo" src="../assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes">' + 
-      '<div class="sidebar-brand__text">' +
-        '<div class="sidebar-brand__name">OrientPerfumes</div>' +
-        '<div class="sidebar-brand__sub">Panel Admin</div>' +
-      '</div>' +
-    '</div>' +
+  var html = '<div class="sidebar-brand">' +
+    '<img src="../assets/logo.png" alt="OrientPerfumes">' +
+    '<div><div class="sidebar-brand__name">OrientPerfumes</div>' +
+    '<div class="sidebar-brand__sub">Panel Admin</div></div></div>' +
     '<nav class="admin-nav">';
 
   SIDEBAR_ITEMS.forEach(function (item) {

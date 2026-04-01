@@ -35,8 +35,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ──────────────────────────────────────────────────────────
      2. HERO CARRUSEL
-     Solo se inicializa si existen slides en la página.
+     Lee configuración desde localStorage (clave "op_carrusel").
+     Si el admin guardó imágenes/textos los aplica antes de
+     inicializar el carrusel. Si no hay datos usa el HTML tal cual.
   ────────────────────────────────────────────────────────── */
+
+  /* ── Aplicar datos del admin al carrusel ── */
+  (function aplicarCarrusel() {
+    try {
+      var raw = localStorage.getItem('op_carrusel');
+      if (!raw) return;
+      var datos = JSON.parse(raw);
+
+      datos.forEach(function (slide, i) {
+        var el = document.querySelectorAll('.hero__slide')[i];
+        if (!el) return;
+
+        /* Imagen de fondo: si hay URL la aplica sobre el gradiente */
+        var bg = el.querySelector('.hero__bg');
+        if (bg && slide.imagen) {
+          bg.style.backgroundImage    = 'url(' + slide.imagen + ')';
+          bg.style.backgroundSize     = slide.imgSize || 'cover';
+          bg.style.backgroundPosition =
+            (slide.imgPosX !== undefined ? slide.imgPosX : 50) + '% ' +
+            (slide.imgPosY !== undefined ? slide.imgPosY : 50) + '%';
+        }
+
+        /* Label */
+        var labelEl = el.querySelector('.hero__label');
+        if (labelEl && slide.label) {
+          /* Preservar los ::before/::after con solo cambiar el texto */
+          labelEl.childNodes.forEach(function (n) {
+            if (n.nodeType === 3) n.textContent = slide.label;
+          });
+        }
+
+        /* Título (soporta \n como salto de línea) */
+        var tituloEl = el.querySelector('.hero__title');
+        if (tituloEl && slide.titulo) {
+          tituloEl.innerHTML = slide.titulo.replace(/\\n/g, '<br>');
+        }
+
+        /* Subtítulo */
+        var subEl = el.querySelector('.hero__subtitle');
+        if (subEl && slide.subtitulo) {
+          subEl.textContent = slide.subtitulo;
+        }
+
+        /* Botones CTA */
+        var btns = el.querySelectorAll('.hero__cta a');
+        if (btns[0] && slide.btn1) btns[0].textContent = slide.btn1;
+        if (btns[1] && slide.btn2) btns[1].textContent = slide.btn2;
+      });
+    } catch (e) {
+      console.warn('[app.js] Error al cargar datos del carrusel:', e);
+    }
+  })();
   const slides  = document.querySelectorAll('.hero__slide');
   const dots    = document.querySelectorAll('.hero__dot');
   const btnPrev = document.getElementById('hero-prev');
