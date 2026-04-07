@@ -297,64 +297,12 @@
       <p class="section__subtitle">Los favoritos de nuestra clientela</p>
     </div>
 
-    <div class="products-grid" role="list">
-
-      <article class="product-card" role="listitem" tabindex="0">
-        <div class="product-card__img-wrap">
-          <span class="product-card__placeholder" aria-hidden="true">🫙</span>
-          <span class="product-card__badge badge--new" aria-label="Producto nuevo">Nuevo</span>
-          <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
-          <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
-        </div>
-        <div class="product-card__info">
-          <div class="product-card__brand">Maison Francis Kurkdjian</div>
-          <div class="product-card__name">Baccarat Rouge 540 EDP</div>
-          <div class="product-card__price">$320.00</div>
-        </div>
-      </article>
-
-      <article class="product-card" role="listitem" tabindex="0">
-        <div class="product-card__img-wrap">
-          <span class="product-card__placeholder" aria-hidden="true">🫙</span>
-          <span class="product-card__badge badge--excl" aria-label="Producto exclusivo">Exclusivo</span>
-          <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
-          <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
-        </div>
-        <div class="product-card__info">
-          <div class="product-card__brand">Tom Ford</div>
-          <div class="product-card__name">Oud Wood EDP 100ml</div>
-          <div class="product-card__price">$285.00</div>
-        </div>
-      </article>
-
-      <article class="product-card" role="listitem" tabindex="0">
-        <div class="product-card__img-wrap">
-          <span class="product-card__placeholder" aria-hidden="true">🫙</span>
-          <span class="product-card__badge badge--sale" aria-label="Producto en oferta">Oferta</span>
-          <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
-          <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
-        </div>
-        <div class="product-card__info">
-          <div class="product-card__brand">Creed</div>
-          <div class="product-card__name">Aventus EDP 100ml</div>
-          <div class="product-card__price"><s>$350.00</s> $295.00</div>
-        </div>
-      </article>
-
-      <article class="product-card" role="listitem" tabindex="0">
-        <div class="product-card__img-wrap">
-          <span class="product-card__placeholder" aria-hidden="true">🫙</span>
-          <span class="product-card__badge badge--new" aria-label="Producto nuevo">Nuevo</span>
-          <button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>
-          <button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>
-        </div>
-        <div class="product-card__info">
-          <div class="product-card__brand">Xerjoff</div>
-          <div class="product-card__name">Naxos EDP 50ml</div>
-          <div class="product-card__price">$230.00</div>
-        </div>
-      </article>
-
+    <!--
+      Grid renderizado dinámicamente por app.js (módulo 9).
+      Lee "op_productos_destacados" del localStorage.
+      Si no hay datos guardados muestra los 4 productos por defecto.
+    -->
+    <div class="products-grid" id="products-grid" role="list">
     </div>
   </section>
 
@@ -482,7 +430,7 @@
     <ul class="drawer__nav">
       <li><a href="#categorias">Fragancias Orientales</a></li>
       <li><a href="#categorias">Perfumería Nicho</a></li>
-      <li><a href="#categorias">Grandes Diseñadores</a></li>
+      <li><a href="#categorias">Productos destacados</a></li>
       <li><a href="#productos">Novedades</a></li>
       <li><a href="#productos">Ofertas</a></li>
       <li><a href="#productos">Exclusivos</a></li>

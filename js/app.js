@@ -351,4 +351,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /* ──────────────────────────────────────────────────────────
+     9. PRODUCTOS DESTACADOS
+     Lee "op_productos_destacados" del localStorage y renderiza
+     las 4 tarjetas en #products-grid del index.html.
+     Si no hay datos muestra los productos por defecto.
+  ────────────────────────────────────────────────────────── */
+  (function renderProductosDestacados() {
+    var grid = document.getElementById('products-grid');
+    if (!grid) return;
+
+    var DEFAULT = [
+      { id:1, marca:'Maison Francis Kurkdjian', nombre:'Baccarat Rouge 540 EDP',
+        precio:'$320.00', precioAnterior:'', badge:'new', imagen:'' },
+      { id:2, marca:'Tom Ford', nombre:'Oud Wood EDP 100ml',
+        precio:'$285.00', precioAnterior:'', badge:'excl', imagen:'' },
+      { id:3, marca:'Creed', nombre:'Aventus EDP 100ml',
+        precio:'$295.00', precioAnterior:'$350.00', badge:'sale', imagen:'' },
+      { id:4, marca:'Xerjoff', nombre:'Naxos EDP 50ml',
+        precio:'$230.00', precioAnterior:'', badge:'new', imagen:'' }
+    ];
+
+    var productos = DEFAULT;
+    try {
+      var raw = localStorage.getItem('op_productos_destacados');
+      if (raw) productos = JSON.parse(raw);
+    } catch(e) {}
+
+    var BADGE_MAP = {
+      new:  { cls:'badge--new',  label:'Nuevo' },
+      excl: { cls:'badge--excl', label:'Exclusivo' },
+      sale: { cls:'badge--sale', label:'Oferta' },
+      none: { cls:'',            label:'' }
+    };
+
+    function escP(s) {
+      if (typeof s !== 'string') return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+              .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    grid.innerHTML = productos.map(function(p) {
+      var badge   = BADGE_MAP[p.badge] || BADGE_MAP.none;
+      var imgHTML = p.imagen
+        ? '<img src="' + escP(p.imagen) + '" alt="' + escP(p.nombre) + '"' +
+          ' style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+        : '<span class="product-card__placeholder" aria-hidden="true">🫙</span>';
+
+      var badgeHTML = badge.label
+        ? '<span class="product-card__badge ' + badge.cls + '">' + badge.label + '</span>'
+        : '';
+
+      var precioHTML = (p.badge === 'sale' && p.precioAnterior)
+        ? '<s>' + escP(p.precioAnterior) + '</s> ' + escP(p.precio)
+        : escP(p.precio);
+
+      return '<article class="product-card" role="listitem" tabindex="0">' +
+        '<div class="product-card__img-wrap">' +
+          imgHTML + badgeHTML +
+          '<button class="product-card__wish" aria-label="Agregar a la lista de deseos">🤍</button>' +
+          '<button class="product-card__add" aria-label="Añadir al carrito">Añadir al Carrito</button>' +
+        '</div>' +
+        '<div class="product-card__info">' +
+          '<div class="product-card__brand">' + escP(p.marca)  + '</div>' +
+          '<div class="product-card__name">'  + escP(p.nombre) + '</div>' +
+          '<div class="product-card__price">' + precioHTML     + '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+
+    /* Re-registrar wishlist y carrito en las tarjetas renderizadas */
+    grid.querySelectorAll('.product-card__wish').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var active = btn.dataset.active === 'true';
+        btn.textContent    = active ? '🤍' : '❤️';
+        btn.dataset.active = active ? 'false' : 'true';
+        wishCount = active ? Math.max(0, wishCount - 1) : wishCount + 1;
+        if (wishBadge) wishBadge.textContent = wishCount;
+      });
+    });
+
+    grid.querySelectorAll('.product-card__add').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        cartCount++;
+        if (cartBadge) cartBadge.textContent = cartCount;
+        var orig = btn.textContent;
+        btn.textContent      = '✓ Añadido';
+        btn.style.background = '#4a7c59';
+        setTimeout(function() {
+          btn.textContent      = orig;
+          btn.style.background = '';
+        }, 1200);
+      });
+    });
+  })();
+
 }); // ── fin DOMContentLoaded ──────────────────────────────────
