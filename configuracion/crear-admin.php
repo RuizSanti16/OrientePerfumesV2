@@ -52,7 +52,7 @@ try {
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $pdo->prepare("
-            INSERT INTO tbl_administrador (nombre, usuario, `contraseña`, correo, telefono)
+            INSERT INTO tbl_administrador (nombre, usuario, contrasena, correo, telefono)
             VALUES (:nombre, :usuario, :contrasena, :correo, :telefono)
         ");
         $stmt->execute([

@@ -8,7 +8,7 @@
    API: POST /api/login.php → { usuario, password }
 ============================================================= */
 
-const API_BASE = 'api';
+const API_BASE = '/OrientPerfumesV2/api';
 
 /* ── Referencias ───────────────────────────────────────────── */
 const subtitle     = document.getElementById('panel-subtitle');
