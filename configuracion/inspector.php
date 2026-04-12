@@ -78,8 +78,4 @@ foreach ($tablas as $tabla) {
 
 require_once "CerrarConexion.php";
 echo "</body></html>";
-<<<<<<< HEAD
 ?>
-=======
-?>
->>>>>>> db4434afe1d1a01a0e5cec4091a1731fe6d61472
