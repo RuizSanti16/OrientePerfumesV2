@@ -366,22 +366,19 @@ document.addEventListener('DOMContentLoaded', () => {
     var grid = document.getElementById('products-grid');
     if (!grid) return;
 
-    var DEFAULT = [
-      { id:1, marca:'Maison Francis Kurkdjian', nombre:'Baccarat Rouge 540 EDP',
-        precio:'$320.00', precioAnterior:'', badge:'new', imagen:'' },
-      { id:2, marca:'Tom Ford', nombre:'Oud Wood EDP 100ml',
-        precio:'$285.00', precioAnterior:'', badge:'excl', imagen:'' },
-      { id:3, marca:'Creed', nombre:'Aventus EDP 100ml',
-        precio:'$295.00', precioAnterior:'$350.00', badge:'sale', imagen:'' },
-      { id:4, marca:'Xerjoff', nombre:'Naxos EDP 50ml',
-        precio:'$230.00', precioAnterior:'', badge:'new', imagen:'' }
-    ];
+    var DEFAULT = [];
 
     var productos = DEFAULT;
     try {
       var raw = localStorage.getItem('op_productos_destacados');
       if (raw) productos = JSON.parse(raw);
     } catch(e) {}
+
+    /* Si no hay productos configurados, no mostrar nada */
+    if (!productos || productos.length === 0 || productos.every(function(p){ return !p.nombre; })) {
+      if (grid) grid.innerHTML = '<p style="text-align:center;padding:40px;color:var(--cream-muted);font-family:var(--font-label);font-size:11px;letter-spacing:0.15em;">PRODUCTOS PRÓXIMAMENTE</p>';
+      return;
+    }
 
     var BADGE_MAP = {
       new:  { cls:'badge--new',  label:'Nuevo' },
