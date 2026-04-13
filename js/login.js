@@ -152,10 +152,11 @@ document.getElementById('btn-login')?.addEventListener('click', async () => {
 document.getElementById('btn-register')?.addEventListener('click', async () => {
   clearAll();
 
-  const loginUsuario  = document.getElementById('reg-user')?.value.trim()  ?? '';
-  const loginCorreo   = document.getElementById('reg-email')?.value.trim() ?? '';
-  const loginPass     = document.getElementById('reg-pass')?.value          ?? '';
-  const loginPass2    = document.getElementById('reg-pass2')?.value         ?? '';
+  const loginUsuario  = document.getElementById('reg-user')?.value.trim()      ?? '';
+  const loginCorreo   = document.getElementById('reg-email')?.value.trim()     ?? '';
+  const loginTelefono = document.getElementById('reg-telefono')?.value.trim()  ?? '';
+  const loginPass     = document.getElementById('reg-pass')?.value              ?? '';
+  const loginPass2    = document.getElementById('reg-pass2')?.value             ?? '';
 
   let ok = true;
   if (!loginUsuario)            { setErr('reg-user-err',  'Elige un nombre de usuario');    ok = false; }
@@ -171,9 +172,10 @@ document.getElementById('btn-register')?.addEventListener('click', async () => {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        usuario:  loginUsuario,
-        correo:   loginCorreo,
-        password: loginPass
+        usuario:   loginUsuario,
+        correo:    loginCorreo,
+        telefono:  loginTelefono,
+        password:  loginPass
       })
     });
     const data = await res.json();

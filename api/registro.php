@@ -16,9 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $body          = json_decode(file_get_contents('php://input'), true);
-$loginUsuario  = trim($body['usuario']  ?? '');
-$loginCorreo   = trim($body['correo']   ?? '');
-$loginPassword = trim($body['password'] ?? '');
+$loginUsuario  = trim($body['usuario']   ?? '');
+$loginCorreo   = trim($body['correo']    ?? '');
+$loginPassword = trim($body['password']  ?? '');
+$loginTelefono = trim($body['telefono']  ?? '');
 
 // Validaciones
 if (empty($loginUsuario)) {
@@ -53,14 +54,15 @@ try {
     // Insertar nuevo cliente
     $hash = password_hash($loginPassword, PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("
-        INSERT INTO tbl_clientes (nombre, usuario, correo, password)
-        VALUES (:nombre, :usuario, :correo, :password)
+        INSERT INTO tbl_clientes (nombre, usuario, correo, password, telefono)
+        VALUES (:nombre, :usuario, :correo, :password, :telefono)
     ");
     $stmt->execute([
-        ':nombre'   => $loginUsuario,
-        ':usuario'  => $loginUsuario,
-        ':correo'   => $loginCorreo,
-        ':password' => $hash
+        ':nombre'    => $loginUsuario,
+        ':usuario'   => $loginUsuario,
+        ':correo'    => $loginCorreo,
+        ':password'  => $hash,
+        ':telefono'  => $loginTelefono
     ]);
 
     echo json_encode([
