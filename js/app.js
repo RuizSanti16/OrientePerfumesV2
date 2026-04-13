@@ -20,6 +20,11 @@
 ============================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+  /* ── Formato de precios en COP ── */
+  function formatCOP(v) {
+    return '$ ' + Number(v||0).toLocaleString('es-CO');
+  }
+
 
   /* ──────────────────────────────────────────────────────────
      1. HEADER — sombra al hacer scroll

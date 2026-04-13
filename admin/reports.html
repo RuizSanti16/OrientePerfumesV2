@@ -87,10 +87,10 @@
 
     // KPIs
     var kpiData = [
-      { label: 'Ingresos Totales',  value: '€' + totalRevenue.toLocaleString() },
+      { label: 'Ingresos Totales',  value: '$' + totalRevenue.toLocaleString('es-CO') },
       { label: 'Total Ventas',      value: sales.length },
       { label: 'Total Pedidos',     value: orders.length },
-      { label: 'Ticket Promedio',   value: '€' + avgOrder },
+      { label: 'Ticket Promedio',   value: '$' + avgOrder },
     ];
     var grid = document.getElementById('kpiGrid');
     kpiData.forEach(function (k) {
@@ -106,7 +106,7 @@
       data: {
         labels: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar'],
         datasets: [{
-          label: 'Ingresos (€)',
+          label: 'Ingresos ($)',
           data: [8200, 9100, 14500, 11200, 10800, 12600],
           borderColor: '#C9A84C',
           backgroundColor: 'rgba(201,168,76,0.08)',
@@ -175,7 +175,7 @@
       topBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--cream-muted)">Sin datos de ventas</td></tr>';
     } else {
       topBody.innerHTML = topProds.map(function (name, i) {
-        return '<tr><td><span class="badge badge-gold">' + (i + 1) + '</span></td><td><strong style="color:var(--cream);">' + name + '</strong></td><td>' + (productCount[name] || 0) + '</td><td class="bold">€' + (productRevenue[name] || 0).toFixed(2) + '</td></tr>';
+        return '<tr><td><span class="badge badge-gold">' + (i + 1) + '</span></td><td><strong style="color:var(--cream);">' + name + '</strong></td><td>' + (productCount[name] || 0) + '</td><td class="bold">$' + (productRevenue[name] || 0).toLocaleString('es-CO') + '</td></tr>';
       }).join('');
     }
   });

@@ -103,7 +103,7 @@
         '<td><strong style="color:var(--cream);">' + (p.supplierName || '—') + '</strong></td>' +
         '<td>' + (firstItem.productName || '—') + '</td>' +
         '<td>' + (firstItem.qty || '—') + '</td>' +
-        '<td class="bold">€' + p.total + '</td>' +
+        '<td class="bold">$' + p.total + '</td>' +
         '<td><span class="badge ' + (STATUS_CLASS[p.status] || 'badge-gray') + '">' + (STATUS_LABELS[p.status] || p.status) + '</span></td></tr>';
     }).join('');
   }
@@ -122,7 +122,7 @@
         '<select class="form-select" id="fProduct"><option value="">Seleccionar</option>' + prodOpts + '</select></div>' +
       '<div class="form-grid-2">' +
         '<div class="form-group"><label class="form-label">Cantidad *</label><input class="form-input" id="fQty" type="number" min="1" value="1"></div>' +
-        '<div class="form-group"><label class="form-label">Coste unitario (€)</label><input class="form-input" id="fCost" type="number" min="0" value="0"></div>' +
+        '<div class="form-group"><label class="form-label">Coste unitario ($)</label><input class="form-input" id="fCost" type="number" min="0" value="0"></div>' +
       '</div>' +
       '<div class="form-group"><label class="form-label">Estado</label>' +
         '<select class="form-select" id="fStatus"><option value="pending">Pendiente</option><option value="received">Recibida</option></select></div>';

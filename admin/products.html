@@ -111,7 +111,7 @@
         '<td><strong style="color:var(--cream)">' + esc(p.nombre) + '</strong></td>' +
         '<td>' + esc(marcaNombre) + '</td>' +
         '<td>' + esc(catNombre) + '</td>' +
-        '<td class="bold">$' + p.precio + '</td>' +
+        '<td class="bold">' + formatCOP(p.precio) + '</td>' +
         '<td style="color:var(--cream-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.descripcion||'—') + '</td>' +
         '<td><div class="action-btns">' +
           '<button class="btn btn-outline btn-sm" onclick="abrirEditar(' + p.id_producto + ')">' +
@@ -159,8 +159,8 @@
           '<select class="form-select" id="fCategoria">' + catOpts(p?p.id_categoria:null) + '</select></div>' +
       '</div>' +
 
-      '<div class="form-group"><label class="form-label">Precio *</label>' +
-        '<input class="form-input" id="fPrecio" type="number" min="0" value="' + (p?p.precio:'') + '" placeholder="0"></div>' +
+      '<div class="form-group"><label class="form-label">Precio (COP) *</label>' +
+        '<input class="form-input" id="fPrecio" type="number" min="0" value="' + (p?p.precio:'') + '" placeholder="Ej: 320000"></div>' +
 
       '<div class="form-group"><label class="form-label">Descripción</label>' +
         '<textarea class="form-textarea" id="fDesc" placeholder="Descripción del producto" rows="3">' + (p?esc(p.descripcion||''):'') + '</textarea></div>';
@@ -232,6 +232,10 @@
         showToast('Error: ' + (res.mensaje||''), 'error');
       }
     });
+  }
+
+  function formatCOP(valor) {
+    return '$ ' + Number(valor || 0).toLocaleString('es-CO');
   }
 
   function esc(s) { return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

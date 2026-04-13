@@ -111,7 +111,7 @@
         '<td>' + o.date + '</td>' +
         '<td><strong style="color:var(--cream);">' + o.customerName + '</strong></td>' +
         '<td style="font-size:12px;">' + (o.customerEmail || '—') + '</td>' +
-        '<td class="bold">€' + o.total + '</td>' +
+        '<td class="bold">$' + o.total + '</td>' +
         '<td><span class="badge ' + (STATUS_CLASS[o.status] || 'badge-gray') + '">' + (STATUS_LABELS[o.status] || o.status) + '</span></td>' +
         '<td>' +
           '<select class="form-select" style="width:130px;padding:5px 8px;font-size:11px;" onchange="updateOrderStatus(\'' + o.id + '\', this.value)">' +
