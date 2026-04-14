@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Colección — OrientPerfumes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .coleccion-header {
+      padding: 80px 24px 40px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(201,168,76,0.05) 0%, transparent 100%);
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+    }
+    .coleccion-header__eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--gold, #C9A84C);
+      margin-bottom: 12px;
+    }
+    .coleccion-header__title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 6vw, 56px);
+      color: var(--cream, #E8DCC8);
+      margin-bottom: 12px;
+    }
+    .coleccion-header__desc {
+      font-family: 'Lato', sans-serif;
+      font-size: 14px;
+      color: var(--cream-muted, #9A9180);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .coleccion-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .coleccion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .coleccion-empty {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--cream-muted, #9A9180);
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      grid-column: 1 / -1;
+    }
+    .coleccion-loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--cream-muted, #9A9180);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      grid-column: 1 / -1;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--gold, #C9A84C);
+      text-decoration: none;
+      margin-bottom: 32px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .back-btn:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header" id="header" role="banner">
+    <a href="index.html" class="header__logo" aria-label="OrientPerfumes – Inicio">
+      <div class="logo-icon" aria-hidden="true">
+        <img src="assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes logo"/>
+      </div>
+      <div class="logo-text">
+        <div class="logo-text__name">OrientPerfumes</div>
+        <div class="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
+      </div>
+    </a>
+    <div class="header__actions">
+      <button class="action-btn" id="btn-wishlist" aria-label="Lista de deseos">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span class="action-btn__badge" id="wish-badge">0</span>
+      </button>
+      <button class="action-btn" id="btn-cart" aria-label="Carrito">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <span class="action-btn__badge" id="cart-badge">0</span>
+      </button>
+      <a href="index.html" class="menu-btn" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;color:var(--cream,#E8DCC8)" aria-label="Inicio">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- Colección header -->
+  <div class="coleccion-header">
+    <div class="coleccion-header__eyebrow" id="col-eyebrow">Colección</div>
+    <h1 class="coleccion-header__title" id="col-title">—</h1>
+    <p class="coleccion-header__desc" id="col-desc"></p>
+  </div>
+
+  <!-- Productos -->
+  <div class="coleccion-content">
+    <a href="index.html" class="back-btn">
+      ← Volver al inicio
+    </a>
+    <div class="coleccion-grid" id="coleccion-grid">
+      <div class="coleccion-loading">CARGANDO PRODUCTOS...</div>
+    </div>
+  </div>
+
+  <footer class="footer" role="contentinfo">
+    <p class="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
+  </footer>
+
+<script>
+  /* ── Leer parámetro de URL ── */
+  var params    = new URLSearchParams(window.location.search);
+  var catNombre = params.get('categoria') || '';
+  var catId     = params.get('id')        || '';
+
+  /* ── Títulos por categoría ── */
+  var INFO = {
+    'Nicho':      { eyebrow: 'Perfumería de Autor',    desc: 'Las más exclusivas casas de nicho en un solo lugar' },
+    'Oriental':   { eyebrow: 'Colección Oriental',     desc: 'Oud, Ámbar, Sándalo y Musk en su máxima expresión' },
+    'Diseñador':  { eyebrow: 'Grandes Maisons',        desc: 'Las firmas más reconocidas de la perfumería mundial' },
+    'Exclusivos': { eyebrow: 'Ediciones Especiales',   desc: 'Fragancias únicas y ediciones limitadas de colección' }
+  };
+
+  var info = INFO[catNombre] || { eyebrow: 'Colección', desc: '' };
+  document.getElementById('col-eyebrow').textContent = info.eyebrow;
+  document.getElementById('col-title').textContent   = catNombre || 'Colección';
+  document.getElementById('col-desc').textContent    = info.desc;
+  document.title = catNombre + ' — OrientPerfumes';
+
+  /* ── Helpers carrito/wishlist ── */
+  function getWishlist() { try { return JSON.parse(localStorage.getItem('op_wishlist')||'[]'); } catch(e){ return []; } }
+  function getCarrito()  { try { return JSON.parse(localStorage.getItem('op_carrito') ||'[]'); } catch(e){ return []; } }
+  function saveWishlist(w){ localStorage.setItem('op_wishlist', JSON.stringify(w)); }
+  function saveCarrito(c) { localStorage.setItem('op_carrito',  JSON.stringify(c)); }
+
+  function parsePrecio(v) {
+    if (!v) return 0;
+    if (typeof v === 'number') return v;
+    return parseFloat(String(v).replace(/[$\s.]/g,'').replace(/,/g,'')) || 0;
+  }
+
+  function updateBadges() {
+    var wc = getWishlist().length;
+    var cc = getCarrito().reduce(function(s,i){ return s+(i.cantidad||1); }, 0);
+    document.getElementById('wish-badge').textContent = wc;
+    document.getElementById('cart-badge').textContent = cc;
+  }
+  updateBadges();
+
+  /* ── Cargar productos desde API ── */
+  fetch('/OrientPerfumesV2/api/productos.php')
+    .then(function(r){ return r.json(); })
+    .then(function(res) {
+      var grid = document.getElementById('coleccion-grid');
+      if (!res.ok || !res.data) {
+        grid.innerHTML = '<div class="coleccion-empty">NO SE PUDIERON CARGAR LOS PRODUCTOS</div>';
+        return;
+      }
+
+      /* Filtrar por categoría */
+      var todos = res.data;
+      var filtrados = todos.filter(function(p) {
+        if (catId)     return String(p.id_categoria) === String(catId);
+        if (catNombre) return (p.nombre_categoria||'').toLowerCase() === catNombre.toLowerCase();
+        return true;
+      });
+
+      if (!filtrados.length) {
+        grid.innerHTML = '<div class="coleccion-empty">NO HAY PRODUCTOS EN ESTA COLECCIÓN AÚN</div>';
+        return;
+      }
+
+      grid.innerHTML = filtrados.map(function(p) {
+        var precio = parsePrecio(p.precio);
+        var pres   = p.presentaciones || [];
+        var presHTML = pres.length > 1
+          ? '<div style="margin-top:8px"><select class="pres-select" data-id="' + p.id_producto + '" style="width:100%;background:#1a1a18;color:#C8C0B0;border:1px solid rgba(201,168,76,0.3);border-radius:4px;padding:6px 8px;font-size:11px">' +
+              pres.map(function(pr){
+                return '<option value="' + pr.etiqueta + '" data-precio="' + pr.precio + '">' + pr.etiqueta + ' — $ ' + Number(pr.precio||0).toLocaleString('es-CO') + '</option>';
+              }).join('') +
+            '</select></div>'
+          : '';
+
+        var enWish = getWishlist().some(function(x){ return x.id === String(p.id_producto); });
+
+        return '<article class="product-card" role="listitem">' +
+          '<div class="product-card__img-wrap">' +
+            (p.imagen
+              ? '<img src="' + p.imagen + '" alt="' + p.nombre + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">'
+              : '<span class="product-card__placeholder">🫙</span>') +
+            '<button class="product-card__wish" data-id="' + p.id_producto + '" data-active="' + (enWish?'true':'false') + '">' + (enWish?'❤️':'🤍') + '</button>' +
+            '<button class="product-card__add" data-id="' + p.id_producto + '">Añadir al Carrito</button>' +
+          '</div>' +
+          '<div class="product-card__info">' +
+            '<div class="product-card__brand">' + (p.marca||'') + '</div>' +
+            '<div class="product-card__name">'  + p.nombre + '</div>' +
+            '<div class="product-card__price">$ ' + precio.toLocaleString('es-CO') + '</div>' +
+            presHTML +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      /* Eventos wishlist */
+      grid.querySelectorAll('.product-card__wish').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var id   = btn.dataset.id;
+          var prod = filtrados.find(function(x){ return String(x.id_producto) === id; });
+          if (!prod) return;
+          var w    = getWishlist();
+          var idx  = w.findIndex(function(x){ return x.id === id; });
+          if (idx >= 0) { w.splice(idx, 1); btn.textContent = '🤍'; btn.dataset.active = 'false'; }
+          else {
+            w.push({ id: id, nombre: prod.nombre, marca: prod.marca||'', precio: parsePrecio(prod.precio), imagen: prod.imagen||'' });
+            btn.textContent = '❤️'; btn.dataset.active = 'true';
+          }
+          saveWishlist(w);
+          updateBadges();
+        });
+      });
+
+      /* Eventos carrito */
+      grid.querySelectorAll('.product-card__add').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var id   = btn.dataset.id;
+          var prod = filtrados.find(function(x){ return String(x.id_producto) === id; });
+          if (!prod) return;
+
+          var card   = btn.closest('.product-card');
+          var select = card ? card.querySelector('.pres-select') : null;
+          var presLabel = '', precio = parsePrecio(prod.precio);
+
+          if (select) {
+            var opt = select.options[select.selectedIndex];
+            presLabel = opt ? opt.value : '';
+            precio    = opt ? (parseFloat(opt.dataset.precio)||precio) : precio;
+          }
+
+          var c   = getCarrito();
+          var key = id + (presLabel ? '_' + presLabel : '');
+          var idx = c.findIndex(function(x){ return x.id === key; });
+          if (idx >= 0) { c[idx].cantidad = (c[idx].cantidad||1) + 1; }
+          else { c.push({ id: key, nombre: prod.nombre, marca: prod.marca||'', precio: precio, imagen: prod.imagen||'', presentacion: presLabel, cantidad: 1 }); }
+          saveCarrito(c);
+          updateBadges();
+
+          var orig = btn.textContent;
+          btn.textContent = '✓ Añadido'; btn.style.background = '#4a7c59';
+          setTimeout(function(){ btn.textContent = orig; btn.style.background = ''; }, 1200);
+        });
+      });
+    })
+    .catch(function() {
+      document.getElementById('coleccion-grid').innerHTML = '<div class="coleccion-empty">ERROR AL CARGAR. VERIFICA QUE XAMPP ESTÉ ACTIVO.</div>';
+    });
+
+  /* Header scroll */
+  window.addEventListener('scroll', function() {
+    document.getElementById('header').classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  /* ── Paneles laterales carrito y wishlist ── */
+  var estilosPaneles = '<style>' +
+    '.side-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s}' +
+    '.side-panel-overlay.open{opacity:1;pointer-events:all}' +
+    '.side-panel{position:absolute;top:0;right:0;bottom:0;width:340px;max-width:100vw;background:#111;border-left:1px solid rgba(201,168,76,0.2);transform:translateX(100%);transition:transform 0.3s;display:flex;flex-direction:column}' +
+    '.side-panel-overlay.open .side-panel{transform:translateX(0)}' +
+    '.side-panel__header{padding:20px;border-bottom:1px solid rgba(201,168,76,0.15);display:flex;justify-content:space-between;align-items:center}' +
+    '.side-panel__title{font-family:Cinzel,serif;font-size:13px;letter-spacing:0.15em;color:#C9A84C}' +
+    '.side-panel__close{background:none;border:none;color:#888;cursor:pointer;font-size:20px;line-height:1}' +
+    '.side-panel__body{flex:1;overflow-y:auto;padding:16px}' +
+  '</style>';
+
+  document.body.insertAdjacentHTML('beforeend', estilosPaneles +
+    '<div class="side-panel-overlay" id="panel-carrito-overlay"><div class="side-panel">' +
+      '<div class="side-panel__header"><span class="side-panel__title">CARRITO DE COMPRAS</span>' +
+      '<button class="side-panel__close" id="cerrar-carrito">✕</button></div>' +
+      '<div class="side-panel__body" id="carrito-panel"></div></div></div>' +
+    '<div class="side-panel-overlay" id="panel-wishlist-overlay"><div class="side-panel">' +
+      '<div class="side-panel__header"><span class="side-panel__title">LISTA DE DESEOS</span>' +
+      '<button class="side-panel__close" id="cerrar-wishlist">✕</button></div>' +
+      '<div class="side-panel__body" id="wishlist-panel"></div></div></div>'
+  );
+
+  function cerrarPaneles() {
+    document.getElementById('panel-carrito-overlay').classList.remove('open');
+    document.getElementById('panel-wishlist-overlay').classList.remove('open');
+  }
+
+  document.getElementById('cerrar-carrito').addEventListener('click', cerrarPaneles);
+  document.getElementById('cerrar-wishlist').addEventListener('click', cerrarPaneles);
+  document.getElementById('panel-carrito-overlay').addEventListener('click', function(e){ if(e.target===this) cerrarPaneles(); });
+  document.getElementById('panel-wishlist-overlay').addEventListener('click', function(e){ if(e.target===this) cerrarPaneles(); });
+
+  function renderCarritoPanel() {
+    var panel = document.getElementById('carrito-panel');
+    var items = getCarrito();
+    if (!items.length) { panel.innerHTML = '<p style="text-align:center;padding:20px;color:#9A9180;font-size:12px;letter-spacing:0.1em">EL CARRITO ESTÁ VACÍO</p>'; return; }
+    var total = items.reduce(function(s,i){ return s+(i.precio*(i.cantidad||1)); }, 0);
+    panel.innerHTML = items.map(function(item, idx) {
+      return '<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(201,168,76,0.1)">' +
+        (item.imagen ? '<img src="'+item.imagen+'" style="width:44px;height:44px;object-fit:cover;border-radius:4px">' : '<div style="width:44px;height:44px;background:rgba(201,168,76,0.1);border-radius:4px;display:flex;align-items:center;justify-content:center">🫙</div>') +
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;color:#E8DCC8;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+item.nombre+'</div>' +
+        (item.presentacion?'<div style="font-size:10px;color:#9A9180">'+item.presentacion+'</div>':'')+
+        '<div style="font-size:11px;color:#C9A84C;margin-top:2px">$ '+Number(item.precio||0).toLocaleString('es-CO')+' × '+(item.cantidad||1)+'</div></div>' +
+        '<button onclick="quitarItem('+idx+')" style="background:none;border:none;color:#e05252;cursor:pointer;font-size:16px;padding:0 4px">✕</button></div>';
+    }).join('') +
+    '<div style="margin-top:12px;text-align:right"><div style="font-size:11px;color:#9A9180;letter-spacing:0.1em">TOTAL</div>' +
+    '<div style="font-size:18px;color:#C9A84C;font-weight:700">$ '+total.toLocaleString('es-CO')+'</div></div>';
+  }
+
+  function renderWishlistPanel() {
+    var panel = document.getElementById('wishlist-panel');
+    var items = getWishlist();
+    if (!items.length) { panel.innerHTML = '<p style="text-align:center;padding:20px;color:#9A9180;font-size:12px;letter-spacing:0.1em">TU LISTA DE DESEOS ESTÁ VACÍA</p>'; return; }
+    panel.innerHTML = items.map(function(item) {
+      return '<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(201,168,76,0.1)">' +
+        (item.imagen ? '<img src="'+item.imagen+'" style="width:44px;height:44px;object-fit:cover;border-radius:4px">' : '<div style="width:44px;height:44px;background:rgba(201,168,76,0.1);border-radius:4px;display:flex;align-items:center;justify-content:center">🫙</div>') +
+        '<div style="flex:1;min-width:0"><div style="font-size:12px;color:#E8DCC8;font-weight:600">'+item.nombre+'</div>' +
+        '<div style="font-size:11px;color:#9A9180">'+(item.marca||'')+'</div>' +
+        '<div style="font-size:11px;color:#C9A84C;margin-top:2px">$ '+Number(item.precio||0).toLocaleString('es-CO')+'</div></div>' +
+        '<button onclick="quitarWish(\''+item.id+'\')" style="background:none;border:none;color:#e05252;cursor:pointer;font-size:16px;padding:0 4px">✕</button></div>';
+    }).join('');
+  }
+
+  function quitarItem(idx) {
+    var c = getCarrito(); c.splice(idx,1); saveCarrito(c);
+    updateBadges(); renderCarritoPanel();
+  }
+  function quitarWish(id) {
+    saveWishlist(getWishlist().filter(function(x){ return x.id !== id; }));
+    updateBadges(); renderWishlistPanel();
+    document.querySelectorAll('.product-card__wish[data-id="'+id+'"]').forEach(function(b){ b.textContent='🤍'; b.dataset.active='false'; });
+  }
+
+  document.getElementById('btn-cart').addEventListener('click', function() {
+    renderCarritoPanel();
+    document.getElementById('panel-carrito-overlay').classList.add('open');
+    document.getElementById('panel-wishlist-overlay').classList.remove('open');
+  });
+  document.getElementById('btn-wishlist').addEventListener('click', function() {
+    renderWishlistPanel();
+    document.getElementById('panel-wishlist-overlay').classList.add('open');
+    document.getElementById('panel-carrito-overlay').classList.remove('open');
+  });
+</script>
+</body>
+</html>
