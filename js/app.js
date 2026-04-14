@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
     return '$ ' + Number(v||0).toLocaleString('es-CO');
   }
 
+  /* ── Parsear precio que puede venir como string "$320.000" o número ── */
+  function parsePrecio(v) {
+    if (!v) return 0;
+    if (typeof v === 'number') return v;
+    // Remover $, espacios, puntos de miles y comas
+    var limpio = String(v).replace(/[$\s.]/g, '').replace(/,/g, '');
+    return parseFloat(limpio) || 0;
+  }
+
 
   /* ──────────────────────────────────────────────────────────
      1. HEADER — sombra al hacer scroll
@@ -272,9 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWishlistDrawer();
   }
 
-  window.quitarDelCarrito = quitarDelCarrito;
-
-  /* ── Panel wishlist (drawer) ── */
+  window.cerrarPaneles = cerrarPaneles;
   function renderWishlistDrawer() {
     var panel = document.getElementById('wishlist-panel');
     if (!panel) return;
@@ -301,13 +308,14 @@ document.addEventListener('DOMContentLoaded', () => {
     saveWishlist(w.filter(function(x){ return x.id !== id; }));
     updateBadges();
     renderWishlistDrawer();
-    /* Actualizar corazones en tarjetas */
     document.querySelectorAll('.product-card__wish[data-id="' + id + '"]').forEach(function(btn){
       btn.textContent = '🤍'; btn.dataset.active = 'false';
     });
   }
 
-  window.quitarDeWishlist = quitarDeWishlist;
+  window.quitarDeWishlist  = quitarDeWishlist;
+  window.quitarDelCarrito  = quitarDelCarrito;
+  window.cerrarPaneles     = cerrarPaneles;
 
   /* ── Abrir panel al clic en iconos del header ── */
   var panelActivo = null;
@@ -379,8 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target === this) cerrarPaneles();
     });
   }
-
-  window.cerrarPaneles = cerrarPaneles;
 
   /* Inicializar paneles */
   crearPaneles();
@@ -603,10 +609,10 @@ document.addEventListener('DOMContentLoaded', () => {
         var prod = productos.find(function(x){ return String(x.id||x.nombre) === prodId; });
         if (!prod) return;
         var agregado = toggleWishlist({
-          id: String(prod.id||prod.nombre),
+          id:     String(prod.id||prod.nombre),
           nombre: prod.nombre,
           marca:  prod.marca  || '',
-          precio: prod.precio || 0,
+          precio: parsePrecio(prod.precio),
           imagen: prod.imagen || ''
         });
         btn.textContent    = agregado ? '❤️' : '🤍';
@@ -625,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var card = btn.closest('.product-card');
         var select = card ? card.querySelector('.pres-select') : null;
         var presLabel = '';
-        var precio = prod.precio || 0;
+        var precio = parsePrecio(prod.precio);
 
         if (select) {
           var opt = select.options[select.selectedIndex];
