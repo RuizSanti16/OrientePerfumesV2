@@ -74,5 +74,6 @@ export const authAPI = {
 
 export const destacadosAPI = {
   listar:   ()      => apiFetch('destacados.php'),
-  guardar:  (ids)   => apiFetch('destacados.php', 'POST', { ids }),
+  // items = [{ id_producto, badge }]
+  guardar:  (items) => apiFetch('destacados.php', 'POST', { ids: items }),
 };

@@ -1,8 +1,6 @@
 <?php
 /* =============================================================
-   api/destacados.php — Productos destacados desde BD
-   GET  → listar productos destacados con info completa
-   POST → guardar lista de ids destacados
+   api/destacados.php — Productos destacados con badge y precios
 ============================================================= */
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -16,7 +14,8 @@ try {
 
         case 'GET':
             $s = $pdo->query("
-                SELECT p.*, c.nombre AS nombre_categoria, d.orden
+                SELECT p.*, c.nombre AS nombre_categoria,
+                       d.orden, d.badge, d.precio_oferta, d.precio_anterior
                 FROM tbl_destacados d
                 JOIN tbl_productos p ON d.id_producto = p.id_producto
                 LEFT JOIN tbl_categorias c ON p.id_categoria = c.id_categoria
@@ -25,27 +24,47 @@ try {
             ");
             $rows = $s->fetchAll();
             foreach ($rows as &$row) {
-                if ($row['presentaciones']) {
-                    $row['presentaciones'] = json_decode($row['presentaciones'], true) ?: [];
-                } else {
-                    $row['presentaciones'] = [];
-                }
+                $row['presentaciones'] = $row['presentaciones']
+                    ? (json_decode($row['presentaciones'], true) ?: [])
+                    : [];
             }
             echo json_encode(['ok' => true, 'data' => $rows]);
             break;
 
         case 'POST':
-            $b = json_decode(file_get_contents('php://input'), true);
-            $ids = $b['ids'] ?? [];
+            $b     = json_decode(file_get_contents('php://input'), true);
+            $items = $b['ids'] ?? [];
 
             $pdo->beginTransaction();
             $pdo->exec("DELETE FROM tbl_destacados");
-            if (!empty($ids)) {
-                $stmt = $pdo->prepare("INSERT INTO tbl_destacados (id_producto, orden) VALUES (:id, :orden)");
-                foreach ($ids as $orden => $id) {
-                    $stmt->execute([':id' => $id, ':orden' => $orden]);
+
+            if (!empty($items)) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO tbl_destacados (id_producto, orden, badge, precio_oferta, precio_anterior)
+                    VALUES (:id, :orden, :badge, :precio_oferta, :precio_anterior)
+                ");
+                foreach ($items as $orden => $item) {
+                    if (is_array($item)) {
+                        $id_prod        = $item['id_producto']    ?? null;
+                        $badge          = $item['badge']          ?? 'none';
+                        $precio_oferta  = !empty($item['precioOferta'])   ? intval($item['precioOferta'])   : null;
+                        $precio_anterior= !empty($item['precioAnterior']) ? intval($item['precioAnterior']) : null;
+                    } else {
+                        $id_prod = $item; $badge = 'none';
+                        $precio_oferta = null; $precio_anterior = null;
+                    }
+                    if ($id_prod) {
+                        $stmt->execute([
+                            ':id'              => $id_prod,
+                            ':orden'           => $orden,
+                            ':badge'           => $badge,
+                            ':precio_oferta'   => $precio_oferta,
+                            ':precio_anterior' => $precio_anterior,
+                        ]);
+                    }
                 }
             }
+
             $pdo->commit();
             echo json_encode(['ok' => true, 'mensaje' => 'Productos destacados actualizados']);
             break;

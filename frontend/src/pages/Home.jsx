@@ -37,9 +37,10 @@ export default function Home() {
           id:             p.id_producto,
           nombre:         p.nombre,
           marca:          p.marca || '',
-          precio:         p.precio || 0,
+          precio:         p.precio_oferta   || p.precio || 0,
+          precioAnterior: p.precio_anterior || '',
           imagen:         p.imagen || '',
-          badge:          'none',
+          badge:          p.badge  || 'none',
           presentaciones: p.presentaciones || [],
         })));
       }
