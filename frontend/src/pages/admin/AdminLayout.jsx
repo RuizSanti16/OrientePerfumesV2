@@ -1,13 +1,17 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 
 const NAV = [
-  { label: 'Dashboard',   to: '/admin' },
-  { label: 'Productos',   to: '/admin/products' },
-  { label: 'Categorías',  to: '/admin/categories' },
-  { label: 'Marcas',      to: '/admin/brands' },
-  { label: 'Clientes',    to: '/admin/customers' },
-  { label: 'Proveedores', to: '/admin/suppliers' },
-  { label: 'Inventario',  to: '/admin/inventory' },
+  { label: 'Dashboard',            to: '/admin' },
+  { label: 'Productos',            to: '/admin/products' },
+  { label: 'Categorías',           to: '/admin/categories' },
+  { label: 'Marcas',               to: '/admin/brands' },
+  { label: 'Clientes',             to: '/admin/customers' },
+  { label: 'Proveedores',          to: '/admin/suppliers' },
+  { label: 'Inventario',           to: '/admin/inventory' },
+  { label: 'Prod. Destacados',     to: '/admin/destacados' },
+  { label: 'Carrusel',             to: '/admin/carrusel' },
+  { label: 'Noticias',             to: '/admin/noticias' },
+  { label: 'Ajustes',              to: '/admin/ajustes' },
 ];
 
 export default function AdminLayout() {

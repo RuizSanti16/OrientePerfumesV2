@@ -5,11 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      /* Redirige /api/* al servidor PHP de XAMPP */
       '/api': {
-        target: 'http://localhost/OrientPerfumesV2/backend',
+        target: 'http://localhost',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        rewrite: (path) => path.replace(/^\/api/, '/OrientPerfumesV2/backend/api'),
       }
     }
   }

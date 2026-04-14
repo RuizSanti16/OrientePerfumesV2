@@ -1,0 +1,484 @@
+/*
+==============================================================
+  noticias.css — Estilos EXCLUSIVOS de la sección Noticias
+  OrientPerfumes · Versión 2.0
+
+  IMPORTANTE: Este archivo solo contiene estilos propios
+  de la sección noticias. Los estilos compartidos
+  (header, footer, drawer, reset, variables) viven en
+  style.css que se carga antes que este archivo.
+
+  CONTENIDO:
+  1.  Hero de noticias (título ornamental)
+  2.  Grid principal (dos columnas)
+  3.  Sección video
+  4.  Sección comentarios
+  5.  Sección nuevos lanzamientos
+  6.  Toast de notificación
+  7.  Media queries
+==============================================================
+*/
+
+
+/* ============================================================
+   1. HERO DE NOTICIAS
+   Título ornamental centrado al inicio de la página.
+============================================================ */
+.noticias-hero {
+  text-align: center;
+  padding: var(--gap-xl) var(--gap-lg) var(--gap-lg);
+}
+
+.noticias-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1.1;
+  margin-bottom: var(--gap-sm);
+}
+
+.noticias-hero__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--cream);
+}
+
+.noticias-hero__ornament {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: rgba(201,168,76,0.25);
+  margin-top: var(--gap-sm);
+}
+
+
+/* ============================================================
+   2. GRID PRINCIPAL — Dos columnas
+   Izquierda (60%): Video + Comentarios
+   Derecha   (40%): Nuevos Lanzamientos
+============================================================ */
+.noticias-main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gap-lg) var(--gap-xl);
+}
+
+.noticias-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--gap-lg);
+  align-items: start;
+}
+
+/* Etiqueta de sección interna */
+.section-label {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid rgba(201,168,76,0.25);
+}
+
+
+/* ============================================================
+   3. SECCIÓN VIDEO
+============================================================ */
+.video-section {
+  margin-bottom: var(--gap-lg);
+}
+
+/* Contenedor 16:9 */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--dark-mid);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Placeholder cuando no hay video */
+.video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-md);
+  background: linear-gradient(135deg, #111109 0%, #0a0a08 100%);
+}
+
+.video-placeholder__icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--gold);
+  transition: background 0.28s ease, transform 0.28s ease;
+}
+
+.video-placeholder:hover .video-placeholder__icon {
+  background: rgba(201,168,76,0.22);
+  transform: scale(1.06);
+}
+
+.video-placeholder__text {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--cream-muted);
+}
+
+/* Video real */
+.main-video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* Iframe YouTube/Vimeo */
+.video-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* Info bajo el video */
+.video-info { padding: var(--gap-md) 0 0; }
+
+.video-info__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.video-info__desc {
+  font-size: 0.9rem;
+  color: var(--cream-muted);
+  line-height: 1.7;
+}
+
+
+/* ============================================================
+   4. SECCIÓN COMENTARIOS
+============================================================ */
+.comentarios-section {
+  margin-bottom: var(--gap-lg);
+}
+
+/* Formulario */
+.comentario-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-md);
+  background: var(--dark-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 4px;
+}
+
+.form-input,
+.form-textarea {
+  background: var(--dark-surface);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 2px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color 0.28s ease;
+  resize: vertical;
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: dark;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--cream-muted); opacity: 0.6; }
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Lista de comentarios */
+.comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Tarjeta de comentario */
+.comentario-card {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: var(--gap-sm);
+  align-items: start;
+  padding: var(--gap-sm) var(--gap-md);
+  background: var(--dark-mid);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 4px;
+  animation: fadeInUp 0.35s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.comentario-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.comentario-nombre {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.comentario-texto {
+  font-size: 0.85rem;
+  color: var(--cream);
+  line-height: 1.55;
+}
+
+.comentario-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.reaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--cream-muted);
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.28s ease;
+  background: none;
+  cursor: pointer;
+}
+
+.reaction-btn--like:hover,
+.reaction-btn--like.active {
+  color: #4caf50;
+  border-color: rgba(76,175,80,0.4);
+  background: rgba(76,175,80,0.08);
+}
+
+.reaction-btn--dislike:hover,
+.reaction-btn--dislike.active {
+  color: #f44336;
+  border-color: rgba(244,67,54,0.4);
+  background: rgba(244,67,54,0.08);
+}
+
+.comentarios-empty {
+  text-align: center;
+  padding: var(--gap-lg);
+  color: var(--cream-muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+   5. SECCIÓN NUEVOS LANZAMIENTOS
+============================================================ */
+.lanzamientos-section {
+  position: sticky;
+  top: 96px;
+}
+
+.lanzamientos-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-md);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+
+/* Grid 2×2 */
+.lanzamientos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Tarjeta de lanzamiento */
+.launch-card {
+  background: var(--dark-mid);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.28s ease, transform 0.28s ease;
+  cursor: pointer;
+}
+
+.launch-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.launch-card__header {
+  padding: 12px 12px 4px;
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--cream-muted);
+  text-transform: uppercase;
+}
+
+.launch-card__badge {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 0 12px 12px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.launch-card__desc {
+  padding: 0 12px 12px;
+  font-size: 0.75rem;
+  color: var(--cream-muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.launch-card__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.launch-card__img-placeholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--dark-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--cream-muted);
+}
+
+.lanzamientos-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--gap-lg);
+  color: var(--cream-muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+   6. TOAST DE NOTIFICACIÓN
+============================================================ */
+.toast {
+  position: fixed;
+  bottom: var(--gap-md);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gold);
+  color: var(--dark);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  padding: 10px 24px;
+  border-radius: 2px;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+/* ============================================================
+   7. MEDIA QUERIES
+============================================================ */
+
+/* Tableta (≤ 900px): una sola columna */
+@media (max-width: 900px) {
+  .noticias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lanzamientos-section {
+    position: static;
+    order: -1; /* lanzamientos arriba en móvil */
+  }
+
+  .lanzamientos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .noticias-main {
+    padding: 0 var(--gap-md) var(--gap-lg);
+  }
+}
+
+/* Móvil (≤ 480px) */
+@media (max-width: 480px) {
+  .noticias-hero__title {
+    font-size: 2rem;
+  }
+
+  .lanzamientos-grid {
+    grid-template-columns: 1fr;
+  }
+}

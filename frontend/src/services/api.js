@@ -71,3 +71,8 @@ export const authAPI = {
   loginCliente: (data) => apiFetch('login-cliente.php', 'POST', data),
   registro:     (data) => apiFetch('registro.php',      'POST', data),
 };
+
+export const destacadosAPI = {
+  listar:   ()      => apiFetch('destacados.php'),
+  guardar:  (ids)   => apiFetch('destacados.php', 'POST', { ids }),
+};
