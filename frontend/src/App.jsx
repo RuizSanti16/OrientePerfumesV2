@@ -3,6 +3,7 @@ import Home          from './pages/Home';
 import Login         from './pages/Login';
 import Coleccion     from './pages/Coleccion';
 import Noticias      from './pages/Noticias';
+import Contacto      from './pages/Contacto';
 import AdminLayout   from './pages/admin/AdminLayout';
 import Dashboard     from './pages/admin/Dashboard';
 import Products      from './pages/admin/Products';
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/login"         element={<Login />} />
         <Route path="/coleccion"     element={<Coleccion />} />
         <Route path="/noticias"      element={<Noticias />} />
+        <Route path="/contacto"      element={<Contacto />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={

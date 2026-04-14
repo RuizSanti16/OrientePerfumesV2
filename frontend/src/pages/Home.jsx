@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCarrito }  from '../hooks/useCarrito';
-import { useWishlist } from '../hooks/useWishlist';
+import { useCarrito }    from '../hooks/useCarrito';
+import { useWishlist }   from '../hooks/useWishlist';
 import { destacadosAPI } from '../services/api';
+import SocialButtons     from '../components/SocialButtons';
 
 /* ── Helpers ── */
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
@@ -138,6 +139,7 @@ export default function Home() {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>
           </button>
+          <SocialButtons />
           <button className="menu-btn" id="menu-toggle" onClick={() => setDrawerAbierto(true)} aria-label="Abrir menú" aria-expanded={drawerAbierto}>
             <span/><span/><span/>
           </button>
@@ -287,9 +289,60 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="footer" role="contentinfo">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back" aria-label="Volver al inicio">↑ Volver Arriba</a>
+      <footer style={{ background: '#0f0f0d', borderTop: '1px solid rgba(201,168,76,0.1)', padding: '48px 24px 24px' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px,1fr))', gap: 32, marginBottom: 40 }}>
+            {/* Brand */}
+            <div>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 16, color: '#C9A84C', letterSpacing: '0.1em', marginBottom: 8 }}>ORIENTPERFUMES</div>
+              <p style={{ fontSize: 13, color: '#9A9180', lineHeight: 1.7, maxWidth: 240 }}>
+                Fragancias exclusivas de lujo. Tu destino para los mejores perfumes del mundo.
+              </p>
+              <div style={{ marginTop: 16 }}>
+                <SocialButtons />
+              </div>
+            </div>
+            {/* Navegación */}
+            <div>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 16 }}>COLECCIONES</div>
+              {['Nicho','Oriental','Diseñador','Exclusivos'].map(c => (
+                <div key={c} style={{ marginBottom: 8 }}>
+                  <a onClick={() => navigate(`/coleccion?categoria=${encodeURIComponent(c)}`)}
+                    style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none', transition: 'color 0.2s' }}
+                    onMouseEnter={e => e.target.style.color = '#C9A84C'}
+                    onMouseLeave={e => e.target.style.color = '#9A9180'}>
+                    {c}
+                  </a>
+                </div>
+              ))}
+            </div>
+            {/* Contacto */}
+            <div>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 16 }}>CONTACTO</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <a onClick={() => navigate('/contacto')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
+                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
+                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
+                  Contáctanos
+                </a>
+                <a onClick={() => navigate('/noticias')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
+                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
+                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
+                  Noticias
+                </a>
+                <a onClick={() => navigate('/login')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
+                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
+                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
+                  Iniciar Sesión
+                </a>
+              </div>
+            </div>
+          </div>
+          <div style={{ borderTop: '1px solid rgba(201,168,76,0.08)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{ fontSize: 12, color: '#9A9180', margin: 0 }}>© 2024 OrientPerfumes · Todos los derechos reservados</p>
+            <a href="#" style={{ fontSize: 12, color: '#9A9180', textDecoration: 'none' }}>↑ Volver Arriba</a>
+          </div>
+        </div>
       </footer>
 
       {/* ── Drawer ── */}
@@ -318,7 +371,7 @@ export default function Home() {
         </div>
         <div className="drawer__divider" aria-hidden="true"/>
         <ul className="drawer__nav">
-          {[['#categorias','Fragancias Orientales'],['#categorias','Perfumería Nicho'],['#productos','Productos destacados'],['#productos','Novedades'],['#productos','Ofertas'],['#productos','Exclusivos'],['/noticias','Noticias'],['#','Acerca de Nosotros'],['#','Contacto']].map(([href,label]) => (
+          {[['#categorias','Fragancias Orientales'],['#categorias','Perfumería Nicho'],['#productos','Productos destacados'],['#productos','Novedades'],['#productos','Ofertas'],['#productos','Exclusivos'],['/noticias','Noticias'],['/contacto','Contacto'],['#','Acerca de Nosotros']].map(([href,label]) => (
             <li key={label}><a href={href} onClick={() => setDrawerAbierto(false)}>{label}</a></li>
           ))}
           {adminSession && <li><a href="/admin" onClick={() => setDrawerAbierto(false)}>Panel Admin</a></li>}
