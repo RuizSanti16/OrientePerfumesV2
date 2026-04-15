@@ -107,7 +107,7 @@ export default function Destacados() {
 
               <div style={{ padding: '12px' }}>
                 <div onClick={() => toggleProducto(p.id_producto)} style={{ cursor: 'pointer' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#E8DCC8', marginBottom: '2px' }}>{p.nombre}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#c8d2e8', marginBottom: '2px' }}>{p.nombre}</div>
                   <div style={{ fontSize: '11px', color: '#9A9180' }}>{p.marca || '—'}</div>
                   <div style={{ fontSize: '12px', color: '#C9A84C', marginTop: '4px', marginBottom: sel ? '10px' : 0 }}>
                     $ {Number(p.precio || 0).toLocaleString('es-CO')}

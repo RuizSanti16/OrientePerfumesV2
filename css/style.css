@@ -724,7 +724,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 
 .badge--new  { background: var(--gold); color: var(--dark); }
-.badge--excl { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+.badge--excl { background:  rgb(144, 0, 255); border: 1px solid var(--gold); color: var(--gold); }
 .badge--sale { background: #8B1C1C; color: var(--cream); }
 
 .product-card__wish {
