@@ -1,20 +1,10 @@
-/* =============================================================
-   services/api.js
-   Conector central a la API PHP de OrientPerfumes
-============================================================= */
-
 const API_BASE = '/api';
 
 async function apiFetch(endpoint, method = 'GET', data = null) {
   const url  = `${API_BASE}/${endpoint}`;
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' }
-  };
-  if (data && (method === 'POST' || method === 'PUT')) {
-    opts.body = JSON.stringify(data);
-  }
-  const res  = await fetch(url, opts);
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
+  const res = await fetch(url, opts);
   return res.json();
 }
 
@@ -61,9 +51,9 @@ export const inventarioAPI = {
 };
 
 export const ventasAPI = {
-  listar:  ()     => apiFetch('ventas.php'),
-  crear:   (data) => apiFetch('ventas.php', 'POST', data),
-  eliminar:(id)   => apiFetch(`ventas.php?id=${id}`, 'DELETE'),
+  listar:   ()     => apiFetch('ventas.php'),
+  crear:    (data) => apiFetch('ventas.php', 'POST', data),
+  eliminar: (id)   => apiFetch(`ventas.php?id=${id}`, 'DELETE'),
 };
 
 export const authAPI = {
@@ -73,7 +63,6 @@ export const authAPI = {
 };
 
 export const destacadosAPI = {
-  listar:   ()      => apiFetch('destacados.php'),
-  // items = [{ id_producto, badge }]
-  guardar:  (items) => apiFetch('destacados.php', 'POST', { ids: items }),
+  listar:  ()      => apiFetch('destacados.php'),
+  guardar: (items) => apiFetch('destacados.php', 'POST', { ids: items }),
 };
