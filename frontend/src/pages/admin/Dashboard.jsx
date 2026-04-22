@@ -19,9 +19,9 @@ export default function Dashboard() {
   }, []);
 
   const KPIS = [
-    { label: 'Productos',  value: stats.productos, icon: '📦' },
-    { label: 'Clientes',   value: stats.clientes,  icon: '👥' },
-    { label: 'Ventas',     value: stats.ventas,    icon: '🛒' },
+    { label: 'Productos',  value: stats.productos, icon: '' },
+    { label: 'Clientes',   value: stats.clientes,  icon: '' },
+    { label: 'Ventas',     value: stats.ventas,    icon: '' },
   ];
 
   return (
