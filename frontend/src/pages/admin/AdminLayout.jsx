@@ -1,17 +1,19 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 
+
 const NAV = [
-  { label: 'Dashboard',            to: '/admin' },
-  { label: 'Productos',            to: '/admin/products' },
-  { label: 'Categorías',           to: '/admin/categories' },
-  { label: 'Marcas',               to: '/admin/brands' },
-  { label: 'Clientes',             to: '/admin/customers' },
-  { label: 'Proveedores',          to: '/admin/suppliers' },
-  { label: 'Inventario',           to: '/admin/inventory' },
-  { label: 'Prod. Destacados',     to: '/admin/destacados' },
-  { label: 'Carrusel',             to: '/admin/carrusel' },
-  { label: 'Noticias',             to: '/admin/noticias' },
-  { label: 'Ajustes',              to: '/admin/ajustes' },
+  { label: 'Dashboard',         to: '/admin' },
+  { label: 'Productos',         to: '/admin/products' },
+  { label: 'Categorías',        to: '/admin/categories' },
+  { label: 'Marcas',            to: '/admin/brands' },
+  { label: 'Clientes',          to: '/admin/customers' },
+  { label: 'Proveedores',       to: '/admin/suppliers' },
+  { label: 'Inventario',        to: '/admin/inventory' },
+  { label: 'Prod. Destacados',  to: '/admin/destacados' },
+  { label: 'Logos Colecciones', to: '/admin/colecciones' },
+  { label: 'Carrusel',          to: '/admin/carrusel' },
+  { label: 'Noticias',          to: '/admin/noticias' },
+  { label: 'Ajustes',           to: '/admin/ajustes' },
 ];
 
 export default function AdminLayout() {
@@ -22,7 +24,10 @@ export default function AdminLayout() {
     navigate('/login');
   }
 
-  const session = JSON.parse(localStorage.getItem('op_admin_session') || '{}');
+  const session = (() => {
+    try { return JSON.parse(localStorage.getItem('op_admin_session') || '{}'); }
+    catch { return {}; }
+  })();
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a08', fontFamily: 'Lato, sans-serif' }}>
@@ -33,7 +38,8 @@ export default function AdminLayout() {
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: '14px', color: '#C9A84C', letterSpacing: '0.1em' }}>ORIENTPERFUMES</div>
           <div style={{ fontSize: '11px', color: '#9A9180', marginTop: '4px' }}>Panel Admin</div>
         </div>
-        <nav style={{ flex: 1, padding: '16px 0' }}>
+
+        <nav style={{ flex: 1, padding: '16px 0', overflowY: 'auto' }}>
           {NAV.map(item => (
             <NavLink key={item.to} to={item.to} end={item.to === '/admin'}
               style={({ isActive }) => ({
@@ -42,12 +48,13 @@ export default function AdminLayout() {
                 background: isActive ? 'rgba(201,168,76,0.08)' : 'transparent',
                 borderLeft: isActive ? '2px solid #C9A84C' : '2px solid transparent',
                 textDecoration: 'none', fontSize: '13px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
               })}>
               {item.label}
             </NavLink>
           ))}
         </nav>
+
         <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(201,168,76,0.1)' }}>
           <div style={{ fontSize: '12px', color: '#E8DCC8', marginBottom: '8px' }}>{session.nombre}</div>
           <button onClick={logout}
@@ -57,7 +64,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Contenido */}
       <main style={{ flex: 1, overflow: 'auto' }}>
         <Outlet />
       </main>

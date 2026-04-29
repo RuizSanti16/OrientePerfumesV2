@@ -4,6 +4,7 @@ import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
 import { destacadosAPI } from '../services/api';
 import SocialButtons     from '../components/SocialButtons';
+import { CategoriasSection } from '../components/CategoryCard';
 
 /* ── Helpers ── */
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
@@ -178,64 +179,7 @@ export default function Home() {
       </section>
 
       {/* ── Categorías ── */}
-      <section className="section" id="categorias">
-        <div className="section__header">
-          <div className="section__eyebrow">Descubre</div>
-          <h2 className="section__title">Nuestras Colecciones</h2>
-          <p className="section__subtitle">Cada fragancia, una historia única</p>
-        </div>
-        <div className="categories-grid" role="list">
-          {[
-            { nombre:'Nicho',      icono:'🏺', count:'+120', bg:'radial-gradient(circle at 50% 30%, rgba(180,130,30,0.18) 0%, transparent 55%), linear-gradient(to bottom, #1a1510, #0a0a08)' },
-            { nombre:'Oriental',   icono:'🌙', count:'+85',  bg:'radial-gradient(circle at 60% 40%, rgba(160,100,10,0.2) 0%, transparent 55%), linear-gradient(to bottom, #130e08, #0a0a08)' },
-            { nombre:'Diseñador',  icono:'💎', count:'+200', bg:'radial-gradient(circle at 40% 35%, rgba(140,95,15,0.18) 0%, transparent 55%), linear-gradient(to bottom, #151209, #0a0a08)' },
-            { nombre:'Exclusivos', icono:'✨', count:'+45',  bg:'radial-gradient(circle at 55% 45%, rgba(170,120,20,0.2) 0%, transparent 55%), linear-gradient(to bottom, #18140c, #0a0a08)' },
-          ].map(col => (
-            <article key={col.nombre} className="category-card" role="listitem" tabIndex="0"
-              onClick={() => navigate(`/coleccion?categoria=${encodeURIComponent(col.nombre)}`)}
-              onKeyDown={e => { if(e.key==='Enter') navigate(`/coleccion?categoria=${encodeURIComponent(col.nombre)}`); }}
-              style={{cursor:'pointer'}}>
-              <div className="category-card__bg" style={{background: col.bg}} aria-hidden="true"/>
-              <div className="category-card__overlay" aria-hidden="true"/>
-              <div className="category-card__content">
-                <div className="category-card__icon" aria-hidden="true">{col.icono}</div>
-                <div className="category-card__name">{col.nombre}</div>
-                <div className="category-card__count">{col.count} fragancias</div>
-              </div>
-              <div className="category-card__line" aria-hidden="true"/>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Banner medio ── */}
-      <div className="banner-mid" aria-hidden="true">
-        <div className="banner-mid__ornament">❧</div>
-        <h2 className="banner-mid__title">El perfume es la forma más intensa del <em>recuerdo</em></h2>
-        <a href="#productos" className="btn-primary">Descubrir Ahora</a>
-      </div>
-
-      {/* ── Productos Destacados ── */}
-      <section className="products-section" id="productos" aria-labelledby="prod-title">
-        <div className="section__header">
-          <div className="section__eyebrow">Selección</div>
-          <h2 className="section__title" id="prod-title">Productos Destacados</h2>
-          <p className="section__subtitle">Los favoritos de nuestra clientela</p>
-        </div>
-        <div className="products-grid" id="products-grid" role="list">
-          {productosDestacados.length === 0
-            ? <p style={{textAlign:'center',padding:'40px',color:'#9A9180',fontFamily:'Cinzel,serif',fontSize:'11px',letterSpacing:'0.15em',gridColumn:'1/-1'}}>PRODUCTOS PRÓXIMAMENTE</p>
-            : productosDestacados.map((p, i) => (
-              <ProductCard key={i} producto={p}
-                enWishlist={estaEn(String(p.id||p.nombre))}
-                onWishlist={() => toggleWish({ id:String(p.id||p.nombre), nombre:p.nombre, marca:p.marca||'', precio:parsePrecio(p.precio), imagen:p.imagen||'' })}
-                onCarrito={(presLabel, precio) => agregarCarrito({ id:String(p.id||p.nombre)+(presLabel?'_'+presLabel:''), nombre:p.nombre, marca:p.marca||'', precio:Number(precio||parsePrecio(p.precio)), imagen:p.imagen||'', presentacion:presLabel })}
-                formatCOP={formatCOP}
-              />
-            ))
-          }
-        </div>
-      </section>
+    <CategoriasSection />
 
       {/* ── Marcas ── */}
       <section className="brands-section">
