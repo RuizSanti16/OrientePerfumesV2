@@ -201,8 +201,9 @@ export default function Coleccion() {
 
 /* ── Tarjeta de producto ── */
 function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP }) {
+  const navigate  = useNavigate();
   const [added,   setAdded]   = useState(false);
-  const [presIdx, setPresIdx] = useState(0);
+  const [presIdx, setPresIdx] = useState(0); 
   const pres = p.presentaciones || [];
 
   function handleCarrito() {
@@ -214,25 +215,36 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
 
   return (
     <article className="product-card" role="listitem" tabIndex="0">
-      <div className="product-card__img-wrap">
-        {p.imagen
-          ? <img src={p.imagen} alt={p.nombre} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-          : <span className="product-card__placeholder" aria-hidden="true">🫙</span>}
+  <div className="product-card__img-wrap">
+    <div onClick={() => navigate(`/producto/${p.id_producto}`)}
+      style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}>
+      {p.imagen
+        ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        : <span className="product-card__placeholder" aria-hidden="true">🫙</span>}
+    </div>
 
-        <button className="product-card__wish" onClick={onWishlist}
-          data-active={String(enWishlist)} aria-label="Lista de deseos">
-          {enWishlist ? '❤️' : '🤍'}
-        </button>
+    <button className="product-card__wish" onClick={onWishlist}
+      data-active={String(enWishlist)} aria-label="Lista de deseos">
+      {enWishlist ? '❤️' : '🤍'}
+    </button>
 
-        <button className="product-card__add" onClick={handleCarrito}
-          style={added ? { background: '#4a7c59', color: '#fff' } : {}}>
-          {added ? '✓ Añadido' : 'Añadir al Carrito'}
-        </button>
-      </div>
-
+    <button className="product-card__add" onClick={handleCarrito}
+      style={added ? { background: '#4a7c59', color: '#fff' } : {}}>
+      {added ? '✓ Añadido' : 'Añadir al Carrito'}
+    </button>
+  </div>
+  <div className="product-card__name" 
+    onClick={() => navigate(`/producto/${p.id_producto}`)}
+    style={{ cursor: 'pointer' }}>
+    {p.nombre}
+  </div>
       <div className="product-card__info">
         <div className="product-card__brand">{p.marca || ''}</div>
-        <div className="product-card__name">{p.nombre}</div>
+        <div className="product-card__name" 
+            onClick={() => navigate(`/producto/${p.id_producto}`)}
+            style={{ cursor: 'pointer' }}>
+            {p.nombre}
+          </div>
         <div className="product-card__price">{formatCOP(p.precio)}</div>
         {pres.length > 1 && (
           <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}

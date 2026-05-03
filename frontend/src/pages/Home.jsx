@@ -5,6 +5,7 @@ import { useWishlist }   from '../hooks/useWishlist';
 import { destacadosAPI } from '../services/api';
 import SocialButtons     from '../components/SocialButtons';
 import { CategoriasSection } from '../components/CategoryCard';
+import SearchBar from '../components/SearchBar';
 
 /* ── Helpers ── */
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
@@ -123,13 +124,7 @@ export default function Home() {
           </div>
         </a>
 
-        <div className="header__search" role="search">
-          <label htmlFor="search-input" className="sr-only">Buscar</label>
-          <input id="search-input" type="text" placeholder="Buscar productos..." aria-label="Buscar productos" />
-          <button aria-label="Buscar">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="18" height="18"><circle cx="11" cy="11" r="8"/><path strokeLinecap="round" d="m21 21-4.35-4.35"/></svg>
-          </button>
-        </div>
+<SearchBar />
 
         <div className="header__actions" role="navigation">
           <button className="action-btn" id="btn-wishlist" onClick={() => setPanelAbierto(p => p==='wishlist'?null:'wishlist')} aria-label={`Lista de deseos (${wishCount} items)`}>

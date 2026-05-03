@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { productosAPI, marcasAPI, categoriasAPI } from '../../services/api';
 
 export default function Products() {
@@ -10,6 +11,7 @@ export default function Products() {
   const [form,        setForm]        = useState(defaultForm());
   const [busqueda,    setBusqueda]    = useState('');
   const [imagenB64,   setImagenB64]   = useState('');
+  const navigate = useNavigate();
 
   function defaultForm() {
     return { nombre: '', marca: '', id_categoria: '', precio: '', descripcion: '', imagen: '', presentaciones: [] };
@@ -113,10 +115,11 @@ export default function Products() {
                 <td style={{ padding: '10px 16px', color: '#9A9180' }}>{p.marca || '—'}</td>
                 <td style={{ padding: '10px 16px', color: '#9A9180' }}>{p.nombre_categoria || '—'}</td>
                 <td style={{ padding: '10px 16px', color: '#C9A84C' }}>$ {Number(p.precio || 0).toLocaleString('es-CO')}</td>
-                <td style={{ padding: '10px 16px' }}>
-                  <button onClick={() => abrirEditar(p)} style={btnOutline}>Editar</button>
-                  <button onClick={() => eliminar(p.id_producto)} style={{ ...btnOutline, color: '#e05252', borderColor: '#e05252', marginLeft: 8 }}>Eliminar</button>
-                </td>
+              <td style={{ padding: '10px 16px' }}>
+                <button onClick={() => abrirEditar(p)} style={btnOutline}>Editar</button>
+                <button onClick={() => navigate(`/admin/producto/${p.id_producto}`)} style={{ ...btnOutline, color: '#9A9180', borderColor: 'rgba(201,168,76,0.2)', marginLeft: 8 }}>Detalle</button>
+                <button onClick={() => eliminar(p.id_producto)} style={{ ...btnOutline, color: '#e05252', borderColor: '#e05252', marginLeft: 8 }}>Eliminar</button>
+              </td>
               </tr>
             ))}
             {!filtrados.length && (

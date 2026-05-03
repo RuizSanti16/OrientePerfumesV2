@@ -17,11 +17,16 @@ import Carrusel        from './pages/admin/Carrusel';
 import NoticiasAdmin   from './pages/admin/NoticiasAdmin';
 import Ajustes         from './pages/admin/Ajustes';
 import ColeccionesAdmin from './pages/admin/ColeccionesAdmin';
+import Producto        from './pages/Producto';
+import ProductoDetalle from './pages/admin/ProductoDetalle';
+
+
 
 function AdminRoute({ children }) {
   const session = localStorage.getItem('op_admin_session');
   return session ? children : <Navigate to="/login" replace />;
 }
+
 
 export default function App() {
   return (
@@ -33,6 +38,7 @@ export default function App() {
         <Route path="/coleccion" element={<Coleccion />} />
         <Route path="/noticias"  element={<Noticias />} />
         <Route path="/contacto"  element={<Contacto />} />
+        <Route path="/producto/:id" element={<Producto />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -48,6 +54,7 @@ export default function App() {
           <Route path="noticias"        element={<NoticiasAdmin />} />
           <Route path="ajustes"         element={<Ajustes />} />
           <Route path="colecciones"     element={<ColeccionesAdmin />} />
+          <Route path="producto/:id" element={<ProductoDetalle />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

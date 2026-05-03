@@ -66,3 +66,10 @@ export const destacadosAPI = {
   listar:  ()      => apiFetch('destacados.php'),
   guardar: (items) => apiFetch('destacados.php', 'POST', { ids: items }),
 };
+
+export const productoDetalleAPI = {
+  obtener:       (id)   => apiFetch(`producto_detalle.php?id=${id}`),
+  guardar:       (data) => apiFetch('producto_detalle.php', 'POST', data),
+  eliminarRating:(id)   => apiFetch(`producto_detalle.php?rating_id=${id}`, 'DELETE'),
+  calificar:     (data) => apiFetch('producto_rating.php', 'POST', data),
+};
