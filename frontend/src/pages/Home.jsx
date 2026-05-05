@@ -176,6 +176,33 @@ export default function Home() {
       {/* ── Categorías ── */}
     <CategoriasSection />
 
+      {/* ── Productos Destacados ── */}
+      <section className="products-section" id="productos" aria-labelledby="productos-titulo">
+        <div className="section__header">
+          <div className="section__eyebrow">Selección Exclusiva</div>
+          <h2 className="section__title" id="productos-titulo">Productos Destacados</h2>
+          <p className="section__subtitle">Fragancias seleccionadas por nuestros expertos</p>
+        </div>
+        {productosDestacados.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 24px', color: '#9A9180', fontSize: 14 }}>
+            No hay productos destacados configurados aún.
+          </div>
+        ) : (
+          <div className="products-grid" role="list">
+            {productosDestacados.map(p => (
+              <ProductCard
+                key={p.id}
+                producto={{ ...p, precio: formatCOP(parsePrecio(p.precio)), precioAnterior: p.precioAnterior ? formatCOP(parsePrecio(p.precioAnterior)) : '' }}
+                enWishlist={estaEn(p.id)}
+                onWishlist={() => toggleWish(p)}
+                onCarrito={(presentacion, precioPres) => agregarCarrito({ ...p, precio: precioPres || parsePrecio(p.precio), presentacion })}
+                formatCOP={formatCOP}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* ── Marcas ── */}
       <section className="brands-section">
         <div className="section__header">
