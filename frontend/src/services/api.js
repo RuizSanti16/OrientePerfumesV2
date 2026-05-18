@@ -22,6 +22,37 @@ export async function subirImagen(file) {
   return res.json();
 }
 
+/**
+ * Sube un video al servidor y devuelve la URL pública.
+ * @param {File} file
+ * @param {function} onProgress  callback(porcentaje) — opcional
+ * @returns {Promise<{ok:boolean, url?:string, nombre?:string, mensaje?:string}>}
+ */
+export function subirVideo(file, onProgress) {
+  return new Promise((resolve) => {
+    const token = getAdminToken();
+    const form  = new FormData();
+    form.append('video', file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE}/subir_video.php`);
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+    if (onProgress) {
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+      };
+    }
+
+    xhr.onload = () => {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch { resolve({ ok: false, mensaje: 'Respuesta inválida del servidor' }); }
+    };
+    xhr.onerror = () => resolve({ ok: false, mensaje: 'Error de conexión' });
+    xhr.send(form);
+  });
+}
+
 async function apiFetch(endpoint, method = 'GET', data = null) {
   const url  = `${API_BASE}/${endpoint}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
