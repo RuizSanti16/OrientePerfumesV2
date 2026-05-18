@@ -30,7 +30,7 @@ export default function AdminLayout() {
   })();
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a08', fontFamily: 'Lato, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a08', fontFamily: 'Raleway, sans-serif' }}>
 
       {/* Sidebar */}
       <aside style={{ width: '220px', background: '#111', borderRight: '1px solid rgba(201,168,76,0.1)', display: 'flex', flexDirection: 'column', padding: '24px 0' }}>

@@ -73,7 +73,7 @@ export default function Coleccion() {
   }, []);
 
   return (
-    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Lato, sans-serif' }}>
+    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif' }}>
 
       {/* Announcement Bar */}
       <div className="announcement-bar" role="banner">

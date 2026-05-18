@@ -119,7 +119,7 @@ export default function Login() {
         .form-input {
           width: 100%; background: #111110;
           border: 1px solid rgba(201,168,76,0.25); border-radius: 6px;
-          padding: 13px 16px; font-family: 'Lato', sans-serif;
+          padding: 13px 16px; font-family: 'Raleway', sans-serif;
           font-size: 14px; color: #F5F0E8; outline: none;
           transition: border-color 0.3s, box-shadow 0.3s;
         }
@@ -165,7 +165,7 @@ export default function Login() {
         }
         .btn-outline:hover { background: rgba(201,168,76,0.08); border-color: #C9A84C; }
         .link-btn {
-          font-family: 'Lato', sans-serif; font-size: 12px;
+          font-family: 'Raleway', sans-serif; font-size: 12px;
           color: #C8C0B0; letter-spacing: 0.04em;
           border-bottom: 1px solid transparent; padding-bottom: 1px;
           background: none; border-top: none; border-left: none; border-right: none;

@@ -128,7 +128,7 @@ export default function Producto() {
   const tieneNotas = Object.values(producto.notas||{}).some(arr => arr.length > 0);
 
   return (
-    <div style={{ background:'#0a0a08', minHeight:'100vh', color:'#E8DCC8', fontFamily:'Lato,sans-serif' }}>
+    <div style={{ background:'#0a0a08', minHeight:'100vh', color:'#E8DCC8', fontFamily:'Raleway,sans-serif' }}>
 
       {/* Header */}
       <header className="header">
@@ -405,5 +405,5 @@ function Section({ titulo, eyebrow, children }) {
 }
 
 const labelStyle = { fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', display:'block', marginBottom:6 };
-const inputStyle = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'10px 14px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box', fontFamily:'Lato,sans-serif' };
+const inputStyle = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'10px 14px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box', fontFamily:'Raleway,sans-serif' };
 const btnOutline = { background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'8px 20px', color:'#C9A84C', cursor:'pointer', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.1em' };

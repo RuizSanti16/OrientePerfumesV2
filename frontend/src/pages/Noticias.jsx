@@ -39,10 +39,10 @@ export default function Noticias() {
     setNombre(''); setTexto('');
   }
 
-  const inp = { width: '100%', background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '10px 14px', color: '#E8DCC8', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'Lato, sans-serif' };
+  const inp = { width: '100%', background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '10px 14px', color: '#E8DCC8', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'Raleway, sans-serif' };
 
   return (
-    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Lato, sans-serif' }}>
+    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif' }}>
 
       {/* Announcement bar */}
       <div className="announcement-bar" role="banner">

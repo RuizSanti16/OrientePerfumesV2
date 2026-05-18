@@ -25,40 +25,58 @@ const IconTK = () => (
   </svg>
 );
 
+/* ── Estilos base (neutros, acordes a la paleta dorada) ── */
+const BASE_STYLE = {
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  width: 34, height: 34, borderRadius: '50%',
+  background: 'transparent',
+  border: '1px solid rgba(201,168,76,0.22)',
+  color: '#9A9180',
+  textDecoration: 'none',
+  transition: 'background 0.22s, border-color 0.22s, color 0.22s',
+  flexShrink: 0,
+};
+
 /* ── Botón individual ── */
-function SocialBtn({ href, icon, color, bgColor, title }) {
+function SocialBtn({ href, icon, color, title }) {
   if (!href) return null;
   return (
     <a href={href} target="_blank" rel="noreferrer" title={title}
-      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', background: bgColor, border: `1px solid ${color}40`, color, textDecoration: 'none', transition: 'all 0.2s', flexShrink: 0 }}
-      onMouseEnter={e => { e.currentTarget.style.background = color + '30'; e.currentTarget.style.borderColor = color; }}
-      onMouseLeave={e => { e.currentTarget.style.background = bgColor; e.currentTarget.style.borderColor = color + '40'; }}>
+      style={{ ...BASE_STYLE }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background    = color + '22';
+        e.currentTarget.style.borderColor   = color + 'aa';
+        e.currentTarget.style.color         = color;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background    = 'transparent';
+        e.currentTarget.style.borderColor   = 'rgba(201,168,76,0.22)';
+        e.currentTarget.style.color         = '#9A9180';
+      }}>
       {icon}
     </a>
   );
 }
 
-/* ── Componente principal — muestra todos los botones configurados ── */
-export default function SocialButtons({ size = 'sm' }) {
+/* ── Componente principal ── */
+export default function SocialButtons() {
   const settings = useSettings();
-  const waUrl = getWhatsappUrl(settings);
+  const waUrl    = getWhatsappUrl(settings);
 
   const buttons = [
-    { href: waUrl && settings.whatsappVisible ? waUrl : null, icon: <IconWA />, color: '#25D366', bgColor: 'rgba(37,211,102,0.1)', title: 'WhatsApp' },
-    { href: settings.instagram ? `https://instagram.com/${settings.instagram}` : null, icon: <IconIG />, color: '#E1306C', bgColor: 'rgba(225,48,108,0.1)', title: 'Instagram' },
-    { href: settings.facebook  ? `https://facebook.com/${settings.facebook}`  : null, icon: <IconFB />, color: '#1877F2', bgColor: 'rgba(24,119,242,0.1)', title: 'Facebook' },
-    { href: settings.tiktok    ? `https://tiktok.com/@${settings.tiktok}`     : null, icon: <IconTK />, color: '#E8DCC8', bgColor: 'rgba(232,220,200,0.1)', title: 'TikTok' },
+    { href: waUrl && settings.whatsappVisible ? waUrl : null,                              icon: <IconWA />, color: '#25D366', title: 'WhatsApp'  },
+    { href: settings.instagram ? `https://instagram.com/${settings.instagram}` : null,    icon: <IconIG />, color: '#E1306C', title: 'Instagram' },
+    { href: settings.facebook  ? `https://facebook.com/${settings.facebook}`   : null,    icon: <IconFB />, color: '#1877F2', title: 'Facebook'  },
+    { href: settings.tiktok    ? `https://tiktok.com/@${settings.tiktok}`      : null,    icon: <IconTK />, color: '#ffffff', title: 'TikTok'    },
   ].filter(b => b.href);
 
-  /* Si no hay ninguna red configurada, muestra los íconos desactivados
-     como indicación visual de que se pueden configurar en el Admin */
+  /* Sin redes configuradas → íconos fantasma como guía visual */
   if (!buttons.length) {
     return (
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: 0.25 }} title="Configura tus redes en Admin → Ajustes">
-        {[<IconWA />, <IconIG />, <IconFB />].map((icon, i) => (
-          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.15)', color: '#9A9180' }}>
-            {icon}
-          </span>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: 0.2 }}
+           title="Configura tus redes en Admin → Ajustes">
+        {[<IconWA />, <IconIG />, <IconFB />, <IconTK />].map((icon, i) => (
+          <span key={i} style={{ ...BASE_STYLE, cursor: 'default' }}>{icon}</span>
         ))}
       </div>
     );

@@ -2,7 +2,7 @@
    OrientPerfumes — Hoja de estilos principal
    Archivo : css/style.css
    Paleta  : --gold #C9A84C · --dark #0A0A08 · --cream #F5F0E8
-   Fuentes : Cormorant Garamond (display) · Cinzel (labels) · Lato (body)
+   Fuentes : Cormorant Garamond (títulos) · Cinzel (etiquetas/nav) · Raleway (cuerpo)
 
    ESTRUCTURA:
      1.  Variables globales
@@ -35,9 +35,9 @@
   --cream-muted:  #C8C0B0;
   --white:        #FFFFFF;
 
-  --font-display: 'Cormorant Garamond', serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-label:   'Cinzel', serif;
-  --font-body:    'Lato', sans-serif;
+  --font-body:    'Raleway', system-ui, sans-serif;
 
   --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -53,8 +53,8 @@
   --grey:         #888880;
   --grey-light:   rgba(245,240,232,0.08);
   --font-serif:   'Cormorant Garamond', Georgia, serif;
-  --font-roman:   'Cinzel', serif;   /* alias de --font-label */
-  --font-sans:    'Lato', system-ui, sans-serif;
+  --font-roman:   'Cinzel', serif;
+  --font-sans:    'Raleway', system-ui, sans-serif;
   --gap-sm:       12px;
   --gap-md:       24px;
   --gap-lg:       40px;
@@ -76,7 +76,9 @@ body {
   background: var(--dark);
   color: var(--cream);
   font-family: var(--font-body);
-  font-weight: 300;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.7;
   overflow-x: hidden;
 }
 
