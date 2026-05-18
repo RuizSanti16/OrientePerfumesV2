@@ -2,6 +2,33 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productosAPI, categoriasAPI, marcasAPI } from '../services/api';
 
+/* ── Íconos SVG reutilizables ── */
+const IconBottle = ({ size = 18 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.5 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+
+const IconCategoria = ({ nombre }) => {
+  const s = { stroke: '#C9A84C', fill: 'none', strokeWidth: '1.3', width: 22, height: 22, opacity: 0.75 };
+  if (nombre === 'Nicho')      return <svg viewBox="0 0 24 32" {...s} aria-hidden="true"><rect x="5" y="11" width="14" height="19" rx="3"/><rect x="8" y="5" width="8" height="6" rx="1.5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/></svg>;
+  if (nombre === 'Oriental')   return <svg viewBox="0 0 24 24" {...s} aria-hidden="true"><path d="M21 12a9 9 0 1 1-7.8-8.9A7 7 0 1 0 21 12z"/><circle cx="18" cy="6" r="1.5" fill="#C9A84C" strokeWidth="0"/></svg>;
+  if (nombre === 'Diseñador')  return <svg viewBox="0 0 24 24" {...s} aria-hidden="true"><path d="M12 3 L21 8.5 L21 15.5 L12 21 L3 15.5 L3 8.5 Z"/><path d="M12 3 L16 8.5 L12 14 L8 8.5 Z" strokeWidth="0.9"/></svg>;
+  if (nombre === 'Exclusivos') return <svg viewBox="0 0 24 24" {...s} aria-hidden="true"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg>;
+  return <svg viewBox="0 0 24 24" {...s} aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" strokeWidth="1"/></svg>;
+};
+
+const IconMarca = ({ size = 20 }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size} aria-hidden="true" style={{ opacity: 0.6 }}>
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+    <circle cx="7" cy="7" r="1.5" fill="#C9A84C" strokeWidth="0"/>
+  </svg>
+);
+
 export default function SearchBar() {
   const navigate   = useNavigate();
   const [query,    setQuery]    = useState('');
@@ -150,7 +177,7 @@ export default function SearchBar() {
                   {/* Imagen */}
                   {p.imagen
                     ? <img src={p.imagen} alt={p.nombre} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />
-                    : <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>🫙</div>
+                    : <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><IconBottle size={20}/></div>
                   }
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -173,8 +200,8 @@ export default function SearchBar() {
                   style={{ width: '100%', background: 'none', border: 'none', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.07)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-                  <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                    {{ 'Nicho':'🏺', 'Oriental':'🌙', 'Diseñador':'💎', 'Exclusivos':'✨' }[c.nombre] || '📦'}
+                  <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <IconCategoria nombre={c.nombre} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600 }}><Highlight text={c.nombre} query={query} /></div>
@@ -195,10 +222,10 @@ export default function SearchBar() {
                   style={{ width: '100%', background: 'none', border: 'none', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.07)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}>
-                  <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>🏷️</div>
+                  <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><IconMarca /></div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600 }}><Highlight text={m.nombre} query={query} /></div>
-                    {m.pais_origen && <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>🌍 {m.pais_origen}</div>}
+                    {m.pais_origen && <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>· {m.pais_origen}</div>}
                   </div>
                   <div style={{ fontSize: 10, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', flexShrink: 0 }}>VER →</div>
                 </button>

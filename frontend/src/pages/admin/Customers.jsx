@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { clientesAPI } from '../../services/api';
 
 export default function Customers() {
@@ -19,14 +19,14 @@ export default function Customers() {
     const res = editando
       ? await clientesAPI.actualizar({ ...form, id_cliente: editando })
       : await clientesAPI.crear(form);
-    if (res.ok) { setModal(false); cargar(); showMsg('✅ ' + res.mensaje); }
-    else showMsg('❌ ' + res.mensaje);
+    if (res.ok) { setModal(false); cargar(); showMsg('✓ ' + res.mensaje); }
+    else showMsg('✗ ' + res.mensaje);
   }
 
   async function eliminar(id) {
     if (!confirm('¿Eliminar este cliente?')) return;
     const res = await clientesAPI.eliminar(id);
-    if (res.ok) { cargar(); showMsg('✅ Cliente eliminado'); }
+    if (res.ok) { cargar(); showMsg('✓ Cliente eliminado'); }
   }
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 3000); }
@@ -109,7 +109,7 @@ const btnDel  = { background:'transparent', border:'1px solid #e05252', borderRa
 const thStyle = { padding:'12px 16px', textAlign:'left', fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180' };
 const td      = { padding:'12px 16px', fontWeight:600, color:'#E8DCC8' };
 const tdMuted = { padding:'12px 16px', color:'#9A9180', fontSize:13 };
-function Msg({ text }) { return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✅')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✅')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>; }
+function Msg({ text }) { return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>; }
 function Label({ children }) { return <div style={{ fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', marginBottom:6 }}>{children}</div>; }
 function Modal({ titulo, onCerrar, onGuardar, children }) {
   return (

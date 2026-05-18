@@ -1,4 +1,14 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
+
+const IconBottle = ({ size = 28 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
 
 export default function NoticiasAdmin() {
   const [video, setVideo]             = useState({ url: '', titulo: '', descripcion: '' });
@@ -16,7 +26,7 @@ export default function NoticiasAdmin() {
     localStorage.setItem('op_video', JSON.stringify(video));
     localStorage.setItem('op_lanzamientos', JSON.stringify(lanzamientos));
     localStorage.setItem('op_comentarios', JSON.stringify(comentarios));
-    setMsg('✅ Cambios guardados correctamente');
+    setMsg('✓ Cambios guardados correctamente');
     setTimeout(() => setMsg(''), 3000);
   }
 
@@ -95,7 +105,7 @@ export default function NoticiasAdmin() {
                 <div style={{ flexShrink: 0 }}>
                   {l.imagen
                     ? <img src={l.imagen} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4 }} alt="" />
-                    : <div style={{ width: 80, height: 80, background: 'rgba(201,168,76,0.05)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>🫙</div>}
+                    : <div style={{ width: 80, height: 80, background: 'rgba(201,168,76,0.05)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={28}/></div>}
                   <label style={{ display: 'block', marginTop: 6, textAlign: 'center', fontFamily: 'Cinzel, serif', fontSize: 9, color: '#C9A84C', cursor: 'pointer', letterSpacing: '0.1em' }}>
                     IMAGEN
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleLanzImg(l.id, e.target.files[0])} />

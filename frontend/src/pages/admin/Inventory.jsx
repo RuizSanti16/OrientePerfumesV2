@@ -1,5 +1,15 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { inventarioAPI, productosAPI } from '../../services/api';
+
+const IconBottle = ({ size = 22 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.25 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
 
 export default function Inventory() {
   const [items,      setItems]      = useState([]);
@@ -28,8 +38,8 @@ export default function Inventory() {
     const res = editando
       ? await inventarioAPI.actualizar({ ...form, id_inventario: editando })
       : await inventarioAPI.crear(form);
-    if (res.ok) { setModal(false); cargar(); showMsg('✅ ' + res.mensaje); }
-    else showMsg('❌ ' + res.mensaje);
+    if (res.ok) { setModal(false); cargar(); showMsg('✓ ' + res.mensaje); }
+    else showMsg('✗ ' + res.mensaje);
   }
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 3000); }
@@ -98,7 +108,7 @@ export default function Inventory() {
                 <tr key={i.id_inventario} style={{ borderBottom:'1px solid rgba(201,168,76,0.05)' }}>
                   <td style={{ padding:'10px 16px' }}>
                     <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-                      {i.imagen ? <img src={i.imagen} style={{ width:36, height:36, objectFit:'cover', borderRadius:4 }} alt="" /> : <div style={{ width:36, height:36, background:'rgba(201,168,76,0.1)', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center' }}>📦</div>}
+                      {i.imagen ? <img src={i.imagen} style={{ width:36, height:36, objectFit:'cover', borderRadius:4 }} alt="" /> : <div style={{ width:36, height:36, background:'rgba(201,168,76,0.1)', borderRadius:4, display:'flex', alignItems:'center', justifyContent:'center' }}><IconBottle size={20}/></div>}
                       <span style={{ fontWeight:600, color:'#E8DCC8' }}>{i.nombre_producto}</span>
                     </div>
                   </td>
@@ -149,7 +159,7 @@ const btnEdit = { background:'transparent', border:'1px solid rgba(201,168,76,0.
 const thStyle = { padding:'12px 16px', textAlign:'left', fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180' };
 const td      = { padding:'12px 16px', fontWeight:600, color:'#E8DCC8' };
 const tdMuted = { padding:'12px 16px', color:'#9A9180', fontSize:13 };
-function Msg({ text }) { return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✅')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✅')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>; }
+function Msg({ text }) { return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>; }
 function Label({ children }) { return <div style={{ fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', marginBottom:6 }}>{children}</div>; }
 function Modal({ titulo, onCerrar, onGuardar, children }) {
   return (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 const KEY = 'op_admin_settings';
 const DEFAULT = {
@@ -34,7 +34,7 @@ export default function Ajustes() {
 
   function guardar() {
     localStorage.setItem(KEY, JSON.stringify(settings));
-    setMsg('✅ Ajustes guardados correctamente');
+    setMsg('✓ Ajustes guardados correctamente');
     setTimeout(() => setMsg(''), 3000);
   }
 
@@ -42,7 +42,7 @@ export default function Ajustes() {
     if (!confirm('¿Restablecer todos los datos? Esta acción no se puede deshacer.')) return;
     ['op_carrusel','op_productos_destacados','op_lanzamientos','op_video','op_comentarios','op_admin_settings'].forEach(k => localStorage.removeItem(k));
     setSettings(DEFAULT);
-    setMsg('✅ Datos restablecidos');
+    setMsg('✓ Datos restablecidos');
     setTimeout(() => setMsg(''), 3000);
   }
 
@@ -120,7 +120,9 @@ export default function Ajustes() {
             value={settings.facebook}
             onChange={e => set('facebook', e.target.value)}
             placeholder="orientperfumes" />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16 }}>👤</span>
+          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', lineHeight: 1 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#9A9180" strokeWidth="1.6" width="16" height="16" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </span>
         </div>
         <Label>TikTok (usuario sin @)</Label>
         <div style={{ position: 'relative', marginBottom: 0 }}>

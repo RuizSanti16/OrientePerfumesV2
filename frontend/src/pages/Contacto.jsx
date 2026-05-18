@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettings, getWhatsappUrl } from '../hooks/useSettings';
 import SocialButtons from '../components/SocialButtons';
@@ -80,7 +80,7 @@ export default function Contacto() {
 
           {enviado ? (
             <div style={{ background: 'rgba(76,175,80,0.08)', border: '1px solid rgba(76,175,80,0.25)', borderRadius: 12, padding: 32, textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>✅</div>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>✓</div>
               <div style={{ fontFamily: 'Cinzel, serif', fontSize: 14, color: '#C9A84C', marginBottom: 8 }}>¡Mensaje enviado!</div>
               <p style={{ color: '#9A9180', fontSize: 13 }}>Gracias por contactarnos. Te responderemos pronto.</p>
               <button onClick={() => setEnviado(false)}
@@ -192,7 +192,7 @@ export default function Contacto() {
                   {settings.facebook && (
                     <a href={`https://facebook.com/${settings.facebook}`} target="_blank" rel="noreferrer"
                       style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#1877F2', fontSize: 13, textDecoration: 'none' }}>
-                      👤 {settings.facebook}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="14" height="14" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg> {settings.facebook}
                     </a>
                   )}
                   {settings.tiktok && (

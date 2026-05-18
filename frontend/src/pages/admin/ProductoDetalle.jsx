@@ -1,6 +1,16 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productoDetalleAPI } from '../../services/api';
+
+const IconBottle = ({ size = 24 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
 
 export default function ProductoDetalle() {
   const { id }   = useParams();
@@ -41,7 +51,7 @@ export default function ProductoDetalle() {
   async function guardar() {
     setGuardando(true);
     const res = await productoDetalleAPI.guardar({ id_producto: id, descripcion, imagenes, notas, dupes });
-    setMsg(res.ok ? '✅ Guardado correctamente' : '❌ Error: ' + res.mensaje);
+    setMsg(res.ok ? '✓ Guardado correctamente' : '✗ Error: ' + res.mensaje);
     setGuardando(false);
     setTimeout(() => setMsg(''), 3000);
   }
@@ -91,7 +101,7 @@ export default function ProductoDetalle() {
   if (!producto) return <div style={{ padding:32, color:'#e05252' }}>Producto no encontrado</div>;
 
   const inp = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'8px 12px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box' };
-  const NOTA_LABELS = { salida:'🌸 Notas de Salida', corazon:'💫 Notas de Corazón', fondo:'🌿 Notas de Fondo' };
+  const NOTA_LABELS = { salida:'◈ Notas de Salida', corazon:'◆ Notas de Corazón', fondo:'◇ Notas de Fondo' };
 
   return (
     <div style={{ padding:32, color:'#E8DCC8', maxWidth:900 }}>
@@ -114,7 +124,7 @@ export default function ProductoDetalle() {
         </div>
       </div>
 
-      {msg && <div style={{ marginBottom:16, padding:'10px 16px', background:msg.startsWith('✅')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{msg}</div>}
+      {msg && <div style={{ marginBottom:16, padding:'10px 16px', background:msg.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${msg.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{msg}</div>}
 
       {/* ── Descripción ── */}
       <Card titulo="Descripción del Producto">
@@ -186,7 +196,7 @@ export default function ProductoDetalle() {
               <div style={{ flexShrink:0 }}>
                 {d.imagen
                   ? <img src={d.imagen} style={{ width:52, height:52, objectFit:'cover', borderRadius:6 }} alt="" />
-                  : <div style={{ width:52, height:52, background:'rgba(201,168,76,0.05)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>🫙</div>}
+                  : <div style={{ width:52, height:52, background:'rgba(201,168,76,0.05)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center' }}><IconBottle size={22}/></div>}
                 <label style={{ display:'block', marginTop:4, textAlign:'center', fontFamily:'Cinzel,serif', fontSize:8, color:'#C9A84C', cursor:'pointer' }}>
                   IMG
                   <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => handleDupeImg(i, e.target.files[0])} />

@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
 
+const IconBottle = ({ size = 48 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+
 export default function Noticias() {
   const navigate = useNavigate();
   const { count: cartCount } = useCarrito();
@@ -132,7 +142,7 @@ export default function Noticias() {
                     <article key={i} className="launch-card" style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: 8, overflow: 'hidden', marginBottom: 16 }}>
                       {l.imagen
                         ? <img src={l.imagen} alt={l.nombre} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
-                        : <div style={{ width: '100%', height: 160, background: '#1a1a18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🫙</div>}
+                        : <div style={{ width: '100%', height: 160, background: '#1a1a18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={48}/></div>}
                       <div style={{ padding: 16 }}>
                         <span style={{ background: 'rgba(201,168,76,0.15)', color: '#C9A84C', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', padding: '3px 10px', borderRadius: 20, display: 'inline-block', marginBottom: 8 }}>{l.badge || 'Nuevo'}</span>
                         <div style={{ fontSize: 16, fontWeight: 600, color: '#E8DCC8', marginBottom: 6 }}>{l.nombre}</div>

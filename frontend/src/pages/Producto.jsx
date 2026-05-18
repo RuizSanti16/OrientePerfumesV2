@@ -1,16 +1,56 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productoDetalleAPI } from '../services/api';
 import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
 import SocialButtons   from '../components/SocialButtons';
 
+/* ── Íconos SVG ── */
+const IconBottle = ({ size = 60 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+const IconHeart = ({ size = 22 }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width={size} height={size} aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const IconHeartFilled = ({ size = 22 }) => (
+  <svg viewBox="0 0 24 24" fill="#C9A84C" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size} aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+
+/* ── Íconos de notas olfativas ── */
+const IconNotaSalida = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="28" height="28" aria-hidden="true" style={{ opacity: 0.8 }}>
+    <circle cx="12" cy="12" r="4"/>
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>
+  </svg>
+);
+const IconNotaCorazon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="28" height="28" aria-hidden="true" style={{ opacity: 0.8 }}>
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const IconNotaFondo = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="28" height="28" aria-hidden="true" style={{ opacity: 0.8 }}>
+    <path d="M12 2C8 2 5 5.5 5 9c0 4 3 7 7 10 4-3 7-6 7-10 0-3.5-3-7-7-7z"/>
+    <path d="M12 6v8M9 11l3 3 3-3" strokeWidth="1"/>
+  </svg>
+);
+
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
 
 const NOTA_CONFIG = {
-  salida:  { label: 'Notas de Salida',   emoji: '🌸', sub: 'Primera impresión' },
-  corazon: { label: 'Notas de Corazón', emoji: '💫', sub: 'El alma del perfume' },
-  fondo:   { label: 'Notas de Fondo',   emoji: '🌿', sub: 'La huella que deja' },
+  salida:  { label: 'Notas de Salida',   icono: <IconNotaSalida />,  sub: 'Primera impresión' },
+  corazon: { label: 'Notas de Corazón', icono: <IconNotaCorazon />, sub: 'El alma del perfume' },
+  fondo:   { label: 'Notas de Fondo',   icono: <IconNotaFondo />,   sub: 'La huella que deja' },
 };
 
 export default function Producto() {
@@ -71,15 +111,15 @@ export default function Producto() {
 
   async function enviarRating(e) {
     e.preventDefault();
-    if (!rNombre || !rEstrellas) { setRMsg('⚠️ Completa nombre y estrellas'); return; }
+    if (!rNombre || !rEstrellas) { setRMsg('△ Completa nombre y estrellas'); return; }
     setREnviando(true);
     const res = await productoDetalleAPI.calificar({ id_producto: id, nombre_usuario: rNombre, estrellas: rEstrellas, comentario: rComentario });
     if (res.ok) {
-      setRMsg('✅ ¡Gracias por tu calificación!');
+      setRMsg('✓ ¡Gracias por tu calificación!');
       setRNombre(''); setREstrellas(0); setRComentario('');
       /* Refrescar ratings */
       productoDetalleAPI.obtener(id).then(r => { if (r.ok) setProducto(r.data); });
-    } else { setRMsg('❌ Error al enviar'); }
+    } else { setRMsg('✗ Error al enviar'); }
     setREnviando(false);
     setTimeout(() => setRMsg(''), 4000);
   }
@@ -124,11 +164,11 @@ export default function Producto() {
             <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, overflow:'hidden', aspectRatio:'1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, position:'relative' }}>
               {galeria.length > 0
                 ? <img src={galeria[imgActiva]} alt={producto.nombre} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                : <div style={{ fontSize:80 }}>🫙</div>}
+                : <IconBottle size={80}/>}
               {/* Wishlist */}
               <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
-                style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.6)', border:'none', borderRadius:'50%', width:40, height:40, cursor:'pointer', fontSize:20 }}>
-                {enWishlist ? '❤️' : '🤍'}
+                style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.6)', border:'none', borderRadius:'50%', width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {enWishlist ? <IconHeartFilled size={20}/> : <IconHeart size={20}/>}
               </button>
             </div>
             {/* Thumbnails */}
@@ -194,16 +234,16 @@ export default function Producto() {
                 {added ? '✓ AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
               </button>
               <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
-                style={{ width:50, background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, cursor:'pointer', fontSize:22 }}>
-                {enWishlist ? '❤️' : '🤍'}
+                style={{ width:50, background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {enWishlist ? <IconHeartFilled size={22}/> : <IconHeart size={22}/>}
               </button>
             </div>
 
             {/* Info extra */}
             <div style={{ display:'flex', flexDirection:'column', gap:8, paddingTop:16, borderTop:'1px solid rgba(201,168,76,0.1)' }}>
-              {[['✅','Fragancia 100% Original'],['🚚','Envío a todo Colombia'],['🔒','Compra segura y garantizada']].map(([ic,tx]) => (
+              {[['◆','Fragancia 100% Original'],['◈','Envío a todo Colombia'],['◇','Compra segura y garantizada']].map(([ic,tx]) => (
                 <div key={tx} style={{ display:'flex', gap:10, alignItems:'center', fontSize:13, color:'#9A9180' }}>
-                  <span>{ic}</span><span>{tx}</span>
+                  <span style={{ color:'#C9A84C', fontSize:10 }}>{ic}</span><span>{tx}</span>
                 </div>
               ))}
             </div>
@@ -221,7 +261,7 @@ export default function Producto() {
                 return (
                   <div key={tipo} style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:10, padding:20 }}>
                     <div style={{ textAlign:'center', marginBottom:14 }}>
-                      <div style={{ fontSize:28, marginBottom:6 }}>{cfg.emoji}</div>
+                      <div style={{ marginBottom:6 }}>{cfg.icono}</div>
                       <div style={{ fontFamily:'Cinzel,serif', fontSize:11, color:'#C9A84C', letterSpacing:'0.15em' }}>{cfg.label.toUpperCase()}</div>
                       <div style={{ fontSize:11, color:'#9A9180', marginTop:3 }}>{cfg.sub}</div>
                     </div>
@@ -247,7 +287,7 @@ export default function Producto() {
                 <div key={d.id} style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:10, overflow:'hidden', textAlign:'center' }}>
                   {d.imagen
                     ? <img src={d.imagen} alt={d.nombre} style={{ width:'100%', height:110, objectFit:'cover' }} />
-                    : <div style={{ height:110, background:'rgba(201,168,76,0.05)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:36 }}>🫙</div>}
+                    : <div style={{ height:110, background:'rgba(201,168,76,0.05)', display:'flex', alignItems:'center', justifyContent:'center' }}><IconBottle size={36}/></div>}
                   <div style={{ padding:'10px 12px' }}>
                     <div style={{ fontSize:13, fontWeight:600, color:'#E8DCC8', marginBottom:3 }}>{d.nombre}</div>
                     {d.marca && <div style={{ fontSize:11, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.08em' }}>{d.marca}</div>}
@@ -287,7 +327,7 @@ export default function Producto() {
                   <label style={labelStyle}>COMENTARIO (OPCIONAL)</label>
                   <textarea value={rComentario} onChange={e=>setRComentario(e.target.value)} rows={3} placeholder="Cuéntanos tu experiencia con esta fragancia..." style={{ ...inputStyle, resize:'vertical' }} />
                 </div>
-                {rMsg && <div style={{ fontSize:13, padding:'8px 12px', borderRadius:6, background:rMsg.startsWith('✅')?'rgba(76,175,80,0.1)':rMsg.startsWith('⚠️')?'rgba(255,152,0,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${rMsg.startsWith('✅')?'rgba(76,175,80,0.3)':rMsg.startsWith('⚠️')?'rgba(255,152,0,0.3)':'rgba(224,82,82,0.3)'}` }}>{rMsg}</div>}
+                {rMsg && <div style={{ fontSize:13, padding:'8px 12px', borderRadius:6, background:rMsg.startsWith('✓')?'rgba(76,175,80,0.1)':rMsg.startsWith('△')?'rgba(255,152,0,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${rMsg.startsWith('✓')?'rgba(76,175,80,0.3)':rMsg.startsWith('△')?'rgba(255,152,0,0.3)':'rgba(224,82,82,0.3)'}` }}>{rMsg}</div>}
                 <button type="submit" disabled={rEnviando} style={{ background:'#C9A84C', border:'none', borderRadius:8, padding:'12px', color:'#0a0a08', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.15em', cursor:rEnviando?'not-allowed':'pointer', opacity:rEnviando?0.7:1 }}>
                   {rEnviando ? 'ENVIANDO...' : 'ENVIAR RESEÑA'}
                 </button>

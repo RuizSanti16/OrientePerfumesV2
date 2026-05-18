@@ -7,6 +7,27 @@ import SocialButtons     from '../components/SocialButtons';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
 
+/* ── Íconos SVG ── */
+const IconBottle = ({ size = 40 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.25 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+const IconHeart = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const IconHeartFilled = () => (
+  <svg viewBox="0 0 24 24" fill="#C9A84C" stroke="#C9A84C" strokeWidth="1.2" width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+
 /* ── Helpers ── */
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
 function parsePrecio(v) {
@@ -227,7 +248,7 @@ export default function Home() {
           {lanzamientos.length === 0
             ? [0,1,2,3].map(i => (
               <article key={i} className="home-launch-card" role="listitem">
-                <div className="home-launch-card__img-placeholder" aria-hidden="true">🫙</div>
+                <div className="home-launch-card__img-placeholder" aria-hidden="true"><IconBottle size={36}/></div>
                 <div className="home-launch-card__info">
                   <div className="home-launch-card__badge">Próximamente</div>
                   <div className="home-launch-card__name">Nuevo Lanzamiento</div>
@@ -239,7 +260,7 @@ export default function Home() {
               <article key={i} className="home-launch-card" role="listitem" tabIndex="0" onClick={() => navigate('/noticias')} style={{cursor:'pointer'}}>
                 {item.imagen
                   ? <img className="home-launch-card__img" src={item.imagen} alt={item.nombre} loading="lazy"/>
-                  : <div className="home-launch-card__img-placeholder" aria-hidden="true">🫙</div>}
+                  : <div className="home-launch-card__img-placeholder" aria-hidden="true"><IconBottle size={36}/></div>}
                 <div className="home-launch-card__info">
                   <div className="home-launch-card__badge">{item.badge||'Próximamente'}</div>
                   <div className="home-launch-card__name">{item.nombre||''}</div>
@@ -409,10 +430,10 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
       <div className="product-card__img-wrap">
         {p.imagen
           ? <img src={p.imagen} alt={p.nombre} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
-          : <span className="product-card__placeholder" aria-hidden="true">🫙</span>}
+          : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
         {badge.label && <span className={`product-card__badge ${badge.cls}`}>{badge.label}</span>}
         <button className="product-card__wish" onClick={onWishlist} data-active={enWishlist} aria-label="Lista de deseos">
-          {enWishlist ? '❤️' : '🤍'}
+          {enWishlist ? <IconHeartFilled /> : <IconHeart />}
         </button>
         <button className={`product-card__add`} onClick={handleCarrito}
           style={added ? {background:'#4a7c59'} : {}}>

@@ -1,5 +1,15 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { productosAPI, destacadosAPI } from '../../services/api';
+
+const IconBottle = ({ size = 36 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
 
 const BADGES = [
   { value: 'none', label: 'Sin badge',  color: '#9A9180' },
@@ -31,7 +41,7 @@ export default function Destacados() {
   async function guardar() {
     setGuardando(true); setMsg('');
     const res = await destacadosAPI.guardar(destacados);
-    setMsg(res.ok ? '✅ Guardado correctamente' : '❌ Error: ' + res.mensaje);
+    setMsg(res.ok ? '✓ Guardado correctamente' : '✗ Error: ' + res.mensaje);
     setGuardando(false);
     setTimeout(() => setMsg(''), 3000);
   }
@@ -75,7 +85,7 @@ export default function Destacados() {
       </div>
 
       {msg && (
-        <div style={{ marginBottom: '16px', padding: '10px 16px', background: msg.startsWith('✅') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.startsWith('✅') ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: '6px', fontSize: '13px' }}>
+        <div style={{ marginBottom: '16px', padding: '10px 16px', background: msg.startsWith('✓') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.startsWith('✓') ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: '6px', fontSize: '13px' }}>
           {msg}
         </div>
       )}
@@ -101,7 +111,7 @@ export default function Destacados() {
               <div onClick={() => toggleProducto(p.id_producto)} style={{ cursor: 'pointer' }}>
                 {p.imagen
                   ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '110px', objectFit: 'cover', display: 'block' }} />
-                  : <div style={{ width: '100%', height: '110px', background: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px' }}>🫙</div>
+                  : <div style={{ width: '100%', height: '110px', background: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={36}/></div>
                 }
               </div>
 

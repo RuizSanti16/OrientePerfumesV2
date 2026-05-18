@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { marcasAPI } from '../../services/api';
 
 export default function Brands() {
@@ -19,14 +19,14 @@ export default function Brands() {
     const res = editando
       ? await marcasAPI.actualizar({ ...form, id_marca: editando })
       : await marcasAPI.crear(form);
-    if (res.ok) { setModal(false); cargar(); showMsg('✅ ' + res.mensaje); }
-    else showMsg('❌ ' + res.mensaje);
+    if (res.ok) { setModal(false); cargar(); showMsg('✓ ' + res.mensaje); }
+    else showMsg('✗ ' + res.mensaje);
   }
 
   async function eliminar(id) {
     if (!confirm('¿Eliminar esta marca?')) return;
     const res = await marcasAPI.eliminar(id);
-    if (res.ok) { cargar(); showMsg('✅ Marca eliminada'); }
+    if (res.ok) { cargar(); showMsg('✓ Marca eliminada'); }
   }
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 3000); }
@@ -98,7 +98,7 @@ const td      = { padding:'12px 16px', fontWeight:600, color:'#E8DCC8' };
 const tdMuted = { padding:'12px 16px', color:'#9A9180', fontSize:13 };
 
 function Msg({ text }) {
-  return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✅')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✅')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>;
+  return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>;
 }
 function Label({ children }) {
   return <div style={{ fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', marginBottom:6 }}>{children}</div>;

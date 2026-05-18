@@ -8,11 +8,44 @@ function getLogos() {
   catch { return {}; }
 }
 
+/* ── Íconos SVG por categoría ── */
+const IconNicho = () => (
+  <svg viewBox="0 0 32 40" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="34" height="42" aria-hidden="true">
+    <rect x="8" y="14" width="16" height="24" rx="4"/>
+    <rect x="11" y="8" width="10" height="6" rx="2"/>
+    <line x1="14" y1="4" x2="14" y2="8"/>
+    <line x1="18" y1="4" x2="18" y2="8"/>
+    <circle cx="16" cy="26" r="2.5" strokeWidth="1"/>
+  </svg>
+);
+const IconOriental = () => (
+  <svg viewBox="0 0 40 40" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="38" height="38" aria-hidden="true">
+    <path d="M28 20a12 12 0 1 1-10.4-11.9A9 9 0 1 0 28 20z"/>
+    <circle cx="30" cy="10" r="2" fill="#C9A84C" strokeWidth="0"/>
+  </svg>
+);
+const IconDisenador = () => (
+  <svg viewBox="0 0 40 40" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="38" height="38" aria-hidden="true">
+    <path d="M20 6 L34 14 L34 26 L20 34 L6 26 L6 14 Z"/>
+    <path d="M20 6 L27 14 L20 22 L13 14 Z" strokeWidth="0.9"/>
+    <line x1="6" y1="14" x2="13" y2="14" strokeWidth="0.9"/>
+    <line x1="34" y1="14" x2="27" y2="14" strokeWidth="0.9"/>
+    <line x1="6" y1="26" x2="13" y2="22" strokeWidth="0.9"/>
+    <line x1="34" y1="26" x2="27" y2="22" strokeWidth="0.9"/>
+    <line x1="20" y1="22" x2="20" y2="34" strokeWidth="0.9"/>
+  </svg>
+);
+const IconExclusivos = () => (
+  <svg viewBox="0 0 40 40" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="38" height="38" aria-hidden="true">
+    <polygon points="20,4 24,14 35,14 26,21 29,32 20,25 11,32 14,21 5,14 16,14"/>
+  </svg>
+);
+
 const CONFIG = {
-  'Nicho':      { icono: '🏺', count: '+120', eyebrow: 'Perfumería de Autor',  bg: 'radial-gradient(circle at 50% 30%, rgba(180,130,30,0.22) 0%, transparent 60%), linear-gradient(to bottom, #1a1510, #0a0a08)' },
-  'Oriental':   { icono: '🌙', count: '+85',  eyebrow: 'Colección Oriental',   bg: 'radial-gradient(circle at 60% 40%, rgba(160,100,10,0.24) 0%, transparent 60%), linear-gradient(to bottom, #130e08, #0a0a08)' },
-  'Diseñador':  { icono: '💎', count: '+200', eyebrow: 'Grandes Maisons',      bg: 'radial-gradient(circle at 40% 35%, rgba(140,95,15,0.22) 0%, transparent 60%), linear-gradient(to bottom, #151209, #0a0a08)' },
-  'Exclusivos': { icono: '✨', count: '+45',  eyebrow: 'Ediciones Especiales', bg: 'radial-gradient(circle at 55% 45%, rgba(170,120,20,0.24) 0%, transparent 60%), linear-gradient(to bottom, #18140c, #0a0a08)' },
+  'Nicho':      { icono: <IconNicho />,      count: '+120', eyebrow: 'Perfumería de Autor',  bg: 'radial-gradient(circle at 50% 30%, rgba(180,130,30,0.22) 0%, transparent 60%), linear-gradient(to bottom, #1a1510, #0a0a08)' },
+  'Oriental':   { icono: <IconOriental />,   count: '+85',  eyebrow: 'Colección Oriental',   bg: 'radial-gradient(circle at 60% 40%, rgba(160,100,10,0.24) 0%, transparent 60%), linear-gradient(to bottom, #130e08, #0a0a08)' },
+  'Diseñador':  { icono: <IconDisenador />,  count: '+200', eyebrow: 'Grandes Maisons',      bg: 'radial-gradient(circle at 40% 35%, rgba(140,95,15,0.22) 0%, transparent 60%), linear-gradient(to bottom, #151209, #0a0a08)' },
+  'Exclusivos': { icono: <IconExclusivos />, count: '+45',  eyebrow: 'Ediciones Especiales', bg: 'radial-gradient(circle at 55% 45%, rgba(170,120,20,0.24) 0%, transparent 60%), linear-gradient(to bottom, #18140c, #0a0a08)' },
 };
 
 export function CategoryCard({ nombre }) {
@@ -97,7 +130,7 @@ export function CategoryCard({ nombre }) {
           transition: 'transform 0.35s',
           transform: hover && tieneLogos ? 'translateY(-8px)' : 'translateY(0)',
         }}>
-          <div style={{ fontSize: 34 }}>{cfg.icono}</div>
+          <div style={{ lineHeight: 1 }}>{cfg.icono}</div>
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: 14, color: '#E8DCC8', letterSpacing: '0.12em' }}>{nombre}</div>
           <div style={{ fontSize: 12, color: '#9A9180', letterSpacing: '0.08em' }}>{cfg.count} fragancias</div>
           {tieneLogos && (

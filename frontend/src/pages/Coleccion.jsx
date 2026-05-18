@@ -5,6 +5,27 @@ import { useCarrito }   from '../hooks/useCarrito';
 import { useWishlist }  from '../hooks/useWishlist';
 import SocialButtons   from '../components/SocialButtons';
 
+/* ── Íconos SVG ── */
+const IconBottle = ({ size = 32 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.25 }}>
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+const IconHeart = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const IconHeartFilled = () => (
+  <svg viewBox="0 0 24 24" fill="#C9A84C" stroke="#C9A84C" strokeWidth="1.2" width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+
 const INFO = {
   'Nicho':      { eyebrow: 'Perfumería de Autor',  desc: 'Las más exclusivas casas de nicho en un solo lugar' },
   'Oriental':   { eyebrow: 'Colección Oriental',   desc: 'Oud, Ámbar, Sándalo y Musk en su máxima expresión' },
@@ -159,7 +180,7 @@ export default function Coleccion() {
                     <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
                       {item.imagen
                         ? <img src={item.imagen} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4 }} alt="" />
-                        : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🫙</div>}
+                        : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={26}/></div>}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 12, color: '#E8DCC8', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.nombre}</div>
                         {item.presentacion && <div style={{ fontSize: 10, color: '#9A9180' }}>{item.presentacion}</div>}
@@ -183,7 +204,7 @@ export default function Coleccion() {
                 <div key={item.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
                   {item.imagen
                     ? <img src={item.imagen} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4 }} alt="" />
-                    : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🫙</div>}
+                    : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={26}/></div>}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, color: '#E8DCC8', fontWeight: 600 }}>{item.nombre}</div>
                     <div style={{ fontSize: 11, color: '#9A9180' }}>{item.marca}</div>
@@ -220,12 +241,12 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
       style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}>
       {p.imagen
         ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        : <span className="product-card__placeholder" aria-hidden="true">🫙</span>}
+        : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
     </div>
 
     <button className="product-card__wish" onClick={onWishlist}
       data-active={String(enWishlist)} aria-label="Lista de deseos">
-      {enWishlist ? '❤️' : '🤍'}
+      {enWishlist ? <IconHeartFilled /> : <IconHeart />}
     </button>
 
     <button className="product-card__add" onClick={handleCarrito}

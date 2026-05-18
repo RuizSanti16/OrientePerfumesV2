@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 const DEFAULTS = [
   { id: 1, label: 'Perfumería Nicho',   titulo: 'Tesoros\nOlfativos',  subtitulo: 'Las más exclusivas casas de nicho en un solo lugar', btn1: 'Descubrir Nicho',     btn2: 'Ver Catálogo',    imagen: '', imgSize: 'cover', imgPosX: 50, imgPosY: 50, gradient: 'radial-gradient(ellipse at 70% 50%, rgba(139,105,20,0.25) 0%, transparent 60%), linear-gradient(135deg, #1a1208 0%, #0a0a08 50%, #12100a 100%)' },
@@ -35,9 +35,9 @@ export default function Carrusel() {
   function guardar() {
     try {
       localStorage.setItem('op_carrusel', JSON.stringify(slides));
-      setMsg('✅ Guardado. Recarga el inicio para verlo.');
+      setMsg('✓ Guardado. Recarga el inicio para verlo.');
     } catch {
-      setMsg('❌ Error: almacenamiento lleno. Usa imágenes más pequeñas o por URL.');
+      setMsg('✗ Error: almacenamiento lleno. Usa imágenes más pequeñas o por URL.');
     }
     setTimeout(() => setMsg(''), 4000);
   }
@@ -46,7 +46,7 @@ export default function Carrusel() {
     if (!confirm('¿Restaurar el carrusel a los valores originales?')) return;
     localStorage.removeItem('op_carrusel');
     setSlides(DEFAULTS);
-    setMsg('✅ Carrusel restaurado');
+    setMsg('✓ Carrusel restaurado');
     setTimeout(() => setMsg(''), 3000);
   }
 
@@ -65,7 +65,7 @@ export default function Carrusel() {
         </div>
       </div>
 
-      {msg && <div style={{ marginBottom: 16, padding: '10px 16px', background: msg.startsWith('✅') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.startsWith('✅') ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: 6, fontSize: 13 }}>{msg}</div>}
+      {msg && <div style={{ marginBottom: 16, padding: '10px 16px', background: msg.startsWith('✓') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.startsWith('✓') ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: 6, fontSize: 13 }}>{msg}</div>}
 
       {slides.map(s => {
         const bgStyle = s.imagen

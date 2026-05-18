@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 const COLECCIONES = ['Nicho', 'Oriental', 'Diseñador', 'Exclusivos'];
 const KEY = 'op_colecciones_logos';
@@ -17,7 +17,7 @@ export default function ColeccionesAdmin() {
 
   function guardar() {
     localStorage.setItem(KEY, JSON.stringify(logos));
-    setMsg('✅ Cambios guardados');
+    setMsg('✓ Cambios guardados');
     setTimeout(() => setMsg(''), 3000);
   }
 
