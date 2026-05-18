@@ -20,6 +20,8 @@ import Ajustes         from './pages/admin/Ajustes';
 import ColeccionesAdmin from './pages/admin/ColeccionesAdmin';
 import Producto        from './pages/Producto';
 import ProductoDetalle from './pages/admin/ProductoDetalle';
+import SobreNosotros   from './pages/SobreNosotros';
+import FAQ             from './pages/FAQ';
 
 
 
@@ -50,6 +52,8 @@ export default function App() {
         <Route path="/noticias"  element={<Noticias />} />
         <Route path="/contacto"  element={<Contacto />} />
         <Route path="/producto/:id" element={<Producto />} />
+        <Route path="/nosotros"     element={<SobreNosotros />} />
+        <Route path="/faq"          element={<FAQ />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>

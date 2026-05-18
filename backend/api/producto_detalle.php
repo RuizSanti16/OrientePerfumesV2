@@ -85,6 +85,20 @@ try {
                 ? round(array_sum(array_column($ratings,'estrellas')) / count($ratings), 1)
                 : 0;
 
+            /* Stock actual (público: solo el número, sin info sensible) */
+            try {
+                $s = $pdo->prepare("
+                    SELECT stock_actual FROM tbl_inventario
+                    WHERE id_producto = :id
+                    LIMIT 1
+                ");
+                $s->execute([':id' => $id]);
+                $inv = $s->fetch();
+                $producto['stock_actual'] = $inv ? (int)$inv['stock_actual'] : null;
+            } catch (PDOException $e) {
+                $producto['stock_actual'] = null;
+            }
+
             echo json_encode(['ok'=>true,'data'=>$producto]);
             break;
 

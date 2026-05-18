@@ -229,6 +229,9 @@ export default function Producto() {
             {/* Precio */}
             <div style={{ fontSize:28, color:'#C9A84C', fontWeight:700 }}>{formatCOP(precio)}</div>
 
+            {/* Stock */}
+            <StockBadge stock={producto.stock_actual} />
+
             {/* Presentaciones */}
             {pres.length > 0 && (
               <div>
@@ -254,8 +257,10 @@ export default function Producto() {
 
             {/* Botones acción */}
             <div style={{ display:'flex', gap:12, marginTop:4 }}>
-              <button onClick={handleCarrito} style={{ flex:1, background:added?'#4a7c59':'#C9A84C', border:'none', borderRadius:8, padding:'14px', color:'#0a0a08', fontFamily:'Cinzel,serif', fontSize:12, letterSpacing:'0.15em', cursor:'pointer', transition:'all 0.3s' }}>
-                {added ? '✓ AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
+              <button onClick={handleCarrito}
+                disabled={producto.stock_actual === 0}
+                style={{ flex:1, background: producto.stock_actual===0 ? '#2a2a28' : added?'#4a7c59':'#C9A84C', border:'none', borderRadius:8, padding:'14px', color: producto.stock_actual===0 ? '#666' : '#0a0a08', fontFamily:'Cinzel,serif', fontSize:12, letterSpacing:'0.15em', cursor: producto.stock_actual===0 ? 'not-allowed' : 'pointer', transition:'all 0.3s' }}>
+                {producto.stock_actual === 0 ? 'AGOTADO' : added ? '✓ AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
               </button>
               <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
                 style={{ width:50, background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -483,6 +488,41 @@ function Section({ titulo, eyebrow, children }) {
 const labelStyle = { fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', display:'block', marginBottom:6 };
 const inputStyle = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'10px 14px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box', fontFamily:'Raleway,sans-serif' };
 const btnOutline = { background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'8px 20px', color:'#C9A84C', cursor:'pointer', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.1em' };
+
+/* ── Badge de stock ── */
+function StockBadge({ stock }) {
+  if (stock === null || stock === undefined) return null;
+  if (stock <= 0) return (
+    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px',
+      background:'rgba(224,82,82,0.08)', border:'1px solid rgba(224,82,82,0.3)', borderRadius:4 }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e05252" strokeWidth="2" width="14" height="14">
+        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <span style={{ color:'#e05252', fontSize:12, fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>AGOTADO</span>
+    </div>
+  );
+  if (stock <= 5) return (
+    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px',
+      background:'rgba(224,128,32,0.07)', border:'1px solid rgba(224,128,32,0.35)', borderRadius:4 }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e08020" strokeWidth="2" width="14" height="14">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      <span style={{ color:'#e08020', fontSize:12, fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>
+        SOLO QUEDAN {stock} {stock === 1 ? 'UNIDAD' : 'UNIDADES'}
+      </span>
+    </div>
+  );
+  if (stock <= 10) return (
+    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px',
+      background:'rgba(201,168,76,0.06)', border:'1px solid rgba(201,168,76,0.25)', borderRadius:4 }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" width="14" height="14">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span style={{ color:'#C9A84C', fontSize:12, fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>POCAS UNIDADES DISPONIBLES</span>
+    </div>
+  );
+  return null;
+}
 
 /* ── Botón de volver estándar ── */
 function BtnVolver({ onClick, label = 'INICIO' }) {

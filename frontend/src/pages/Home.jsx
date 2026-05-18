@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
 import { useInView }     from '../hooks/useInView';
-import { destacadosAPI } from '../services/api';
+import { destacadosAPI, noticiasAPI } from '../services/api';
 import SocialButtons     from '../components/SocialButtons';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
@@ -56,11 +56,23 @@ export default function Home() {
   const [refDestac,  visDestac]  = useInView(0.06);
   const [refBanner,  visBanner]  = useInView(0.15);
   const [refLanz,    visLanz]    = useInView(0.08);
+  const [refTestim,  visTestim]  = useInView(0.08);
+
+  /* ── Testimonios ── */
+  const [testimonios, setTestimonios] = useState([]);
 
   /* ── Cargar datos del localStorage y BD ── */
   useEffect(() => {
     try { const r = localStorage.getItem('op_carrusel');      if (r) setCarruselData(JSON.parse(r)); } catch {}
     try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
+    /* Testimonios: noticias aprobadas con comentario */
+    noticiasAPI.listarAprobados().then(res => {
+      if (res.ok && res.data) {
+        const con = (res.data || []).filter(n => n.comentario || n.descripcion || n.contenido);
+        setTestimonios(con.slice(0, 6));
+      }
+    }).catch(() => {});
+
     /* Productos destacados desde BD */
     destacadosAPI.listar().then(res => {
       if (res.ok && res.data.length) {
@@ -284,6 +296,62 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Testimonios ── */}
+      <section ref={refTestim} className={`fade-up${visTestim ? ' visible' : ''}`}
+        style={{ background:'#0d0d0b', borderTop:'1px solid rgba(201,168,76,0.07)', padding:'72px 24px' }}>
+        <div style={{ maxWidth:1100, margin:'0 auto' }}>
+          <div className="section__header">
+            <div className="section__eyebrow">Lo que dicen nuestros clientes</div>
+            <h2 className="section__title">Testimonios</h2>
+            <p className="section__subtitle">Experiencias reales de quienes ya confían en OrientPerfumes</p>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:20, marginTop:40 }}>
+            {(testimonios.length > 0 ? testimonios : [
+              { nombre:'Ana M.', titulo:'Nicho', texto:'Una fragancia que me transportó a otro mundo. La calidad es simplemente excepcional.' },
+              { nombre:'Carlos R.', titulo:'Oriental', texto:'El mejor lugar para encontrar perfumes orientales únicos. Servicio impecable y entrega rápida.' },
+              { nombre:'Sofía L.', titulo:'Diseñador', texto:'Encontré el perfume de mis sueños y el precio fue mucho mejor de lo esperado. 100% recomendado.' },
+            ]).map((t, i) => (
+              <div key={i} className={`fade-up delay-${i+1}${visTestim ? ' visible' : ''}`}
+                style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, padding:'24px 22px', display:'flex', flexDirection:'column', gap:14 }}>
+                {/* Estrellas */}
+                <div style={{ display:'flex', gap:3 }}>
+                  {[1,2,3,4,5].map(n => (
+                    <span key={n} style={{ color:'#C9A84C', fontSize:14 }}>★</span>
+                  ))}
+                </div>
+                {/* Texto */}
+                <p style={{ fontSize:14, color:'#C8C0B0', lineHeight:1.75, margin:0, fontStyle:'italic' }}>
+                  "{t.texto || t.comentario || t.descripcion || t.contenido || ''}"
+                </p>
+                {/* Autor */}
+                <div style={{ display:'flex', alignItems:'center', gap:10, marginTop:'auto' }}>
+                  <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(201,168,76,0.12)', border:'1px solid rgba(201,168,76,0.25)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <span style={{ fontFamily:'Cinzel,serif', fontSize:13, color:'#C9A84C' }}>
+                      {(t.nombre || t.nombre_usuario || '?')[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'#E8DCC8' }}>{t.nombre || t.nombre_usuario || 'Cliente'}</div>
+                    {t.titulo && <div style={{ fontSize:11, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.08em' }}>{t.titulo}</div>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* CTA */}
+          <div style={{ textAlign:'center', marginTop:40 }}>
+            <a href="/coleccion" style={{ display:'inline-flex', alignItems:'center', gap:8, fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.18em', color:'#C9A84C', textDecoration:'none', border:'1px solid rgba(201,168,76,0.4)', borderRadius:4, padding:'10px 28px', transition:'background 0.2s, border-color 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.background='rgba(201,168,76,0.08)'; e.currentTarget.style.borderColor='rgba(201,168,76,0.8)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor='rgba(201,168,76,0.4)'; }}>
+              DESCUBRIR FRAGANCIAS
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── Footer ── */}
       <footer style={{ background: '#0f0f0d', borderTop: '1px solid rgba(201,168,76,0.1)', padding: '48px 24px 24px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
@@ -312,25 +380,24 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            {/* Contacto */}
+            {/* Nosotros */}
             <div>
-              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 16 }}>CONTACTO</div>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 16 }}>INFORMACIÓN</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <a onClick={() => navigate('/contacto')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
-                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
-                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
-                  Contáctanos
-                </a>
-                <a onClick={() => navigate('/noticias')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
-                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
-                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
-                  Noticias
-                </a>
-                <a onClick={() => navigate('/login')} style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
-                  onMouseEnter={e => e.target.style.color = '#C9A84C'}
-                  onMouseLeave={e => e.target.style.color = '#9A9180'}>
-                  Iniciar Sesión
-                </a>
+                {[
+                  { label: 'Sobre Nosotros', to: '/nosotros' },
+                  { label: 'Preguntas Frecuentes', to: '/faq' },
+                  { label: 'Noticias', to: '/noticias' },
+                  { label: 'Contáctanos', to: '/contacto' },
+                  { label: 'Iniciar Sesión', to: '/login' },
+                ].map(({ label, to }) => (
+                  <a key={to} onClick={() => navigate(to)}
+                    style={{ fontSize: 13, color: '#9A9180', cursor: 'pointer', textDecoration: 'none' }}
+                    onMouseEnter={e => e.target.style.color = '#C9A84C'}
+                    onMouseLeave={e => e.target.style.color = '#9A9180'}>
+                    {label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
