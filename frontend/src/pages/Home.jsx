@@ -350,18 +350,48 @@ export default function Home() {
                   Cerrar Sesión
                 </button>
               </div>
-            : <a href="/login" className="drawer__session-btn">
+            : <button className="drawer__session-btn" onClick={() => { setDrawerAbierto(false); setTimeout(() => navigate('/login'), 300); }}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="17" height="17"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 Iniciar Sesión
-              </a>
+              </button>
           }
         </div>
         <div className="drawer__divider" aria-hidden="true"/>
         <ul className="drawer__nav">
-          {[['#categorias','Fragancias Orientales'],['#categorias','Perfumería Nicho'],['#productos','Productos destacados'],['#productos','Novedades'],['#productos','Ofertas'],['#productos','Exclusivos'],['/noticias','Noticias'],['/contacto','Contacto'],['#','Acerca de Nosotros']].map(([href,label]) => (
-            <li key={label}><a href={href} onClick={() => setDrawerAbierto(false)}>{label}</a></li>
+          {[
+            { tipo: 'scroll', target: 'categorias',  label: 'Fragancias Orientales' },
+            { tipo: 'scroll', target: 'categorias',  label: 'Perfumería Nicho' },
+            { tipo: 'scroll', target: 'productos',   label: 'Productos Destacados' },
+            { tipo: 'ruta',   target: '/coleccion',  label: 'Ver Colección' },
+            { tipo: 'ruta',   target: '/noticias',   label: 'Noticias' },
+            { tipo: 'ruta',   target: '/contacto',   label: 'Contacto' },
+          ].map(({ tipo, target, label }) => (
+            <li key={label}>
+              <a href={tipo === 'scroll' ? `#${target}` : undefined}
+                onClick={e => {
+                  if (tipo === 'scroll') {
+                    e.preventDefault();
+                    setDrawerAbierto(false);
+                    setTimeout(() => {
+                      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300);
+                  } else {
+                    e.preventDefault();
+                    setDrawerAbierto(false);
+                    setTimeout(() => navigate(target), 300);
+                  }
+                }}>
+                {label}
+              </a>
+            </li>
           ))}
-          {adminSession && <li><a href="/admin" onClick={() => setDrawerAbierto(false)}>Panel Admin</a></li>}
+          {adminSession && (
+            <li>
+              <a href="/admin" onClick={e => { e.preventDefault(); setDrawerAbierto(false); setTimeout(() => navigate('/admin'), 300); }}>
+                Panel Admin
+              </a>
+            </li>
+          )}
         </ul>
       </nav>
 

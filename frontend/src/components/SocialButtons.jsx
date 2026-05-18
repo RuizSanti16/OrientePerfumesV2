@@ -50,7 +50,19 @@ export default function SocialButtons({ size = 'sm' }) {
     { href: settings.tiktok    ? `https://tiktok.com/@${settings.tiktok}`     : null, icon: <IconTK />, color: '#E8DCC8', bgColor: 'rgba(232,220,200,0.1)', title: 'TikTok' },
   ].filter(b => b.href);
 
-  if (!buttons.length) return null;
+  /* Si no hay ninguna red configurada, muestra los íconos desactivados
+     como indicación visual de que se pueden configurar en el Admin */
+  if (!buttons.length) {
+    return (
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: 0.25 }} title="Configura tus redes en Admin → Ajustes">
+        {[<IconWA />, <IconIG />, <IconFB />].map((icon, i) => (
+          <span key={i} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.15)', color: '#9A9180' }}>
+            {icon}
+          </span>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
