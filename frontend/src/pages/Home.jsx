@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
 import { useInView }     from '../hooks/useInView';
-import { destacadosAPI, noticiasAPI } from '../services/api';
+import { destacadosAPI, noticiasAPI, cuponesAPI } from '../services/api';
 import SocialButtons     from '../components/SocialButtons';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
@@ -60,6 +60,23 @@ export default function Home() {
 
   /* ── Testimonios ── */
   const [testimonios, setTestimonios] = useState([]);
+
+  /* ── Cupón (carrito Home) ── */
+  const [cuponInput,    setCuponInput]    = useState('');
+  const [cuponAplicado, setCuponAplicado] = useState(null);
+  const [cuponError,    setCuponError]    = useState('');
+  const [aplicando,     setAplicando]     = useState(false);
+
+  async function aplicarCuponHome() {
+    if (!cuponInput.trim()) return;
+    setAplicando(true);
+    setCuponError('');
+    const total = carrito.reduce((s, i) => s + (i.precio * (i.cantidad || 1)), 0);
+    const res   = await cuponesAPI.validar(cuponInput.trim(), total);
+    if (res.ok) { setCuponAplicado(res.data); setCuponInput(''); }
+    else        { setCuponError(res.mensaje || 'Código inválido'); }
+    setAplicando(false);
+  }
 
   /* ── Cargar datos del localStorage y BD ── */
   useEffect(() => {
@@ -386,6 +403,8 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[
                   { label: 'Sobre Nosotros', to: '/nosotros' },
+                  { label: 'Quiz Olfativo', to: '/quiz' },
+                  { label: 'Comparador', to: '/comparador' },
                   { label: 'Preguntas Frecuentes', to: '/faq' },
                   { label: 'Noticias', to: '/noticias' },
                   { label: 'Contáctanos', to: '/contacto' },
@@ -441,6 +460,8 @@ export default function Home() {
             { tipo: 'ruta',   target: '/coleccion',  label: 'Ver Colección' },
             { tipo: 'ruta',   target: '/noticias',   label: 'Noticias' },
             { tipo: 'ruta',   target: '/contacto',   label: 'Contacto' },
+            { tipo: 'ruta',   target: '/quiz',        label: 'Quiz Olfativo' },
+            { tipo: 'ruta',   target: '/comparador',  label: 'Comparar Fragancias' },
           ].map(({ tipo, target, label }) => (
             <li key={label}>
               <a href={tipo === 'scroll' ? `#${target}` : undefined}
@@ -488,9 +509,43 @@ export default function Home() {
                   <button onClick={() => quitarCarrito(i)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16}}>✕</button>
                 </div>
               ))}
+              {/* Cupón */}
+              <div style={{marginTop:14,paddingTop:12,borderTop:'1px solid rgba(201,168,76,0.12)'}}>
+                {cuponAplicado ? (
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 10px',background:'rgba(201,168,76,0.06)',border:'1px solid rgba(201,168,76,0.25)',borderRadius:6}}>
+                    <span style={{fontSize:11,color:'#C9A84C',fontFamily:'Cinzel,serif',letterSpacing:'0.08em'}}>
+                      {cuponAplicado.codigo}{cuponAplicado.tipo==='porcentaje'?` (-${cuponAplicado.valor}%)`:''}
+                    </span>
+                    <button onClick={()=>{setCuponAplicado(null);setCuponError('');}} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:14}}>✕</button>
+                  </div>
+                ) : (
+                  <div style={{display:'flex',gap:6}}>
+                    <input value={cuponInput} onChange={e=>{setCuponInput(e.target.value.toUpperCase());setCuponError('');}}
+                      onKeyDown={e=>e.key==='Enter'&&aplicarCuponHome()}
+                      placeholder="CÓDIGO DE DESCUENTO"
+                      style={{flex:1,background:'#1a1a18',border:'1px solid rgba(201,168,76,0.2)',borderRadius:4,padding:'8px 10px',color:'#E8DCC8',fontSize:11,fontFamily:'Cinzel,serif',letterSpacing:'0.06em',outline:'none'}}/>
+                    <button onClick={aplicarCuponHome} disabled={!cuponInput||aplicando}
+                      style={{background:cuponInput&&!aplicando?'#C9A84C':'rgba(201,168,76,0.15)',border:'none',borderRadius:4,padding:'8px 12px',color:cuponInput&&!aplicando?'#0a0a08':'#9A9180',fontFamily:'Cinzel,serif',fontSize:10,letterSpacing:'0.1em',cursor:cuponInput&&!aplicando?'pointer':'not-allowed',transition:'all 0.2s'}}>
+                      {aplicando?'...':'OK'}
+                    </button>
+                  </div>
+                )}
+                {cuponError&&<div style={{fontSize:11,color:'#e05252',marginTop:5}}>{cuponError}</div>}
+              </div>
+              {/* Totales */}
               <div style={{marginTop:12,textAlign:'right'}}>
+                {cuponAplicado&&(
+                  <>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#9A9180',marginBottom:4}}>
+                      <span style={{letterSpacing:'0.08em'}}>SUBTOTAL</span><span>{formatCOP(totalCarrito)}</span>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'#e08020',marginBottom:8}}>
+                      <span style={{letterSpacing:'0.08em'}}>DESCUENTO</span><span>-{formatCOP(cuponAplicado.descuento)}</span>
+                    </div>
+                  </>
+                )}
                 <div style={{fontSize:11,color:'#9A9180',letterSpacing:'0.1em'}}>TOTAL</div>
-                <div style={{fontSize:18,color:'#C9A84C',fontWeight:700}}>{formatCOP(totalCarrito)}</div>
+                <div style={{fontSize:18,color:'#C9A84C',fontWeight:700}}>{formatCOP(Math.max(0,totalCarrito-(cuponAplicado?.descuento||0)))}</div>
               </div>
             </>
         }

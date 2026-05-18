@@ -13,6 +13,7 @@ const NAV = [
   { label: 'Logos Colecciones', to: '/admin/colecciones' },
   { label: 'Carrusel',          to: '/admin/carrusel' },
   { label: 'Noticias',          to: '/admin/noticias' },
+  { label: 'Cupones',           to: '/admin/cupones' },
   { label: 'Ajustes',           to: '/admin/ajustes' },
 ];
 

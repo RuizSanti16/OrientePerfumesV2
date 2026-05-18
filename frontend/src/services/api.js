@@ -138,6 +138,14 @@ export const noticiasAPI = {
   eliminar:        (id)     => apiFetch(`noticias.php?id=${id}`, 'DELETE'),
 };
 
+export const cuponesAPI = {
+  validar:    (codigo, total = 0) => apiFetch(`cupones.php?codigo=${encodeURIComponent(codigo)}&total=${total}`),
+  listar:     ()     => apiFetch('cupones.php'),
+  crear:      (data) => apiFetch('cupones.php', 'POST', data),
+  actualizar: (data) => apiFetch('cupones.php', 'PUT',  data),
+  eliminar:   (id)   => apiFetch(`cupones.php?id=${id}`, 'DELETE'),
+};
+
 export const productoDetalleAPI = {
   obtener:       (id)   => apiFetch(`producto_detalle.php?id=${id}`),
   guardar:       (data) => apiFetch('producto_detalle.php', 'POST', data),

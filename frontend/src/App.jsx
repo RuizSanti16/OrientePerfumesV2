@@ -22,6 +22,9 @@ import Producto        from './pages/Producto';
 import ProductoDetalle from './pages/admin/ProductoDetalle';
 import SobreNosotros   from './pages/SobreNosotros';
 import FAQ             from './pages/FAQ';
+import Comparador      from './pages/Comparador';
+import Quiz            from './pages/Quiz';
+import Cupones         from './pages/admin/Cupones';
 
 
 
@@ -54,6 +57,8 @@ export default function App() {
         <Route path="/producto/:id" element={<Producto />} />
         <Route path="/nosotros"     element={<SobreNosotros />} />
         <Route path="/faq"          element={<FAQ />} />
+        <Route path="/comparador"   element={<Comparador />} />
+        <Route path="/quiz"         element={<Quiz />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -69,6 +74,7 @@ export default function App() {
           <Route path="noticias"        element={<NoticiasAdmin />} />
           <Route path="ajustes"         element={<Ajustes />} />
           <Route path="colecciones"     element={<ColeccionesAdmin />} />
+          <Route path="cupones"         element={<Cupones />} />
           <Route path="producto/:id" element={<ProductoDetalle />} />
         </Route>
 

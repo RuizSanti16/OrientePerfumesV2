@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { productosAPI, categoriasAPI } from '../services/api';
-import { useCarrito }   from '../hooks/useCarrito';
-import { useWishlist }  from '../hooks/useWishlist';
-import { useInView }    from '../hooks/useInView';
-import SocialButtons   from '../components/SocialButtons';
+import { productosAPI, categoriasAPI, cuponesAPI } from '../services/api';
+import { useCarrito }    from '../hooks/useCarrito';
+import { useWishlist }   from '../hooks/useWishlist';
+import { useInView }     from '../hooks/useInView';
+import { useComparador } from '../hooks/useComparador';
+import SocialButtons     from '../components/SocialButtons';
 
 /* ── Íconos de vista ── */
 const IconGrid = () => (
@@ -20,8 +21,13 @@ const IconList = () => (
     <rect x="3" y="18" width="5" height="5" rx="1"/><line x1="11" y1="20" x2="21" y2="20" strokeLinecap="round"/>
   </svg>
 );
-
-/* ── Íconos SVG ── */
+const IconCompare = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11" aria-hidden="true">
+    <rect x="3"  y="5" width="4" height="14" rx="1"/>
+    <rect x="17" y="3" width="4" height="18" rx="1"/>
+    <rect x="10" y="8" width="4" height="11" rx="1" opacity="0.6"/>
+  </svg>
+);
 const IconBottle = ({ size = 32 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.25 }}>
     <rect x="5" y="11" width="14" height="20" rx="3"/>
@@ -49,9 +55,7 @@ const INFO = {
   'Exclusivos': { eyebrow: 'Ediciones Especiales', desc: 'Fragancias únicas y ediciones limitadas de colección' },
 };
 
-function formatCOP(v) {
-  return '$ ' + Number(v || 0).toLocaleString('es-CO');
-}
+function formatCOP(v) { return '$ ' + Number(v || 0).toLocaleString('es-CO'); }
 
 export default function Coleccion() {
   const [params]  = useSearchParams();
@@ -64,41 +68,58 @@ export default function Coleccion() {
   const [panelAbierto, setPanelAbierto] = useState(null);
   const [vista,        setVista]        = useState(() => localStorage.getItem('op_vista_col') || 'grid');
 
+  /* Carrito + Wishlist */
   const { agregar: agregarCarrito, quitar: quitarCarrito, carrito, count: cartCount } = useCarrito();
   const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
-
   const totalCarrito = carrito.reduce((s, i) => s + (i.precio * (i.cantidad || 1)), 0);
 
+  /* Cupón */
+  const [cuponInput,    setCuponInput]    = useState('');
+  const [cuponAplicado, setCuponAplicado] = useState(null);
+  const [cuponError,    setCuponError]    = useState('');
+  const [aplicando,     setAplicando]     = useState(false);
+
+  /* Comparador */
+  const {
+    items:   comparar,
+    agregar: agregarComparar,
+    quitar:  quitarComparar,
+    limpiar: limpiarComparar,
+    estaEn:  estaEnComparar,
+  } = useComparador();
+
+  async function aplicarCupon() {
+    if (!cuponInput.trim()) return;
+    setAplicando(true);
+    setCuponError('');
+    const res = await cuponesAPI.validar(cuponInput.trim(), totalCarrito);
+    if (res.ok) {
+      setCuponAplicado(res.data);
+      setCuponInput('');
+    } else {
+      setCuponError(res.mensaje || 'Código inválido');
+    }
+    setAplicando(false);
+  }
+
+  /* Carga de productos */
   useEffect(() => {
-    Promise.all([
-      productosAPI.listar(),
-      categoriasAPI.listar(),
-    ]).then(([resProd, resCat]) => {
-      if (resProd.ok) {
-        const cats = resCat.ok ? (resCat.data || []) : [];
-
-        /* Buscar la categoría por nombre (insensible a mayúsculas) */
-        const catMatch = cats.find(
-          c => (c.nombre || '').toLowerCase() === categoria.toLowerCase()
-        );
-
-        setProductos(resProd.data.filter(p => {
-          /* Primero: comparar por id_categoria (más fiable) */
-          if (catMatch && p.id_categoria != null &&
-              String(p.id_categoria) === String(catMatch.id_categoria)) {
-            return true;
-          }
-          /* Fallback: comparar por nombre_categoria del JOIN */
-          if ((p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()) {
-            return true;
-          }
-          return false;
-        }));
-      }
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    Promise.all([productosAPI.listar(), categoriasAPI.listar()])
+      .then(([resProd, resCat]) => {
+        if (resProd.ok) {
+          const cats = resCat.ok ? (resCat.data || []) : [];
+          const catMatch = cats.find(c => (c.nombre || '').toLowerCase() === categoria.toLowerCase());
+          setProductos(resProd.data.filter(p => {
+            if (catMatch && p.id_categoria != null && String(p.id_categoria) === String(catMatch.id_categoria)) return true;
+            if ((p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()) return true;
+            return false;
+          }));
+        }
+        setLoading(false);
+      }).catch(() => setLoading(false));
   }, [categoria]);
 
+  /* Sombra de header al scroll */
   useEffect(() => {
     function onScroll() {
       const h = document.getElementById('header-col');
@@ -108,8 +129,11 @@ export default function Coleccion() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const totalConDescuento = Math.max(0, totalCarrito - (cuponAplicado?.descuento || 0));
+
   return (
-    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif' }}>
+    <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif',
+      paddingBottom: comparar.length > 0 ? 80 : 0 }}>
 
       {/* Announcement Bar */}
       <div className="announcement-bar" role="banner">
@@ -123,16 +147,13 @@ export default function Coleccion() {
       {/* Header */}
       <header id="header-col" className="header" role="banner" style={{ transition: 'box-shadow 0.3s' }}>
         <a onClick={() => navigate('/')} className="header__logo" style={{ cursor: 'pointer' }}>
-          <div className="logo-icon">
-            <img src="/assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes logo" />
-          </div>
+          <div className="logo-icon"><img src="/assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes logo" /></div>
           <div className="logo-text">
             <div className="logo-text__name">OrientPerfumes</div>
             <div className="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
           </div>
         </a>
 
-        {/* Navegación */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
           {[
             { label: 'Inicio',    to: '/'          },
@@ -141,13 +162,7 @@ export default function Coleccion() {
             { label: 'Contacto',  to: '/contacto'  },
           ].map(n => (
             <a key={n.to} href={n.to}
-              style={{
-                fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em',
-                color: n.to === '/coleccion' ? '#C9A84C' : '#9A9180',
-                textDecoration: 'none', padding: '6px 12px', borderRadius: 4,
-                transition: 'color 0.2s',
-                borderBottom: n.to === '/coleccion' ? '1px solid rgba(201,168,76,0.5)' : '1px solid transparent',
-              }}
+              style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em', color: n.to === '/coleccion' ? '#C9A84C' : '#9A9180', textDecoration: 'none', padding: '6px 12px', borderRadius: 4, transition: 'color 0.2s', borderBottom: n.to === '/coleccion' ? '1px solid rgba(201,168,76,0.5)' : '1px solid transparent' }}
               onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
               onMouseLeave={e => e.currentTarget.style.color = n.to === '/coleccion' ? '#C9A84C' : '#9A9180'}>
               {n.label}
@@ -162,21 +177,18 @@ export default function Coleccion() {
             </svg>
             <span className="action-btn__badge">{wishCount}</span>
           </button>
-
           <button className="action-btn" onClick={() => setPanelAbierto(p => p === 'carrito' ? null : 'carrito')} aria-label={`Carrito (${cartCount})`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
             </svg>
             <span className="action-btn__badge">{cartCount}</span>
           </button>
-
           <div style={{ marginRight: 4 }}><SocialButtons /></div>
-
           <BtnVolver onClick={() => navigate('/')} label="INICIO" />
         </div>
       </header>
 
-      {/* Colección hero */}
+      {/* Hero */}
       <div style={{ padding: '80px 24px 48px', textAlign: 'center', background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%)', borderBottom: '1px solid rgba(201,168,76,0.08)' }}>
         <div style={{ fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 12 }}>{info.eyebrow}</div>
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(36px,6vw,64px)', color: '#E8DCC8', margin: '0 0 16px', fontWeight: 400 }}>{categoria}</h1>
@@ -188,11 +200,21 @@ export default function Coleccion() {
 
         {/* Barra de controles */}
         {!loading && productos.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 10 }}>
             <span style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em', color: '#9A9180' }}>
               {productos.length} {productos.length === 1 ? 'FRAGANCIA' : 'FRAGANCIAS'}
             </span>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {/* Quiz CTA */}
+              <a href="/quiz" style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.14em', color: 'rgba(201,168,76,0.55)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', border: '1px solid rgba(201,168,76,0.15)', borderRadius: 4, transition: 'all 0.2s', marginRight: 4 }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'; e.currentTarget.style.background = 'rgba(201,168,76,0.05)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'rgba(201,168,76,0.55)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.15)'; e.currentTarget.style.background = 'transparent'; }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="12" height="12" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/><path strokeLinecap="round" d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3m0 4h.01"/>
+                </svg>
+                QUIZ OLFATIVO
+              </a>
+              {/* Vistas */}
               {[{ key: 'grid', Icon: IconGrid }, { key: 'list', Icon: IconList }].map(({ key, Icon }) => (
                 <button key={key} onClick={() => { setVista(key); localStorage.setItem('op_vista_col', key); }}
                   aria-label={key === 'grid' ? 'Vista cuadrícula' : 'Vista lista'}
@@ -211,12 +233,8 @@ export default function Coleccion() {
         {!loading && !productos.length && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
             <div style={{ marginBottom: 20 }}><IconBottle size={48} /></div>
-            <p style={{ color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.18em', marginBottom: 8 }}>
-              PRÓXIMAMENTE EN ESTA COLECCIÓN
-            </p>
-            <p style={{ color: '#6A6460', fontSize: 13, marginBottom: 28 }}>
-              Estamos seleccionando las mejores fragancias para ti
-            </p>
+            <p style={{ color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.18em', marginBottom: 8 }}>PRÓXIMAMENTE EN ESTA COLECCIÓN</p>
+            <p style={{ color: '#6A6460', fontSize: 13, marginBottom: 28 }}>Estamos seleccionando las mejores fragancias para ti</p>
             <button onClick={() => navigate('/')}
               style={{ background: 'none', border: '1px solid rgba(201,168,76,0.35)', borderRadius: 4, padding: '10px 28px', color: '#C9A84C', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em' }}>
               VER TODAS LAS COLECCIONES
@@ -233,6 +251,10 @@ export default function Coleccion() {
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
                 onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
                 formatCOP={formatCOP}
+                enComparar={estaEnComparar(String(p.id_producto))}
+                onComparar={() => estaEnComparar(String(p.id_producto))
+                  ? quitarComparar(String(p.id_producto))
+                  : agregarComparar({ id: String(p.id_producto), nombre: p.nombre, imagen: p.imagen || '', precio: p.precio })}
               />
             ))}
           </div>
@@ -247,6 +269,10 @@ export default function Coleccion() {
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
                 onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
                 formatCOP={formatCOP}
+                enComparar={estaEnComparar(String(p.id_producto))}
+                onComparar={() => estaEnComparar(String(p.id_producto))
+                  ? quitarComparar(String(p.id_producto))
+                  : agregarComparar({ id: String(p.id_producto), nombre: p.nombre, imagen: p.imagen || '', precio: p.precio })}
               />
             ))}
           </div>
@@ -259,10 +285,51 @@ export default function Coleccion() {
         <a href="#" className="footer__back">↑ Volver Arriba</a>
       </footer>
 
-      {/* Overlay */}
+      {/* ── Barra flotante de comparación ── */}
+      {comparar.length > 0 && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#111', borderTop: '1px solid rgba(201,168,76,0.35)', zIndex: 990, padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 -6px 24px rgba(0,0,0,0.5)' }}>
+          {/* Label */}
+          <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.18em', color: '#9A9180', flexShrink: 0, marginRight: 4 }}>
+            COMPARAR {comparar.length}/3
+          </div>
+          {/* Slots */}
+          <div style={{ display: 'flex', gap: 8, flex: 1, flexWrap: 'nowrap', overflow: 'hidden' }}>
+            {comparar.map(p => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.22)', borderRadius: 6, padding: '6px 10px', flexShrink: 0 }}>
+                {p.imagen
+                  ? <img src={p.imagen} alt="" style={{ width: 28, height: 28, objectFit: 'cover', borderRadius: 3, flexShrink: 0 }} />
+                  : <div style={{ width: 28, height: 28, background: 'rgba(201,168,76,0.1)', borderRadius: 3, flexShrink: 0 }} />}
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, color: '#E8DCC8', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</span>
+                <button onClick={() => quitarComparar(p.id)} style={{ background: 'none', border: 'none', color: 'rgba(201,168,76,0.5)', cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1, flexShrink: 0 }}>✕</button>
+              </div>
+            ))}
+            {/* Slots vacíos */}
+            {comparar.length < 3 && Array.from({ length: 3 - comparar.length }).map((_, i) => (
+              <div key={i} style={{ width: 130, height: 44, border: '1px dashed rgba(201,168,76,0.18)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: 8, color: 'rgba(201,168,76,0.3)', letterSpacing: '0.1em' }}>+ AÑADIR</span>
+              </div>
+            ))}
+          </div>
+          {/* Botones */}
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <button onClick={limpiarComparar}
+              style={{ background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 4, padding: '7px 14px', color: '#9A9180', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.1em', transition: 'border-color 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'}>
+              LIMPIAR
+            </button>
+            <a href={`/comparador?ids=${comparar.map(p => p.id).join(',')}`}
+              style={{ background: comparar.length >= 2 ? '#C9A84C' : 'rgba(201,168,76,0.18)', border: 'none', borderRadius: 4, padding: '7px 20px', color: comparar.length >= 2 ? '#0a0a08' : '#9A9180', cursor: comparar.length >= 2 ? 'pointer' : 'default', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.12em', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'opacity 0.2s' }}
+              onClick={e => comparar.length < 2 && e.preventDefault()}>
+              COMPARAR AHORA
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay de paneles */}
       {panelAbierto && (
-        <div onClick={() => setPanelAbierto(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 }} />
+        <div onClick={() => setPanelAbierto(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999 }} />
       )}
 
       {/* Panel lateral */}
@@ -275,7 +342,7 @@ export default function Coleccion() {
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
 
-          {/* Carrito */}
+          {/* ── Carrito ── */}
           {panelAbierto === 'carrito' && (
             carrito.length === 0
               ? <p style={{ textAlign: 'center', color: '#9A9180', fontSize: 12, letterSpacing: '0.1em', padding: '20px 0' }}>EL CARRITO ESTÁ VACÍO</p>
@@ -293,14 +360,56 @@ export default function Coleccion() {
                       <button onClick={() => quitarCarrito(i)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0 }}>✕</button>
                     </div>
                   ))}
-                  <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,0.15)', textAlign: 'right' }}>
+
+                  {/* Cupón */}
+                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,0.12)' }}>
+                    {cuponAplicado ? (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 6 }}>
+                        <div style={{ fontSize: 11, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
+                          {cuponAplicado.codigo}
+                          {cuponAplicado.tipo === 'porcentaje' ? ` (-${cuponAplicado.valor}%)` : ''}
+                        </div>
+                        <button onClick={() => { setCuponAplicado(null); setCuponError(''); }} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 14 }}>✕</button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <input
+                          value={cuponInput}
+                          onChange={e => { setCuponInput(e.target.value.toUpperCase()); setCuponError(''); }}
+                          onKeyDown={e => e.key === 'Enter' && aplicarCupon()}
+                          placeholder="CÓDIGO DE DESCUENTO"
+                          style={{ flex: 1, background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 4, padding: '8px 10px', color: '#E8DCC8', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em', outline: 'none' }}
+                        />
+                        <button onClick={aplicarCupon} disabled={!cuponInput || aplicando}
+                          style={{ background: cuponInput && !aplicando ? '#C9A84C' : 'rgba(201,168,76,0.15)', border: 'none', borderRadius: 4, padding: '8px 12px', color: cuponInput && !aplicando ? '#0a0a08' : '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.1em', cursor: cuponInput && !aplicando ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+                          {aplicando ? '...' : 'OK'}
+                        </button>
+                      </div>
+                    )}
+                    {cuponError && <div style={{ fontSize: 11, color: '#e05252', marginTop: 5 }}>{cuponError}</div>}
+                  </div>
+
+                  {/* Totales */}
+                  <div style={{ marginTop: 12, textAlign: 'right' }}>
+                    {cuponAplicado && (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9A9180', marginBottom: 4 }}>
+                          <span style={{ letterSpacing: '0.08em' }}>SUBTOTAL</span>
+                          <span>{formatCOP(totalCarrito)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#e08020', marginBottom: 8 }}>
+                          <span style={{ letterSpacing: '0.08em' }}>DESCUENTO</span>
+                          <span>-{formatCOP(cuponAplicado.descuento)}</span>
+                        </div>
+                      </>
+                    )}
                     <div style={{ fontSize: 11, color: '#9A9180', letterSpacing: '0.1em' }}>TOTAL</div>
-                    <div style={{ fontSize: 20, color: '#C9A84C', fontWeight: 700 }}>{formatCOP(totalCarrito)}</div>
+                    <div style={{ fontSize: 20, color: '#C9A84C', fontWeight: 700 }}>{formatCOP(totalConDescuento)}</div>
                   </div>
                 </>
           )}
 
-          {/* Wishlist */}
+          {/* ── Wishlist ── */}
           {panelAbierto === 'wishlist' && (
             wishlist.length === 0
               ? <p style={{ textAlign: 'center', color: '#9A9180', fontSize: 12, letterSpacing: '0.1em', padding: '20px 0' }}>TU LISTA DE DESEOS ESTÁ VACÍA</p>
@@ -325,12 +434,12 @@ export default function Coleccion() {
 }
 
 /* ── Tarjeta cuadrícula ── */
-function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0 }) {
+function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0, enComparar, onComparar }) {
   const navigate  = useNavigate();
   const [added,   setAdded]   = useState(false);
   const [presIdx, setPresIdx] = useState(0);
   const [ref, visible]        = useInView(0.1);
-  const pres = p.presentaciones || [];
+  const pres  = p.presentaciones || [];
   const delay = `${Math.min(index % 4, 3) * 0.08}s`;
 
   function handleCarrito() {
@@ -341,48 +450,46 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
   }
 
   return (
-    <article
-      ref={ref}
-      className={`product-card fade-up${visible ? ' visible' : ''}`}
-      role="listitem" tabIndex="0"
-      style={{ transitionDelay: delay }}>
-  <div className="product-card__img-wrap">
-    <div onClick={() => navigate(`/producto/${p.id_producto}`)}
-      style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}>
-      {p.imagen
-        ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
-    </div>
+    <article ref={ref} className={`product-card fade-up${visible ? ' visible' : ''}`}
+      role="listitem" tabIndex="0" style={{ transitionDelay: delay }}>
+      <div className="product-card__img-wrap">
+        <div onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}>
+          {p.imagen
+            ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
+        </div>
 
-    <button className="product-card__wish" onClick={onWishlist}
-      data-active={String(enWishlist)} aria-label="Lista de deseos">
-      {enWishlist ? <IconHeartFilled /> : <IconHeart />}
-    </button>
+        {/* Botón wishlist */}
+        <button className="product-card__wish" onClick={onWishlist}
+          data-active={String(enWishlist)} aria-label="Lista de deseos">
+          {enWishlist ? <IconHeartFilled /> : <IconHeart />}
+        </button>
 
-    <button className="product-card__add" onClick={handleCarrito}
-      style={added ? { background: '#4a7c59', color: '#fff' } : {}}>
-      {added ? '✓ Añadido' : 'Añadir al Carrito'}
-    </button>
-  </div>
-  <div className="product-card__name" 
-    onClick={() => navigate(`/producto/${p.id_producto}`)}
-    style={{ cursor: 'pointer' }}>
-    {p.nombre}
-  </div>
+        {/* Botón comparar — esquina inferior izquierda */}
+        <button
+          onClick={e => { e.stopPropagation(); onComparar?.(); }}
+          title={enComparar ? 'Quitar de comparación' : 'Añadir a comparación'}
+          style={{ position: 'absolute', bottom: 44, left: 8, zIndex: 3, width: 28, height: 28, background: enComparar ? 'rgba(201,168,76,0.25)' : 'rgba(0,0,0,0.6)', border: `1px solid ${enComparar ? '#C9A84C' : 'rgba(255,255,255,0.12)'}`, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: enComparar ? '#C9A84C' : '#aaa', transition: 'all 0.2s' }}
+          aria-label={enComparar ? 'Quitar de comparación' : 'Comparar fragancia'}>
+          <IconCompare />
+        </button>
+
+        <button className="product-card__add" onClick={handleCarrito}
+          style={added ? { background: '#4a7c59', color: '#fff' } : {}}>
+          {added ? '✓ Añadido' : 'Añadir al Carrito'}
+        </button>
+      </div>
+
       <div className="product-card__info">
         <div className="product-card__brand">{p.marca || ''}</div>
-        <div className="product-card__name" 
-            onClick={() => navigate(`/producto/${p.id_producto}`)}
-            style={{ cursor: 'pointer' }}>
-            {p.nombre}
-          </div>
-        <div className="product-card__price">{formatCOP(p.precio)}</div>
+        <div className="product-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ cursor: 'pointer' }}>
+          {p.nombre}
+        </div>
+        <div className="product-card__price">{formatCOP(pres[presIdx]?.precio || p.precio)}</div>
         {pres.length > 1 && (
           <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}
             style={{ width: '100%', background: '#1a1a18', color: '#C8C0B0', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '6px 8px', fontSize: 11, marginTop: 8, cursor: 'pointer' }}>
-            {pres.map((pr, i) => (
-              <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>
-            ))}
+            {pres.map((pr, i) => <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>)}
           </select>
         )}
       </div>
@@ -391,7 +498,7 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
 }
 
 /* ── Tarjeta lista ── */
-function ProductCardList({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0 }) {
+function ProductCardList({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0, enComparar, onComparar }) {
   const navigate  = useNavigate();
   const [added,   setAdded]   = useState(false);
   const [presIdx, setPresIdx] = useState(0);
@@ -406,41 +513,39 @@ function ProductCardList({ producto: p, enWishlist, onWishlist, onCarrito, forma
   }
 
   return (
-    <div
-      ref={ref}
-      className={`product-list-card fade-up${visible ? ' visible' : ''}`}
+    <div ref={ref} className={`product-list-card fade-up${visible ? ' visible' : ''}`}
       style={{ transitionDelay: `${Math.min(index, 5) * 0.06}s` }}>
 
-      {/* Imagen */}
       <div onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ cursor: 'pointer', flexShrink: 0 }}>
         {p.imagen
           ? <img src={p.imagen} alt={p.nombre} className="product-list-card__img" />
           : <div className="product-list-card__placeholder"><IconBottle size={36} /></div>}
       </div>
 
-      {/* Info */}
       <div className="product-list-card__info">
         <div className="product-list-card__brand">{p.marca || ''}</div>
-        <div className="product-list-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)}>
-          {p.nombre}
-        </div>
+        <div className="product-list-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)}>{p.nombre}</div>
         <div className="product-list-card__price">{formatCOP(pres[presIdx]?.precio || p.precio)}</div>
         {pres.length > 1 && (
           <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}
             style={{ marginTop: 10, background: '#1a1a18', color: '#C8C0B0', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '5px 8px', fontSize: 11, cursor: 'pointer' }}>
-            {pres.map((pr, i) => (
-              <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>
-            ))}
+            {pres.map((pr, i) => <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>)}
           </select>
         )}
       </div>
 
-      {/* Acciones */}
       <div className="product-list-card__actions">
         <button onClick={onWishlist}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, background: 'rgba(0,0,0,0.4)', border: `1px solid ${enWishlist ? '#C9A84C' : 'rgba(201,168,76,0.25)'}`, borderRadius: '50%', color: enWishlist ? '#C9A84C' : '#9A9180', cursor: 'pointer', transition: 'all 0.2s' }}
           aria-label="Lista de deseos">
           {enWishlist ? <IconHeartFilled /> : <IconHeart />}
+        </button>
+        {/* Botón comparar en vista lista */}
+        <button onClick={() => onComparar?.()}
+          title={enComparar ? 'Quitar de comparación' : 'Añadir a comparación'}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, background: enComparar ? 'rgba(201,168,76,0.15)' : 'rgba(0,0,0,0.4)', border: `1px solid ${enComparar ? '#C9A84C' : 'rgba(201,168,76,0.25)'}`, borderRadius: '50%', color: enComparar ? '#C9A84C' : '#9A9180', cursor: 'pointer', transition: 'all 0.2s' }}
+          aria-label={enComparar ? 'Quitar de comparación' : 'Comparar fragancia'}>
+          <IconCompare />
         </button>
         <button onClick={handleCarrito}
           style={{ padding: '9px 20px', background: added ? '#4a7c59' : '#C9A84C', border: 'none', borderRadius: 4, color: '#0a0a08', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.18em', transition: 'background 0.2s', whiteSpace: 'nowrap' }}>
@@ -454,26 +559,11 @@ function ProductCardList({ producto: p, enWishlist, onWishlist, onCarrito, forma
 /* ── Botón de volver estándar ── */
 function BtnVolver({ onClick, label = 'INICIO' }) {
   return (
-    <button
-      onClick={onClick}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 8,
-        background: 'none',
-        border: '1px solid rgba(201,168,76,0.45)',
-        borderRadius: 4,
-        padding: '8px 20px',
-        color: '#C9A84C',
-        cursor: 'pointer',
-        fontFamily: 'Cinzel, serif',
-        fontSize: 12,
-        letterSpacing: '0.12em',
-        transition: 'background 0.2s, border-color 0.2s',
-        whiteSpace: 'nowrap',
-      }}
+    <button onClick={onClick}
+      style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: '1px solid rgba(201,168,76,0.45)', borderRadius: 4, padding: '8px 20px', color: '#C9A84C', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 12, letterSpacing: '0.12em', transition: 'background 0.2s, border-color 0.2s', whiteSpace: 'nowrap' }}
       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.8)'; }}
       onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-        width="14" height="14" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="14" height="14" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
       </svg>
       {label}
