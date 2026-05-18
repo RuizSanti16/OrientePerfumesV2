@@ -3,7 +3,23 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { productosAPI, categoriasAPI } from '../services/api';
 import { useCarrito }   from '../hooks/useCarrito';
 import { useWishlist }  from '../hooks/useWishlist';
+import { useInView }    from '../hooks/useInView';
 import SocialButtons   from '../components/SocialButtons';
+
+/* ── Íconos de vista ── */
+const IconGrid = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16" aria-hidden="true">
+    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+  </svg>
+);
+const IconList = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="16" height="16" aria-hidden="true">
+    <rect x="3" y="4" width="5" height="5" rx="1"/><line x1="11" y1="6" x2="21" y2="6" strokeLinecap="round"/>
+    <rect x="3" y="11" width="5" height="5" rx="1"/><line x1="11" y1="13" x2="21" y2="13" strokeLinecap="round"/>
+    <rect x="3" y="18" width="5" height="5" rx="1"/><line x1="11" y1="20" x2="21" y2="20" strokeLinecap="round"/>
+  </svg>
+);
 
 /* ── Íconos SVG ── */
 const IconBottle = ({ size = 32 }) => (
@@ -46,6 +62,7 @@ export default function Coleccion() {
   const [productos,    setProductos]    = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [panelAbierto, setPanelAbierto] = useState(null);
+  const [vista,        setVista]        = useState(() => localStorage.getItem('op_vista_col') || 'grid');
 
   const { agregar: agregarCarrito, quitar: quitarCarrito, carrito, count: cartCount } = useCarrito();
   const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
@@ -166,39 +183,74 @@ export default function Coleccion() {
         <p style={{ color: '#9A9180', fontSize: 14, maxWidth: 480, margin: '0 auto' }}>{info.desc}</p>
       </div>
 
-      {/* Grid de productos */}
+      {/* Área de productos */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px' }}>
+
+        {/* Barra de controles */}
+        {!loading && productos.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+            <span style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em', color: '#9A9180' }}>
+              {productos.length} {productos.length === 1 ? 'FRAGANCIA' : 'FRAGANCIAS'}
+            </span>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {[{ key: 'grid', Icon: IconGrid }, { key: 'list', Icon: IconList }].map(({ key, Icon }) => (
+                <button key={key} onClick={() => { setVista(key); localStorage.setItem('op_vista_col', key); }}
+                  aria-label={key === 'grid' ? 'Vista cuadrícula' : 'Vista lista'}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, background: vista === key ? 'rgba(201,168,76,0.1)' : 'none', border: `1px solid ${vista === key ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.2)'}`, borderRadius: 4, color: vista === key ? '#C9A84C' : '#9A9180', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <Icon />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {loading && (
           <p style={{ textAlign: 'center', color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', padding: '60px 0' }}>CARGANDO PRODUCTOS...</p>
         )}
+
         {!loading && !productos.length && (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
-            <div style={{ marginBottom: 20 }}>
-              <IconBottle size={48} />
-            </div>
+            <div style={{ marginBottom: 20 }}><IconBottle size={48} /></div>
             <p style={{ color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.18em', marginBottom: 8 }}>
               PRÓXIMAMENTE EN ESTA COLECCIÓN
             </p>
             <p style={{ color: '#6A6460', fontSize: 13, marginBottom: 28 }}>
               Estamos seleccionando las mejores fragancias para ti
             </p>
-            <button
-              onClick={() => navigate('/')}
+            <button onClick={() => navigate('/')}
               style={{ background: 'none', border: '1px solid rgba(201,168,76,0.35)', borderRadius: 4, padding: '10px 28px', color: '#C9A84C', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em' }}>
               VER TODAS LAS COLECCIONES
             </button>
           </div>
         )}
-        <div className="products-grid">
-          {productos.map(p => (
-            <ProductCard key={p.id_producto} producto={p}
-              enWishlist={estaEn(String(p.id_producto))}
-              onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
-              onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
-              formatCOP={formatCOP}
-            />
-          ))}
-        </div>
+
+        {/* Vista cuadrícula */}
+        {vista === 'grid' && (
+          <div className="products-grid">
+            {productos.map((p, i) => (
+              <ProductCard key={p.id_producto} producto={p} index={i}
+                enWishlist={estaEn(String(p.id_producto))}
+                onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
+                onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
+                formatCOP={formatCOP}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Vista lista */}
+        {vista === 'list' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {productos.map((p, i) => (
+              <ProductCardList key={p.id_producto} producto={p} index={i}
+                enWishlist={estaEn(String(p.id_producto))}
+                onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
+                onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
+                formatCOP={formatCOP}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -272,12 +324,14 @@ export default function Coleccion() {
   );
 }
 
-/* ── Tarjeta de producto ── */
-function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP }) {
+/* ── Tarjeta cuadrícula ── */
+function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0 }) {
   const navigate  = useNavigate();
   const [added,   setAdded]   = useState(false);
-  const [presIdx, setPresIdx] = useState(0); 
+  const [presIdx, setPresIdx] = useState(0);
+  const [ref, visible]        = useInView(0.1);
   const pres = p.presentaciones || [];
+  const delay = `${Math.min(index % 4, 3) * 0.08}s`;
 
   function handleCarrito() {
     const pr = pres.length > 0 ? pres[presIdx] : null;
@@ -287,7 +341,11 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
   }
 
   return (
-    <article className="product-card" role="listitem" tabIndex="0">
+    <article
+      ref={ref}
+      className={`product-card fade-up${visible ? ' visible' : ''}`}
+      role="listitem" tabIndex="0"
+      style={{ transitionDelay: delay }}>
   <div className="product-card__img-wrap">
     <div onClick={() => navigate(`/producto/${p.id_producto}`)}
       style={{ position: 'absolute', inset: 0, cursor: 'pointer' }}>
@@ -329,6 +387,67 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         )}
       </div>
     </article>
+  );
+}
+
+/* ── Tarjeta lista ── */
+function ProductCardList({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, index = 0 }) {
+  const navigate  = useNavigate();
+  const [added,   setAdded]   = useState(false);
+  const [presIdx, setPresIdx] = useState(0);
+  const [ref, visible]        = useInView(0.08);
+  const pres = p.presentaciones || [];
+
+  function handleCarrito() {
+    const pr = pres.length > 0 ? pres[presIdx] : null;
+    onCarrito(pr?.etiqueta || '', pr?.precio || 0);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`product-list-card fade-up${visible ? ' visible' : ''}`}
+      style={{ transitionDelay: `${Math.min(index, 5) * 0.06}s` }}>
+
+      {/* Imagen */}
+      <div onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ cursor: 'pointer', flexShrink: 0 }}>
+        {p.imagen
+          ? <img src={p.imagen} alt={p.nombre} className="product-list-card__img" />
+          : <div className="product-list-card__placeholder"><IconBottle size={36} /></div>}
+      </div>
+
+      {/* Info */}
+      <div className="product-list-card__info">
+        <div className="product-list-card__brand">{p.marca || ''}</div>
+        <div className="product-list-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)}>
+          {p.nombre}
+        </div>
+        <div className="product-list-card__price">{formatCOP(pres[presIdx]?.precio || p.precio)}</div>
+        {pres.length > 1 && (
+          <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}
+            style={{ marginTop: 10, background: '#1a1a18', color: '#C8C0B0', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '5px 8px', fontSize: 11, cursor: 'pointer' }}>
+            {pres.map((pr, i) => (
+              <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Acciones */}
+      <div className="product-list-card__actions">
+        <button onClick={onWishlist}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, background: 'rgba(0,0,0,0.4)', border: `1px solid ${enWishlist ? '#C9A84C' : 'rgba(201,168,76,0.25)'}`, borderRadius: '50%', color: enWishlist ? '#C9A84C' : '#9A9180', cursor: 'pointer', transition: 'all 0.2s' }}
+          aria-label="Lista de deseos">
+          {enWishlist ? <IconHeartFilled /> : <IconHeart />}
+        </button>
+        <button onClick={handleCarrito}
+          style={{ padding: '9px 20px', background: added ? '#4a7c59' : '#C9A84C', border: 'none', borderRadius: 4, color: '#0a0a08', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.18em', transition: 'background 0.2s', whiteSpace: 'nowrap' }}>
+          {added ? 'AÑADIDO' : 'AÑADIR AL CARRITO'}
+        </button>
+      </div>
+    </div>
   );
 }
 

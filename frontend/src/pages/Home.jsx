@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
+import { useInView }     from '../hooks/useInView';
 import { destacadosAPI } from '../services/api';
 import SocialButtons     from '../components/SocialButtons';
 import { CategoriasSection } from '../components/CategoryCard';
@@ -49,6 +50,12 @@ export default function Home() {
   const autoRef = useRef(null);
   const session = (() => { try { return JSON.parse(localStorage.getItem('op_session')); } catch { return null; } })();
   const adminSession = (() => { try { return JSON.parse(localStorage.getItem('op_admin_session')); } catch { return null; } })();
+
+  /* ── Refs de animación ── */
+  const [refCat,     visCat]     = useInView(0.08);
+  const [refDestac,  visDestac]  = useInView(0.06);
+  const [refBanner,  visBanner]  = useInView(0.15);
+  const [refLanz,    visLanz]    = useInView(0.08);
 
   /* ── Cargar datos del localStorage y BD ── */
   useEffect(() => {
@@ -195,10 +202,12 @@ export default function Home() {
       </section>
 
       {/* ── Categorías ── */}
-    <CategoriasSection />
+      <div ref={refCat} className={`fade-up${visCat ? ' visible' : ''}`}>
+        <CategoriasSection />
+      </div>
 
       {/* ── Productos Destacados ── */}
-      <section className="products-section" id="productos" aria-labelledby="productos-titulo">
+      <section ref={refDestac} className={`products-section fade-up${visDestac ? ' visible' : ''}`} id="productos" aria-labelledby="productos-titulo">
         <div className="section__header">
           <div className="section__eyebrow">Selección Exclusiva</div>
           <h2 className="section__title" id="productos-titulo">Productos Destacados</h2>
@@ -225,7 +234,7 @@ export default function Home() {
       </section>
 
       {/* ── Marcas ── */}
-      <section className="brands-section">
+      <section ref={refBanner} className={`brands-section fade-in${visBanner ? ' visible' : ''}`}>
         <div className="section__header">
           <div className="section__eyebrow">Trabajamos con</div>
           <h2 className="section__title" style={{fontSize:'28px'}}>Grandes Maisons</h2>
@@ -238,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* ── Noticias Preview ── */}
-      <section className="home-noticias" id="noticias-preview">
+      <section ref={refLanz} className={`home-noticias fade-up${visLanz ? ' visible' : ''}`} id="noticias-preview">
         <div className="section__header">
           <div className="section__eyebrow">Actualidad</div>
           <h2 className="section__title">Noticias &amp; Novedades</h2>

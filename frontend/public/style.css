@@ -1224,6 +1224,142 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* ============================================================
    13. RESPONSIVE
 ============================================================ */
+/* ============================================================
+   14. ANIMACIONES DE ENTRADA (scroll)
+   Uso: añadir clase "fade-up" / "fade-in" / "fade-left" al elemento.
+   El hook useInView añade "visible" cuando entra en el viewport.
+============================================================ */
+
+/* — Subir desde abajo — */
+.fade-up {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* — Aparición simple — */
+.fade-in {
+  opacity: 0;
+  transition: opacity 0.65s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+}
+
+/* — Deslizar desde la izquierda — */
+.fade-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* — Escalar ligeramente — */
+.fade-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.fade-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* — Delays de escalonado (stagger) — */
+.delay-1 { transition-delay: 0.07s; }
+.delay-2 { transition-delay: 0.14s; }
+.delay-3 { transition-delay: 0.21s; }
+.delay-4 { transition-delay: 0.28s; }
+.delay-5 { transition-delay: 0.35s; }
+.delay-6 { transition-delay: 0.42s; }
+.delay-7 { transition-delay: 0.49s; }
+.delay-8 { transition-delay: 0.56s; }
+
+
+/* ============================================================
+   15. VISTA LISTA en Colección
+============================================================ */
+.product-list-card {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  background: var(--dark-mid);
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 4px;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.product-list-card:hover {
+  border-color: rgba(201,168,76,0.4);
+  transform: translateX(4px);
+}
+
+.product-list-card__img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.product-list-card__placeholder {
+  width: 120px;
+  height: 120px;
+  background: var(--dark-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.product-list-card__info { min-width: 0; }
+
+.product-list-card__brand {
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.product-list-card__name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--cream);
+  line-height: 1.2;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.product-list-card__name:hover { color: var(--gold); }
+
+.product-list-card__price {
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--gold);
+}
+
+.product-list-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+
 @media (max-width: 900px) {
   .header            { padding: 0 20px; }
   .hero__content     { padding: 0 40px; }
