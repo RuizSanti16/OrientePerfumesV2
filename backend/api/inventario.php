@@ -10,6 +10,16 @@ if ($method !== 'OPTIONS') {
     verificarTokenAdmin($pdo);
 }
 
+/* Auto-migración: garantizar que id_inventario sea AUTO_INCREMENT */
+try {
+    $col = $pdo->query("SHOW COLUMNS FROM tbl_inventario LIKE 'id_inventario'")->fetch(PDO::FETCH_ASSOC);
+    if ($col && stripos($col['Extra'] ?? '', 'auto_increment') === false) {
+        // Eliminar filas con id 0 que bloquean el ALTER
+        $pdo->exec("DELETE FROM tbl_inventario WHERE id_inventario = 0");
+        $pdo->exec("ALTER TABLE tbl_inventario MODIFY COLUMN id_inventario INT NOT NULL AUTO_INCREMENT");
+    }
+} catch (PDOException $e) { /* continuar aunque falle */ }
+
 try {
     switch ($method) {
         case 'GET':

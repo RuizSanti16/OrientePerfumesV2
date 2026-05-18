@@ -66,15 +66,17 @@ export default function Inventory() {
 
     const lista = prod.map(p => {
       const i = invMap[p.id_producto];
+      // tiene_registro solo es true si el id_inventario es un entero positivo válido
+      const idInv = i ? (parseInt(i.id_inventario) || null) : null;
       return {
-        id_producto:   p.id_producto,
-        nombre:        p.nombre,
-        marca:         p.marca,
-        imagen:        p.imagen,
-        id_inventario: i?.id_inventario ?? null,
-        stock:         i ? parseInt(i.stock) || 0 : 0,
-        ubicacion:     i?.ubicacion ?? '',
-        tiene_registro: !!i,
+        id_producto:    p.id_producto,
+        nombre:         p.nombre,
+        marca:          p.marca,
+        imagen:         p.imagen,
+        id_inventario:  idInv && idInv > 0 ? idInv : null,
+        stock:          i ? parseInt(i.stock) || 0 : 0,
+        ubicacion:      i?.ubicacion ?? '',
+        tiene_registro: !!(idInv && idInv > 0),
       };
     });
     setMerged(lista);
