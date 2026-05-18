@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { productoDetalleAPI } from '../../services/api';
+import { productoDetalleAPI, subirImagen } from '../../services/api';
 
 const IconBottle = ({ size = 24 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -18,8 +18,10 @@ export default function ProductoDetalle() {
 
   const [producto, setProducto] = useState(null);
   const [loading,  setLoading]  = useState(true);
-  const [guardando,setGuardando]= useState(false);
-  const [msg,      setMsg]      = useState('');
+  const [guardando,  setGuardando]   = useState(false);
+  const [msg,        setMsg]         = useState('');
+  const [subiendo,   setSubiendo]    = useState(false);
+  const [subiendoDupe, setSubiendoDupe] = useState({});
 
   /* Form state */
   const [descripcion, setDescripcion] = useState('');
@@ -62,14 +64,24 @@ export default function ProductoDetalle() {
     productoDetalleAPI.obtener(id).then(r => { if (r.ok) setProducto(r.data); });
   }
 
-  function handleImagen(e) {
+  async function handleImagen(e) {
     const files = Array.from(e.target.files);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => setImagenes(prev => [...prev, ev.target.result]);
-      reader.readAsDataURL(file);
-    });
     e.target.value = '';
+    if (!files.length) return;
+    setSubiendo(true);
+    for (const file of files) {
+      try {
+        const res = await subirImagen(file);
+        if (res.ok) {
+          setImagenes(prev => [...prev, res.url]);
+        } else {
+          setMsg('✗ Error al subir ' + file.name + ': ' + (res.mensaje || 'Error desconocido'));
+        }
+      } catch {
+        setMsg('✗ Error de conexión al subir imagen.');
+      }
+    }
+    setSubiendo(false);
   }
 
   function agregarNota(tipo) {
@@ -91,10 +103,20 @@ export default function ProductoDetalle() {
     setDupes(prev => prev.map((d,i) => i===idx ? {...d,[key]:val} : d));
   }
 
-  function handleDupeImg(idx, file) {
-    const reader = new FileReader();
-    reader.onload = e => updateDupe(idx, 'imagen', e.target.result);
-    reader.readAsDataURL(file);
+  async function handleDupeImg(idx, file) {
+    if (!file) return;
+    setSubiendoDupe(p => ({ ...p, [idx]: true }));
+    try {
+      const res = await subirImagen(file);
+      if (res.ok) {
+        updateDupe(idx, 'imagen', res.url);
+      } else {
+        setMsg('✗ Error al subir imagen: ' + (res.mensaje || 'Error desconocido'));
+      }
+    } catch {
+      setMsg('✗ Error de conexión al subir imagen.');
+    }
+    setSubiendoDupe(p => ({ ...p, [idx]: false }));
   }
 
   if (loading) return <div style={{ padding:32, color:'#9A9180', fontFamily:'Cinzel,serif', fontSize:11 }}>CARGANDO...</div>;
@@ -142,19 +164,28 @@ export default function ProductoDetalle() {
                 style={{ position:'absolute', top:4, right:4, background:'rgba(0,0,0,0.7)', border:'none', borderRadius:'50%', width:22, height:22, color:'#e05252', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
             </div>
           ))}
-          <label style={{ border:'2px dashed rgba(201,168,76,0.3)', borderRadius:8, aspectRatio:'1', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', cursor:'pointer', gap:4 }}>
-            <span style={{ fontSize:24 }}>+</span>
-            <span style={{ fontSize:9, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>AGREGAR</span>
-            <input type="file" accept="image/*" multiple style={{ display:'none' }} onChange={handleImagen} />
+          {/* Botón agregar / spinner */}
+          <label style={{ border:'2px dashed rgba(201,168,76,0.3)', borderRadius:8, aspectRatio:'1', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', cursor: subiendo ? 'wait' : 'pointer', gap:4, background: subiendo ? 'rgba(201,168,76,0.04)' : 'transparent' }}>
+            {subiendo ? (
+              <div style={{ width:20, height:20, border:'2px solid rgba(201,168,76,0.3)', borderTopColor:'#C9A84C', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+            ) : (
+              <>
+                <span style={{ fontSize:24, color:'#C9A84C' }}>+</span>
+                <span style={{ fontSize:9, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>AGREGAR</span>
+                <span style={{ fontSize:8, color:'rgba(154,145,128,0.5)' }}>JPG · PNG · WEBP</span>
+              </>
+            )}
+            <input type="file" accept="image/*" multiple style={{ display:'none' }} onChange={handleImagen} disabled={subiendo} />
           </label>
         </div>
         <div style={{ display:'flex', gap:8 }}>
           <input placeholder="O pega URL de imagen" style={{ ...inp, flex:1 }} id="img-url" />
-          <button onClick={() => { const v = document.getElementById('img-url').value; if(v){ setImagenes(p=>[...p,v]); document.getElementById('img-url').value=''; }}}
+          <button onClick={() => { const v = document.getElementById('img-url').value.trim(); if(v){ setImagenes(p=>[...p,v]); document.getElementById('img-url').value=''; }}}
             style={{ background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'8px 14px', color:'#C9A84C', cursor:'pointer', fontSize:11, fontFamily:'Cinzel,serif', whiteSpace:'nowrap' }}>
             + URL
           </button>
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </Card>
 
       {/* ── Notas olfativas ── */}
@@ -194,18 +225,26 @@ export default function ProductoDetalle() {
             <div key={i} style={{ display:'flex', gap:12, alignItems:'center', background:'#0f0f0d', border:'1px solid rgba(201,168,76,0.1)', borderRadius:8, padding:12 }}>
               {/* Imagen */}
               <div style={{ flexShrink:0 }}>
-                {d.imagen
-                  ? <img src={d.imagen} style={{ width:52, height:52, objectFit:'cover', borderRadius:6 }} alt="" />
-                  : <div style={{ width:52, height:52, background:'rgba(201,168,76,0.05)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center' }}><IconBottle size={22}/></div>}
-                <label style={{ display:'block', marginTop:4, textAlign:'center', fontFamily:'Cinzel,serif', fontSize:8, color:'#C9A84C', cursor:'pointer' }}>
-                  IMG
-                  <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => handleDupeImg(i, e.target.files[0])} />
+                <label style={{ display:'block', cursor: subiendoDupe[i] ? 'wait' : 'pointer', position:'relative' }}>
+                  {subiendoDupe[i] ? (
+                    <div style={{ width:52, height:52, background:'rgba(201,168,76,0.06)', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <div style={{ width:18, height:18, border:'2px solid rgba(201,168,76,0.3)', borderTopColor:'#C9A84C', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+                    </div>
+                  ) : d.imagen ? (
+                    <img src={d.imagen} style={{ width:52, height:52, objectFit:'cover', borderRadius:6, display:'block' }} alt="" />
+                  ) : (
+                    <div style={{ width:52, height:52, background:'rgba(201,168,76,0.05)', borderRadius:6, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:2, border:'1px dashed rgba(201,168,76,0.25)' }}>
+                      <IconBottle size={18}/>
+                      <span style={{ fontFamily:'Cinzel,serif', fontSize:7, color:'#C9A84C', letterSpacing:'0.05em' }}>IMG</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => handleDupeImg(i, e.target.files[0])} disabled={subiendoDupe[i]} />
                 </label>
               </div>
               <div style={{ flex:1, display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
                 <input style={{ ...inp, fontSize:12 }} placeholder="Nombre del perfume *" value={d.nombre} onChange={e => updateDupe(i,'nombre',e.target.value)} />
                 <input style={{ ...inp, fontSize:12 }} placeholder="Marca" value={d.marca} onChange={e => updateDupe(i,'marca',e.target.value)} />
-                <input style={{ ...inp, fontSize:12, gridColumn:'1/-1' }} placeholder="URL imagen (opcional)" value={d.imagen.startsWith('data:') ? '' : d.imagen} onChange={e => updateDupe(i,'imagen',e.target.value)} />
+                <input style={{ ...inp, fontSize:12, gridColumn:'1/-1' }} placeholder="URL imagen externa (opcional)" value={d.imagen.startsWith('data:') || d.imagen.startsWith('/OrientPerfumes') ? '' : d.imagen} onChange={e => updateDupe(i,'imagen',e.target.value)} />
               </div>
               <button onClick={() => setDupes(prev => prev.filter((_,idx)=>idx!==i))}
                 style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:18, flexShrink:0 }}>✕</button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productosAPI, marcasAPI, categoriasAPI } from '../../services/api';
+import { productosAPI, marcasAPI, categoriasAPI, subirImagen } from '../../services/api';
 
 export default function Products() {
   const [productos,   setProductos]   = useState([]);
@@ -11,6 +11,7 @@ export default function Products() {
   const [form,        setForm]        = useState(defaultForm());
   const [busqueda,    setBusqueda]    = useState('');
   const [imagenB64,   setImagenB64]   = useState('');
+  const [subiendo,    setSubiendo]    = useState(false);
   const navigate = useNavigate();
 
   function defaultForm() {
@@ -54,12 +55,22 @@ export default function Products() {
     cargar();
   }
 
-  function handleImagen(e) {
+  async function handleImagen(e) {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => setImagenB64(ev.target.result);
-    reader.readAsDataURL(file);
+    e.target.value = '';
+    setSubiendo(true);
+    try {
+      const res = await subirImagen(file);
+      if (res.ok) {
+        setImagenB64(res.url);
+      } else {
+        alert('Error al subir imagen: ' + (res.mensaje || 'Error desconocido'));
+      }
+    } catch {
+      alert('Error de conexión. Verifica que XAMPP esté activo.');
+    }
+    setSubiendo(false);
   }
 
   function agregarPresentacion() {
@@ -140,16 +151,33 @@ export default function Products() {
 
             {/* Imagen */}
             <Label>Imagen</Label>
-            <div onClick={() => document.getElementById('imgInput').click()}
-              style={{ border: '2px dashed rgba(201,168,76,0.3)', borderRadius: '8px', padding: '16px', textAlign: 'center', cursor: 'pointer', marginBottom: '8px' }}>
-              {imagenB64
-                ? <img src={imagenB64} style={{ maxHeight: '120px', borderRadius: '6px' }} alt="Preview" />
-                : <div style={{ color: '#9A9180', fontSize: '13px' }}>📷 Clic para subir imagen</div>}
-            </div>
-            <input id="imgInput" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagen} />
-            <input placeholder="O pega una URL de imagen" value={imagenB64.startsWith('data:') ? '' : imagenB64}
+            <label htmlFor="imgInput"
+              style={{ display: 'block', border: '2px dashed rgba(201,168,76,0.3)', borderRadius: '8px', padding: '16px', textAlign: 'center', cursor: subiendo ? 'wait' : 'pointer', marginBottom: '8px', background: 'rgba(201,168,76,0.02)' }}>
+              {subiendo ? (
+                <div style={{ color: '#C9A84C', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <div style={{ width: 14, height: 14, border: '2px solid rgba(201,168,76,0.3)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                  Subiendo imagen...
+                </div>
+              ) : imagenB64 ? (
+                <img src={imagenB64} style={{ maxHeight: '120px', borderRadius: '6px' }} alt="Preview" />
+              ) : (
+                <div style={{ color: '#9A9180', fontSize: '13px' }}>
+                  <div style={{ fontSize: 22, marginBottom: 4 }}>↑</div>
+                  Clic para subir imagen · JPG, PNG, WEBP, GIF, AVIF...
+                </div>
+              )}
+            </label>
+            <input id="imgInput" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagen} disabled={subiendo} />
+            {imagenB64 && !imagenB64.startsWith('data:') && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                <input readOnly value={imagenB64} style={{ ...inputStyle, fontSize: 11, color: '#9A9180' }} />
+                <button onClick={() => setImagenB64('')} style={{ background: 'none', border: '1px solid rgba(224,82,82,0.4)', borderRadius: 4, padding: '0 10px', color: '#e05252', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: 11 }}>Quitar</button>
+              </div>
+            )}
+            <input placeholder="O pega una URL de imagen" value={imagenB64.startsWith('data:') || imagenB64.startsWith('/OrientPerfumes') ? '' : imagenB64}
               onChange={e => setImagenB64(e.target.value)}
               style={{ ...inputStyle, marginBottom: '12px' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
             <Label>Nombre *</Label>
             <input value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} style={{ ...inputStyle, marginBottom: '12px' }} placeholder="Nombre del producto" />

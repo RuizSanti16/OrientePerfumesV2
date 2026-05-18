@@ -1,0 +1,5 @@
+# Bloquear ejecucion de scripts en el directorio de subidas
+Options -ExecCGI -Indexes
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|phar|cgi|pl|py|rb|sh)$">
+    Require all denied
+</FilesMatch>

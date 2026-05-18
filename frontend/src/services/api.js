@@ -1,5 +1,17 @@
 const API_BASE = '/api';
 
+/**
+ * Sube una imagen al servidor y devuelve la URL pública.
+ * @param {File} file
+ * @returns {Promise<{ok:boolean, url?:string, mensaje?:string}>}
+ */
+export async function subirImagen(file) {
+  const form = new FormData();
+  form.append('imagen', file);
+  const res = await fetch(`${API_BASE}/subir_imagen.php`, { method: 'POST', body: form });
+  return res.json();
+}
+
 async function apiFetch(endpoint, method = 'GET', data = null) {
   const url  = `${API_BASE}/${endpoint}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };

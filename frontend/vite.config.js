@@ -9,7 +9,12 @@ export default defineConfig({
         target: 'http://localhost',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/OrientPerfumesV2/backend/api'),
-      }
+      },
+      /* Proxy para imágenes subidas al servidor */
+      '/OrientPerfumesV2/backend/uploads': {
+        target: 'http://localhost',
+        changeOrigin: true,
+      },
     }
   }
 });
