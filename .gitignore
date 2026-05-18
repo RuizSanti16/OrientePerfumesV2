@@ -7,6 +7,18 @@ frontend/node_modules/
 # Build de producción
 frontend/dist/
 
+# Imágenes subidas por el usuario (no son código)
+backend/uploads/*.jpg
+backend/uploads/*.jpeg
+backend/uploads/*.png
+backend/uploads/*.webp
+backend/uploads/*.gif
+backend/uploads/*.avif
+backend/uploads/*.bmp
+backend/uploads/*.svg
+backend/uploads/*.ico
+backend/uploads/*.tiff
+
 # Variables de entorno
 .env
 .env.local

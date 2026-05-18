@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const KEY = 'op_colecciones_logos';
@@ -28,9 +28,9 @@ const IconDisenador = () => (
   <svg viewBox="0 0 40 40" fill="none" stroke="#C9A84C" strokeWidth="1.3" width="38" height="38" aria-hidden="true">
     <path d="M20 6 L34 14 L34 26 L20 34 L6 26 L6 14 Z"/>
     <path d="M20 6 L27 14 L20 22 L13 14 Z" strokeWidth="0.9"/>
-    <line x1="6" y1="14" x2="13" y2="14" strokeWidth="0.9"/>
+    <line x1="6"  y1="14" x2="13" y2="14" strokeWidth="0.9"/>
     <line x1="34" y1="14" x2="27" y2="14" strokeWidth="0.9"/>
-    <line x1="6" y1="26" x2="13" y2="22" strokeWidth="0.9"/>
+    <line x1="6"  y1="26" x2="13" y2="22" strokeWidth="0.9"/>
     <line x1="34" y1="26" x2="27" y2="22" strokeWidth="0.9"/>
     <line x1="20" y1="22" x2="20" y2="34" strokeWidth="0.9"/>
   </svg>
@@ -48,165 +48,101 @@ const CONFIG = {
   'Exclusivos': { icono: <IconExclusivos />, count: '+45',  eyebrow: 'Ediciones Especiales', bg: 'radial-gradient(circle at 55% 45%, rgba(170,120,20,0.24) 0%, transparent 60%), linear-gradient(to bottom, #18140c, #0a0a08)' },
 };
 
+/* ============================================================
+   CategoryCard — limpio, sin logos. Los logos van en el marquee
+============================================================ */
 export function CategoryCard({ nombre }) {
-  const navigate   = useNavigate();
-  const [hover,    setHover]  = useState(false);
-  const [logos,    setLogos]  = useState([]);
+  const navigate = useNavigate();
   const cfg = CONFIG[nombre] || {};
 
-  useEffect(() => {
-    const all = getLogos();
-    setLogos(all[nombre] || []);
-  }, [nombre]);
-
-  const tieneLogos = logos.length > 0;
-
   return (
-    <>
-      <style>{`
-        @keyframes scrollLogos {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .logo-strip-track {
-          display: flex;
-          gap: 12px;
-          animation: scrollLogos 12s linear infinite;
-          width: max-content;
-        }
-        .logo-strip-track:hover {
-          animation-play-state: paused;
-        }
-        .logo-strip-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          flex-shrink: 0;
-          width: 72px;
-          padding: 8px 6px;
-          background: rgba(201,168,76,0.05);
-          border: 1px solid rgba(201,168,76,0.12);
-          border-radius: 6px;
-          transition: background 0.2s, border-color 0.2s;
-        }
-        .logo-strip-item:hover {
-          background: rgba(201,168,76,0.12);
-          border-color: rgba(201,168,76,0.4);
-        }
-      `}</style>
+    <article
+      className="category-card"
+      role="listitem"
+      tabIndex="0"
+      onClick={() => navigate(`/coleccion?categoria=${encodeURIComponent(nombre)}`)}
+      onKeyDown={e => { if (e.key === 'Enter') navigate(`/coleccion?categoria=${encodeURIComponent(nombre)}`); }}>
 
-      <article
-        className="category-card"
-        role="listitem"
-        tabIndex="0"
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onClick={() => navigate(`/coleccion?categoria=${encodeURIComponent(nombre)}`)}
-        onKeyDown={e => { if (e.key === 'Enter') navigate(`/coleccion?categoria=${encodeURIComponent(nombre)}`); }}
-        style={{
-          cursor: 'pointer',
-          position: 'relative',
-          overflow: 'hidden',
-          transition: 'border-color 0.3s, min-height 0.4s cubic-bezier(0.4,0,0.2,1)',
-          borderColor: hover ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.1)',
-          minHeight: hover && tieneLogos ? '300px' : '220px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
+      <div className="category-card__bg" style={{ background: cfg.bg }} aria-hidden="true" />
+      <div className="category-card__overlay" aria-hidden="true" />
 
-        {/* Fondo */}
-        <div className="category-card__bg" style={{ background: cfg.bg }} aria-hidden="true" />
-        <div className="category-card__overlay" aria-hidden="true" />
+      <div className="category-card__content">
+        <div className="category-card__icon">{cfg.icono}</div>
+        <div className="category-card__eyebrow">{cfg.eyebrow}</div>
+        <div className="category-card__name">{nombre}</div>
+        <div className="category-card__count">{cfg.count} fragancias</div>
+      </div>
 
-        {/* Contenido principal */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          flex: 1,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          gap: 10, padding: '24px 20px 16px',
-          transition: 'transform 0.35s',
-          transform: hover && tieneLogos ? 'translateY(-8px)' : 'translateY(0)',
-        }}>
-          <div style={{ lineHeight: 1 }}>{cfg.icono}</div>
-          <div style={{ fontFamily: 'Cinzel, serif', fontSize: 14, color: '#E8DCC8', letterSpacing: '0.12em' }}>{nombre}</div>
-          <div style={{ fontSize: 12, color: '#9A9180', letterSpacing: '0.08em' }}>{cfg.count} fragancias</div>
-          {tieneLogos && (
-            <div style={{
-              fontFamily: 'Cinzel, serif', fontSize: 8,
-              letterSpacing: '0.18em', color: 'rgba(201,168,76,0.5)',
-              marginTop: 2, transition: 'opacity 0.3s',
-              opacity: hover ? 0 : 1,
-            }}>
-              PASA EL CURSOR
-            </div>
-          )}
-        </div>
-
-        {/* Franja de logos — aparece en hover */}
-        {tieneLogos && (
-          <div style={{
-            position: 'relative', zIndex: 2,
-            maxHeight: hover ? '110px' : '0px',
-            opacity: hover ? 1 : 0,
-            transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
-            overflow: 'hidden',
-            background: 'rgba(0,0,0,0.55)',
-            borderTop: '1px solid rgba(201,168,76,0.15)',
-          }}>
-            {/* Degradados laterales para efecto fade */}
-            <div style={{
-              position: 'absolute', left: 0, top: 0, bottom: 0, width: 28, zIndex: 2,
-              background: 'linear-gradient(90deg, rgba(0,0,0,0.7), transparent)',
-              pointerEvents: 'none',
-            }} />
-            <div style={{
-              position: 'absolute', right: 0, top: 0, bottom: 0, width: 28, zIndex: 2,
-              background: 'linear-gradient(-90deg, rgba(0,0,0,0.7), transparent)',
-              pointerEvents: 'none',
-            }} />
-
-            {/* Label */}
-            <div style={{
-              fontFamily: 'Cinzel, serif', fontSize: 8, letterSpacing: '0.2em',
-              color: '#C9A84C', textAlign: 'center', padding: '8px 0 4px',
-            }}>
-              {cfg.eyebrow?.toUpperCase()}
-            </div>
-
-            {/* Track con scroll infinito */}
-            <div style={{ overflow: 'hidden', padding: '0 8px 10px' }}>
-              <div className="logo-strip-track">
-                {/* Duplicamos los logos para el loop infinito */}
-                {[...logos, ...logos].map((logo, i) => (
-                  <div key={`${logo.id}-${i}`} className="logo-strip-item">
-                    <img
-                      src={logo.imagen} alt={logo.nombre}
-                      style={{ width: 52, height: 28, objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.85 }}
-                    />
-                    <span style={{
-                      fontSize: 7, color: '#9A9180', fontFamily: 'Cinzel, serif',
-                      letterSpacing: '0.06em', textAlign: 'center',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 68,
-                    }}>
-                      {logo.nombre}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="category-card__line" aria-hidden="true" />
-      </article>
-    </>
+      <div className="category-card__line" aria-hidden="true" />
+    </article>
   );
 }
 
-/* Sección completa */
+/* ============================================================
+   BrandsMarquee — franja horizontal de logos de marcas,
+   siempre visible, scroll infinito suave.
+============================================================ */
+function BrandsMarquee() {
+  const [logos, setLogos] = useState([]);
+
+  useEffect(() => {
+    const all = getLogos();
+    /* Aplanar todos los logos de todas las colecciones, sin duplicados */
+    const seen = new Set();
+    const flat  = Object.values(all).flat().filter(l => {
+      if (!l?.imagen || seen.has(l.id)) return false;
+      seen.add(l.id);
+      return true;
+    });
+    setLogos(flat);
+  }, []);
+
+  if (!logos.length) return null;
+
+  /* Duplicar para crear un loop perfecto; triplicar si son pocos */
+  const copies = logos.length < 6 ? 4 : logos.length < 10 ? 3 : 2;
+  const track  = Array.from({ length: copies }, () => logos).flat();
+  /* Velocidad: ~4s por logo original */
+  const dur = `${Math.max(logos.length * 4, 18)}s`;
+
+  return (
+    <div className="brands-marquee" aria-label="Marcas representadas">
+      {/* Etiqueta superior */}
+      <div className="brands-marquee__header">
+        <span className="brands-marquee__line" />
+        <span className="brands-marquee__eyebrow">Marcas Representadas</span>
+        <span className="brands-marquee__line" />
+      </div>
+
+      {/* Degradados laterales */}
+      <div className="brands-marquee__fade brands-marquee__fade--left"  aria-hidden="true" />
+      <div className="brands-marquee__fade brands-marquee__fade--right" aria-hidden="true" />
+
+      {/* Track animado */}
+      <div className="brands-marquee__viewport">
+        <div
+          className="brands-marquee__track"
+          style={{ animationDuration: dur, '--copies': copies }}>
+          {track.map((logo, i) => (
+            <div key={`${logo.id}-${i}`} className="brands-marquee__item">
+              <img
+                src={logo.imagen}
+                alt={logo.nombre}
+                loading="lazy"
+                className="brands-marquee__img"
+              />
+              <span className="brands-marquee__name">{logo.nombre}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Sección completa expuesta al resto de la app
+============================================================ */
 export function CategoriasSection() {
   return (
     <section className="section" id="categorias">
@@ -215,11 +151,14 @@ export function CategoriasSection() {
         <h2 className="section__title">Nuestras Colecciones</h2>
         <p className="section__subtitle">Cada fragancia, una historia única</p>
       </div>
+
       <div className="categories-grid" role="list">
         {Object.keys(CONFIG).map(nombre => (
           <CategoryCard key={nombre} nombre={nombre} />
         ))}
       </div>
+
+      <BrandsMarquee />
     </section>
   );
 }

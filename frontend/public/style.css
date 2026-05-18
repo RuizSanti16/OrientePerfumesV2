@@ -604,12 +604,16 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   gap: 2px;
 }
 
+/* ── Tarjeta de categoría ── */
 .category-card {
   position: relative;
   aspect-ratio: 3/4;
   overflow: hidden;
   cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.2,0,0,1);
 }
+
+.category-card:hover { transform: scale(1.015); z-index: 1; }
 
 .category-card__bg {
   position: absolute;
@@ -619,56 +623,221 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   transition: transform 0.7s ease;
 }
 
-.category-card:hover .category-card__bg { transform: scale(1.08); }
+.category-card:hover .category-card__bg { transform: scale(1.06); }
 
 .category-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(10,10,8,0.85) 0%, rgba(10,10,8,0.2) 60%, transparent 100%);
-  transition: background var(--transition);
+  background: linear-gradient(
+    to top,
+    rgba(10,10,8,0.92) 0%,
+    rgba(10,10,8,0.45) 40%,
+    rgba(10,10,8,0.10) 75%,
+    transparent 100%
+  );
+  transition: background 0.4s;
 }
 
 .category-card:hover .category-card__overlay {
-  background: linear-gradient(to top, rgba(10,10,8,0.9) 0%, rgba(10,10,8,0.4) 60%, rgba(10,10,8,0.1) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(10,10,8,0.96) 0%,
+    rgba(10,10,8,0.55) 45%,
+    rgba(10,10,8,0.15) 80%,
+    transparent 100%
+  );
 }
 
 .category-card__content {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  padding: 28px 24px;
+  padding: 28px 20px 30px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .category-card__icon {
-  font-size: 28px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   opacity: 0.85;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.category-card:hover .category-card__icon {
+  opacity: 1;
+  transform: translateY(-3px);
+}
+
+.category-card__eyebrow {
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  color: rgba(201,168,76,0.55);
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.category-card:hover .category-card__eyebrow {
+  color: rgba(201,168,76,0.85);
 }
 
 .category-card__name {
   font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--cream);
   text-transform: uppercase;
-  margin-bottom: 6px;
 }
 
 .category-card__count {
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 11px;
   color: var(--cream-muted);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .category-card__line {
   position: absolute;
   bottom: 0; left: 0;
   width: 0; height: 2px;
-  background: var(--gold);
-  transition: width 0.5s ease;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transition: width 0.55s ease;
 }
 
 .category-card:hover .category-card__line { width: 100%; }
+
+
+/* ── Marquee de marcas ── */
+@keyframes brandScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% / var(--copies, 2))); }
+}
+
+.brands-marquee {
+  position: relative;
+  margin-top: 44px;
+  padding-bottom: 8px;
+  overflow: hidden;
+}
+
+.brands-marquee__header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.brands-marquee__eyebrow {
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: rgba(201,168,76,0.45);
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.brands-marquee__line {
+  flex: 1;
+  max-width: 140px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2));
+}
+
+.brands-marquee__line:last-child {
+  background: linear-gradient(-90deg, transparent, rgba(201,168,76,0.2));
+}
+
+/* Degradados laterales para efecto fade */
+.brands-marquee__fade {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.brands-marquee__fade--left {
+  left: 0;
+  background: linear-gradient(90deg, var(--dark) 30%, transparent 100%);
+}
+
+.brands-marquee__fade--right {
+  right: 0;
+  background: linear-gradient(-90deg, var(--dark) 30%, transparent 100%);
+}
+
+.brands-marquee__viewport {
+  overflow: hidden;
+}
+
+.brands-marquee__track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: brandScroll linear infinite;
+  animation-duration: inherit;
+  will-change: transform;
+}
+
+.brands-marquee__track:hover { animation-play-state: paused; }
+
+.brands-marquee__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 28px;
+  flex-shrink: 0;
+  position: relative;
+  transition: opacity 0.25s;
+}
+
+/* Separador sutil entre logos */
+.brands-marquee__item::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 20%; bottom: 20%;
+  width: 1px;
+  background: rgba(201,168,76,0.1);
+}
+
+.brands-marquee__img {
+  height: 32px;
+  width: 100px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.42;
+  transition: opacity 0.3s, filter 0.3s;
+  display: block;
+}
+
+.brands-marquee__item:hover .brands-marquee__img {
+  opacity: 0.88;
+  filter: brightness(0) invert(1) sepia(0.3) saturate(3) hue-rotate(5deg);
+}
+
+.brands-marquee__name {
+  font-family: var(--font-label);
+  font-size: 7.5px;
+  letter-spacing: 0.22em;
+  color: rgba(154,145,128,0.5);
+  text-transform: uppercase;
+  text-align: center;
+  transition: color 0.3s;
+  white-space: nowrap;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brands-marquee__item:hover .brands-marquee__name {
+  color: rgba(201,168,76,0.7);
+}
 
 
 /* ============================================================
@@ -834,32 +1003,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 
 /* ============================================================
-   9. SECCIÓN: MARCAS
+   9. SECCIÓN: MARCAS  (legacy — mantenido por compatibilidad)
 ============================================================ */
-.brands-section {
-  padding: 60px;
-  background: var(--dark-surface);
-}
-
-.brands-list {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.brand-item {
-  font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  color: rgba(197,186,160,0.4);
-  text-transform: uppercase;
-  transition: color var(--transition);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
+.brands-section { padding: 60px; background: var(--dark-surface); }
+.brands-list    { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand-item     { font-family: var(--font-label); font-size: 10px; letter-spacing: 0.3em; color: rgba(197,186,160,0.4); text-transform: uppercase; transition: color var(--transition); cursor: pointer; white-space: nowrap; }
 .brand-item:hover { color: var(--gold); }
 
 
@@ -1104,6 +1252,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .products-section,
   .brands-section    { padding: 60px 24px; }
   .footer            { padding: 24px; }
+  .brands-marquee__fade { width: 60px; }
 }
 
 @media (max-width: 540px) {
@@ -1113,4 +1262,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .products-grid     { grid-template-columns: 1fr; }
   .hero__content     { padding: 0 24px; }
   .hero__title       { font-size: 48px; }
+  .brands-marquee__item  { padding: 10px 18px; }
+  .brands-marquee__img   { width: 72px; height: 26px; }
+  .brands-marquee__fade  { width: 40px; }
 }
