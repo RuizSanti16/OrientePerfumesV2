@@ -104,7 +104,11 @@ function VideoUploader({ videoData, onChange }) {
           {tieneVideo && esArchivo ? (
             /* Video cargado */
             <div style={{ background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 8, overflow: 'hidden' }}>
-              <video src={videoData.url} controls style={{ width: '100%', display: 'block', maxHeight: 220, background: '#000' }} />
+              {/* Contenedor 16:9 */}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000' }}>
+                <video src={videoData.url} controls
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              </div>
               <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 12, color: '#C9A84C', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -159,8 +163,9 @@ function VideoUploader({ videoData, onChange }) {
           <input style={inp} value={videoData.url} placeholder="https://..."
             onChange={e => onChange({ ...videoData, url: e.target.value, nombreArchivo: '' })} />
           {videoData.url && (
-            <div style={{ marginTop: 10 }}>
-              <video key={videoData.url} src={videoData.url} controls style={{ width: '100%', borderRadius: 6, maxHeight: 180, background: '#000' }}
+            <div style={{ marginTop: 10, position: 'relative', width: '100%', aspectRatio: '16/9', background: '#000', borderRadius: 6, overflow: 'hidden' }}>
+              <video key={videoData.url} src={videoData.url} controls
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }}
                 onError={e => e.target.style.display = 'none'} />
             </div>
           )}
