@@ -11,19 +11,48 @@ function fmtFecha(f) {
   return new Date(f).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+/* ── SVG Icons ───────────────────────────────────────────────── */
+function Icon({ d, size = 20, color = 'currentColor', strokeWidth = 1.6 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      {d}
+    </svg>
+  );
+}
+
+const ICONS = {
+  producto:    <><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></>,
+  cliente:     <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+  venta:       <><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></>,
+  ingreso:     <><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+  categoria:   <><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>,
+  estrella:    <><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>,
+  inventario:  <><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></>,
+  coleccion:   <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></>,
+  carrusel:    <><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></>,
+  ajustes:     <><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></>,
+  alerta:      <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>,
+  check:       <><polyline points="20 6 9 17 4 12"/></>,
+  arrow:       <><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>,
+  placeholder: <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>,
+};
+
 /* ── Sub-components ──────────────────────────────────────────── */
-function KpiCard({ icon, label, value, sub, color = '#C9A84C' }) {
+function KpiCard({ iconEl, label, value, sub, color = '#C9A84C' }) {
   return (
     <div style={{
       background: '#111', border: '1px solid rgba(201,168,76,0.15)',
-      borderRadius: '10px', padding: '20px 24px',
-      display: 'flex', alignItems: 'center', gap: '16px',
+      borderRadius: 10, padding: '20px 24px',
+      display: 'flex', alignItems: 'center', gap: 16,
     }}>
       <div style={{
-        width: 48, height: 48, borderRadius: '10px', flexShrink: 0,
-        background: `${color}18`, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', fontSize: 22,
-      }}>{icon}</div>
+        width: 48, height: 48, borderRadius: 10, flexShrink: 0,
+        background: `${color}18`, display: 'flex',
+        alignItems: 'center', justifyContent: 'center', color,
+      }}>
+        <Icon d={iconEl} size={22} color={color} />
+      </div>
       <div>
         <div style={{ fontSize: 26, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
         <div style={{ fontSize: 11, color: '#9A9180', fontFamily: 'Cinzel, serif', letterSpacing: '0.12em', marginTop: 4, textTransform: 'uppercase' }}>{label}</div>
@@ -36,10 +65,11 @@ function KpiCard({ icon, label, value, sub, color = '#C9A84C' }) {
 function SectionTitle({ children }) {
   return (
     <h2 style={{
-      fontFamily: 'Cinzel, serif', fontSize: 12, letterSpacing: '0.2em',
+      fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.2em',
       color: '#C9A84C', textTransform: 'uppercase',
       marginBottom: 16, paddingBottom: 10,
       borderBottom: '1px solid rgba(201,168,76,0.12)',
+      display: 'flex', alignItems: 'center', gap: 8,
     }}>{children}</h2>
   );
 }
@@ -50,6 +80,7 @@ function Badge({ children, color = '#C9A84C' }) {
       display: 'inline-block', padding: '2px 8px', borderRadius: 4,
       fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em',
       background: `${color}18`, color, border: `1px solid ${color}30`,
+      whiteSpace: 'nowrap',
     }}>{children}</span>
   );
 }
@@ -58,7 +89,7 @@ function Badge({ children, color = '#C9A84C' }) {
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading]     = useState(true);
   const [productos, setProductos] = useState([]);
   const [clientes,  setClientes]  = useState([]);
   const [ventas,    setVentas]    = useState([]);
@@ -89,20 +120,20 @@ export default function Dashboard() {
   const stockBajo     = inventario.filter(i => parseInt(i.stock) < 5).slice(0, 6);
   const ultimosProds  = [...productos].slice(0, 6);
 
-  /* ── Hora de saludo ── */
-  const hora  = new Date().getHours();
+  /* ── Saludo según hora ── */
+  const hora   = new Date().getHours();
   const saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
 
   /* ── Accesos rápidos ── */
   const ACCESOS = [
-    { label: 'Productos',    to: '/admin/products',    icon: '🛍️' },
-    { label: 'Categorías',   to: '/admin/categories',  icon: '🏷️' },
-    { label: 'Destacados',   to: '/admin/destacados',  icon: '⭐' },
-    { label: 'Clientes',     to: '/admin/customers',   icon: '👥' },
-    { label: 'Inventario',   to: '/admin/inventory',   icon: '📦' },
-    { label: 'Colecciones',  to: '/admin/colecciones', icon: '🖼️' },
-    { label: 'Carrusel',     to: '/admin/carrusel',    icon: '🎞️' },
-    { label: 'Ajustes',      to: '/admin/ajustes',     icon: '⚙️' },
+    { label: 'Productos',   to: '/admin/products',    iconEl: ICONS.producto   },
+    { label: 'Categorías',  to: '/admin/categories',  iconEl: ICONS.categoria  },
+    { label: 'Destacados',  to: '/admin/destacados',  iconEl: ICONS.estrella   },
+    { label: 'Clientes',    to: '/admin/customers',   iconEl: ICONS.cliente    },
+    { label: 'Inventario',  to: '/admin/inventory',   iconEl: ICONS.inventario },
+    { label: 'Colecciones', to: '/admin/colecciones', iconEl: ICONS.coleccion  },
+    { label: 'Carrusel',    to: '/admin/carrusel',    iconEl: ICONS.carrusel   },
+    { label: 'Ajustes',     to: '/admin/ajustes',     iconEl: ICONS.ajustes    },
   ];
 
   if (loading) return (
@@ -127,10 +158,14 @@ export default function Dashboard() {
 
       {/* ── KPIs ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px,1fr))', gap: 16, marginBottom: 36 }}>
-        <KpiCard icon="🛍️" label="Productos"    value={productos.length} sub={`${productos.length === 1 ? '1 artículo' : `${productos.length} artículos`} en catálogo`} />
-        <KpiCard icon="👥" label="Clientes"     value={clientes.length}  sub="Registrados en el sistema" color="#7EB8C4" />
-        <KpiCard icon="🧾" label="Ventas"       value={ventas.length}    sub="Total de órdenes" color="#9B8DC8" />
-        <KpiCard icon="💰" label="Ingresos"     value={fmt(totalIngresos)} sub="Suma de todas las ventas" color="#6BC48C" />
+        <KpiCard iconEl={ICONS.producto} label="Productos" value={productos.length}
+          sub={`${productos.length} artículos en catálogo`} />
+        <KpiCard iconEl={ICONS.cliente}  label="Clientes"  value={clientes.length}
+          sub="Registrados en el sistema" color="#7EB8C4" />
+        <KpiCard iconEl={ICONS.venta}    label="Ventas"    value={ventas.length}
+          sub="Total de órdenes" color="#9B8DC8" />
+        <KpiCard iconEl={ICONS.ingreso}  label="Ingresos"  value={fmt(totalIngresos)}
+          sub="Suma de todas las ventas" color="#6BC48C" />
       </div>
 
       {/* ── Fila principal ── */}
@@ -151,7 +186,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {ultimasVentas.map((v, i) => (
+                {ultimasVentas.map(v => (
                   <tr key={v.id_venta} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     <td style={{ padding: '10px 0', fontSize: 12, color: '#6B6355' }}>#{v.id_venta}</td>
                     <td style={{ padding: '10px 12px 10px 0', fontSize: 13, color: '#E8DCC8' }}>{v.nombre_cliente || '—'}</td>
@@ -164,8 +199,8 @@ export default function Dashboard() {
           )}
           {ventas.length > 8 && (
             <button onClick={() => navigate('/admin/ventas')}
-              style={{ marginTop: 16, background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
-              Ver todas →
+              style={{ marginTop: 16, background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
+              Ver todas <Icon d={ICONS.arrow} size={14} color="#C9A84C" />
             </button>
           )}
         </div>
@@ -179,14 +214,14 @@ export default function Dashboard() {
                 style={{
                   background: 'rgba(201,168,76,0.04)', border: '1px solid rgba(201,168,76,0.12)',
                   borderRadius: 8, padding: '12px 8px', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                  transition: 'background 0.2s, border-color 0.2s',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7,
+                  transition: 'background 0.2s, border-color 0.2s', color: '#9A9180',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.04)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.3)'; e.currentTarget.style.color = '#C9A84C'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.04)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.12)'; e.currentTarget.style.color = '#9A9180'; }}
               >
-                <span style={{ fontSize: 20 }}>{a.icon}</span>
-                <span style={{ fontSize: 10, fontFamily: 'Cinzel, serif', color: '#9A9180', letterSpacing: '0.1em', textAlign: 'center' }}>{a.label}</span>
+                <Icon d={a.iconEl} size={20} color="currentColor" />
+                <span style={{ fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', textAlign: 'center' }}>{a.label}</span>
               </button>
             ))}
           </div>
@@ -198,11 +233,15 @@ export default function Dashboard() {
 
         {/* Stock bajo */}
         <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
-          <SectionTitle>⚠ Stock bajo</SectionTitle>
+          <SectionTitle>
+            <Icon d={ICONS.alerta} size={13} color="#C9A84C" />
+            Stock bajo
+          </SectionTitle>
           {stockBajo.length === 0 ? (
-            <p style={{ color: '#6BC48C', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
-              <span style={{ fontSize: 16 }}>✓</span> Todo el inventario está al día
-            </p>
+            <div style={{ color: '#6BC48C', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+              <Icon d={ICONS.check} size={16} color="#6BC48C" strokeWidth={2.5} />
+              Todo el inventario está al día
+            </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {stockBajo.map(item => (
@@ -213,14 +252,14 @@ export default function Dashboard() {
                     <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>{item.marca}</div>
                   </div>
                   <Badge color={parseInt(item.stock) === 0 ? '#e74c3c' : '#E8A94C'}>
-                    {item.stock === 0 || item.stock === '0' ? 'Sin stock' : `${item.stock} uds`}
+                    {parseInt(item.stock) === 0 ? 'Sin stock' : `${item.stock} uds`}
                   </Badge>
                 </div>
               ))}
               {inventario.filter(i => parseInt(i.stock) < 5).length > 6 && (
                 <button onClick={() => navigate('/admin/inventory')}
-                  style={{ background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', textAlign: 'left', padding: '4px 0', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
-                  Ver todos →
+                  style={{ background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', textAlign: 'left', padding: '4px 0', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  Ver todos <Icon d={ICONS.arrow} size={14} color="#C9A84C" />
                 </button>
               )}
             </div>
@@ -230,7 +269,7 @@ export default function Dashboard() {
         {/* Últimos productos */}
         <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
           <SectionTitle>Últimos productos</SectionTitle>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {ultimosProds.length === 0 ? (
               <p style={{ color: '#6B6355', fontSize: 13 }}>No hay productos registrados</p>
             ) : ultimosProds.map(p => (
@@ -240,13 +279,11 @@ export default function Dashboard() {
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.06)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                {/* Imagen */}
-                <div style={{ width: 38, height: 38, borderRadius: 6, background: '#1A1A18', flexShrink: 0, overflow: 'hidden', border: '1px solid rgba(201,168,76,0.12)' }}>
-                  {p.imagen ? (
-                    <img src={p.imagen} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🛍️</div>
-                  )}
+                <div style={{ width: 38, height: 38, borderRadius: 6, background: '#1A1A18', flexShrink: 0, overflow: 'hidden', border: '1px solid rgba(201,168,76,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6355' }}>
+                  {p.imagen
+                    ? <img src={p.imagen} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <Icon d={ICONS.placeholder} size={18} color="#6B6355" />
+                  }
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, color: '#E8DCC8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.nombre}</div>
@@ -259,8 +296,8 @@ export default function Dashboard() {
             ))}
           </div>
           <button onClick={() => navigate('/admin/products')}
-            style={{ marginTop: 12, background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
-            Ver todos los productos →
+            style={{ marginTop: 12, background: 'none', border: 'none', color: '#C9A84C', fontSize: 12, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            Ver todos los productos <Icon d={ICONS.arrow} size={14} color="#C9A84C" />
           </button>
         </div>
 
