@@ -23,8 +23,18 @@ import ProductoDetalle from './pages/admin/ProductoDetalle';
 
 
 function AdminRoute({ children }) {
-  const session = localStorage.getItem('op_admin_session');
-  return session ? children : <Navigate to="/login" replace />;
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem('op_admin_session')); } catch { /* noop */ }
+
+  if (!session || !session.token) return <Navigate to="/login" replace />;
+
+  /* Verificar expiración del token en el cliente */
+  if (session.expiry && new Date(session.expiry) <= new Date()) {
+    localStorage.removeItem('op_admin_session');
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 }
 
 

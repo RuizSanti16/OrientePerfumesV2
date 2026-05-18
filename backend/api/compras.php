@@ -11,8 +11,12 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, DELETE');
 
 require_once '../configuracion/Conexion.php';
-
+require_once '../configuracion/auth.php';
 $method = $_SERVER['REQUEST_METHOD'];
+
+if ($method !== 'OPTIONS') {
+    verificarTokenAdmin($pdo);
+}
 
 try {
     switch ($method) {

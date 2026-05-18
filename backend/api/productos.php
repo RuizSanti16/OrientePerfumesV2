@@ -9,7 +9,13 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 
 require_once '../configuracion/Conexion.php';
+require_once '../configuracion/auth.php';
 $method = $_SERVER['REQUEST_METHOD'];
+
+/* GET es público (catálogo); escrituras requieren admin */
+if ($method !== 'GET' && $method !== 'OPTIONS') {
+    verificarTokenAdmin($pdo);
+}
 
 try {
     switch ($method) {

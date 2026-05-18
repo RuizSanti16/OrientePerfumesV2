@@ -12,7 +12,9 @@ export function useAuth() {
     const session = {
       id: data.id, username: data.usuario,
       nombre: data.nombre, name: data.nombre,
-      role: 'admin', tipo: 'admin'
+      role: 'admin', tipo: 'admin',
+      token: data.token   ?? null,
+      expiry: data.expiry ?? null,
     };
     localStorage.setItem('op_admin_session', JSON.stringify(session));
     setAdminSession(session);

@@ -1,5 +1,13 @@
 const API_BASE = '/api';
 
+/** Obtiene el token admin del localStorage, o null si no hay sesión activa */
+function getAdminToken() {
+  try {
+    const s = JSON.parse(localStorage.getItem('op_admin_session'));
+    return s?.token ?? null;
+  } catch { return null; }
+}
+
 /**
  * Sube una imagen al servidor y devuelve la URL pública.
  * @param {File} file
@@ -8,15 +16,27 @@ const API_BASE = '/api';
 export async function subirImagen(file) {
   const form = new FormData();
   form.append('imagen', file);
-  const res = await fetch(`${API_BASE}/subir_imagen.php`, { method: 'POST', body: form });
+  const token = getAdminToken();
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+  const res = await fetch(`${API_BASE}/subir_imagen.php`, { method: 'POST', body: form, headers });
   return res.json();
 }
 
 async function apiFetch(endpoint, method = 'GET', data = null) {
   const url  = `${API_BASE}/${endpoint}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  const token = getAdminToken();
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
   if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
   const res = await fetch(url, opts);
+
+  /* Si el token expiró, limpiar sesión y redirigir al login */
+  if (res.status === 401) {
+    localStorage.removeItem('op_admin_session');
+    window.location.href = '/login';
+    return { ok: false, mensaje: 'Sesión expirada' };
+  }
+
   return res.json();
 }
 

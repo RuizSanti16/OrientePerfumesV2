@@ -19,6 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+/* Verificar autenticación de admin */
+require_once '../configuracion/Conexion.php';
+require_once '../configuracion/auth.php';
+verificarTokenAdmin($pdo);
+require_once '../configuracion/CerrarConexion.php';
+
 /* Directorio donde se guardan las imágenes */
 $uploadDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
 if (!is_dir($uploadDir)) {
