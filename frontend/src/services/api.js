@@ -130,6 +130,14 @@ export const destacadosAPI = {
   guardar: (items) => apiFetch('destacados.php', 'POST', { ids: items }),
 };
 
+export const noticiasAPI = {
+  listarAprobados: ()       => apiFetch('noticias.php'),
+  listarAdmin:     ()       => apiFetch('noticias.php?admin=1'),
+  enviar:          (data)   => apiFetch('noticias.php', 'POST', data),
+  moderar:         (data)   => apiFetch('noticias.php', 'PUT',  data),   // { id, estado }
+  eliminar:        (id)     => apiFetch(`noticias.php?id=${id}`, 'DELETE'),
+};
+
 export const productoDetalleAPI = {
   obtener:       (id)   => apiFetch(`producto_detalle.php?id=${id}`),
   guardar:       (data) => apiFetch('producto_detalle.php', 'POST', data),

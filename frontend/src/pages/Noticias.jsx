@@ -4,6 +4,7 @@ import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
 import SocialButtons   from '../components/SocialButtons';
 import WhatsAppButton  from '../components/WhatsAppButton';
+import { noticiasAPI } from '../services/api';
 
 /* ── Detecta tipo de video y devuelve {type, src} ─────────────── */
 function parseVideoUrl(url) {
@@ -58,8 +59,9 @@ export default function Noticias() {
   const [comentarios,  setComentarios]  = useState([]);
   const [nombre,       setNombre]       = useState('');
   const [texto,        setTexto]        = useState('');
-  const [toast,        setToast]        = useState(false);
-  const [reactions,    setReactions]    = useState({});   // { [idx]: 'like'|'dislike' }
+  const [enviando,     setEnviando]     = useState(false);
+  const [toast,        setToast]        = useState(null); // { ok, msg }
+  const [reactions,    setReactions]    = useState({});   // { [id]: 'like'|'dislike' }
 
   const NAV = [
     { label: 'Inicio',    to: '/'          },
@@ -71,24 +73,32 @@ export default function Noticias() {
   useEffect(() => {
     try { const r = localStorage.getItem('op_video');        if (r) setVideo(JSON.parse(r)); }        catch {}
     try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
-    try { const r = localStorage.getItem('op_comentarios');  if (r) setComentarios(JSON.parse(r)); }  catch {}
     try { const r = localStorage.getItem('op_reactions');    if (r) setReactions(JSON.parse(r)); }    catch {}
+    /* Cargar comentarios aprobados desde la API */
+    noticiasAPI.listarAprobados().then(r => { if (r.ok) setComentarios(r.data); });
   }, []);
 
-  function enviarComentario() {
+  async function enviarComentario() {
     if (!nombre.trim() || !texto.trim()) return;
-    const nuevo  = { nombre: nombre.trim(), texto: texto.trim(), fecha: new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) };
-    const nuevos = [nuevo, ...comentarios];
-    setComentarios(nuevos);
-    localStorage.setItem('op_comentarios', JSON.stringify(nuevos));
-    setNombre(''); setTexto('');
-    setToast(true);
-    setTimeout(() => setToast(false), 3000);
+    setEnviando(true);
+    const res = await noticiasAPI.enviar({ nombre: nombre.trim(), texto: texto.trim() });
+    setEnviando(false);
+    if (res.ok) {
+      setNombre(''); setTexto('');
+      showToast(true, 'Tu comentario fue enviado y está pendiente de revisión');
+    } else {
+      showToast(false, res.mensaje || 'Error al enviar el comentario');
+    }
   }
 
-  function reaccionar(idx, tipo) {
-    const prev = reactions[idx];
-    const updated = { ...reactions, [idx]: prev === tipo ? null : tipo };
+  function showToast(ok, msg) {
+    setToast({ ok, msg });
+    setTimeout(() => setToast(null), 4000);
+  }
+
+  function reaccionar(id, tipo) {
+    const prev = reactions[id];
+    const updated = { ...reactions, [id]: prev === tipo ? null : tipo };
     setReactions(updated);
     localStorage.setItem('op_reactions', JSON.stringify(updated));
   }
@@ -234,36 +244,38 @@ export default function Noticias() {
                 <textarea className="form-textarea" value={texto}
                   onChange={e => setTexto(e.target.value)}
                   placeholder="Escribe tu comentario..." maxLength={300} rows={3} />
-                <button className="btn-primary" onClick={enviarComentario}
-                  style={{ alignSelf: 'flex-end', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em' }}>
-                  Publicar Comentario
+                <button className="btn-primary" onClick={enviarComentario} disabled={enviando}
+                  style={{ alignSelf: 'flex-end', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em', opacity: enviando ? 0.7 : 1 }}>
+                  {enviando ? 'Enviando...' : 'Publicar Comentario'}
                 </button>
               </div>
 
               <div className="comentarios-lista">
                 {comentarios.length === 0 ? (
                   <p className="comentarios-empty">Sé el primero en comentar</p>
-                ) : comentarios.map((c, i) => (
-                  <div key={i} className="comentario-card">
+                ) : comentarios.map(c => (
+                  <div key={c.id} className="comentario-card">
                     <Avatar nombre={c.nombre} />
                     <div>
                       <div className="comentario-nombre">{c.nombre}</div>
                       <div className="comentario-texto">{c.texto}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.4)', marginTop: 6 }}>{c.fecha}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.4)', marginTop: 6 }}>
+                        {new Date(c.fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </div>
                     </div>
                     <div className="comentario-acciones">
                       <button
-                        className={`reaction-btn reaction-btn--like${reactions[i] === 'like' ? ' active' : ''}`}
-                        onClick={() => reaccionar(i, 'like')} title="Me gusta">
-                        <svg width={12} height={12} viewBox="0 0 24 24" fill={reactions[i]==='like'?'currentColor':'none'} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        className={`reaction-btn reaction-btn--like${reactions[c.id] === 'like' ? ' active' : ''}`}
+                        onClick={() => reaccionar(c.id, 'like')} title="Me gusta">
+                        <svg width={12} height={12} viewBox="0 0 24 24" fill={reactions[c.id]==='like'?'currentColor':'none'} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
                           <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                         </svg>
                       </button>
                       <button
-                        className={`reaction-btn reaction-btn--dislike${reactions[i] === 'dislike' ? ' active' : ''}`}
-                        onClick={() => reaccionar(i, 'dislike')} title="No me gusta">
-                        <svg width={12} height={12} viewBox="0 0 24 24" fill={reactions[i]==='dislike'?'currentColor':'none'} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        className={`reaction-btn reaction-btn--dislike${reactions[c.id] === 'dislike' ? ' active' : ''}`}
+                        onClick={() => reaccionar(c.id, 'dislike')} title="No me gusta">
+                        <svg width={12} height={12} viewBox="0 0 24 24" fill={reactions[c.id]==='dislike'?'currentColor':'none'} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
                           <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
                         </svg>
@@ -334,7 +346,10 @@ export default function Noticias() {
       <WhatsAppButton />
 
       {/* ── Toast ── */}
-      <div className={`toast${toast ? ' show' : ''}`}>Comentario publicado</div>
+      <div className={`toast${toast ? ' show' : ''}`}
+        style={{ background: toast?.ok === false ? '#c0392b' : undefined }}>
+        {toast?.msg}
+      </div>
 
     </div>
   );

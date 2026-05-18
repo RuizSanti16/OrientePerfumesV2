@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { subirImagen, subirVideo } from '../../services/api';
+import { subirImagen, subirVideo, noticiasAPI } from '../../services/api';
 
 /* ── SVG Icons ───────────────────────────────────────────────── */
 function Ico({ d, size = 16, color = 'currentColor', sw = 1.7 }) {
@@ -18,6 +18,8 @@ const ICO = {
   plus:    <><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,
   close:   <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
   check:   <polyline points="20 6 9 17 4 12"/>,
+  ban:     <><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></>,
+  clock:   <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
   trash:   <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></>,
   play:    <><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></>,
   spinner: <><path d="M21 12a9 9 0 1 1-6.219-8.56"/></>,
@@ -175,14 +177,37 @@ export default function NoticiasAdmin() {
   const [video,        setVideo]        = useState({ url: '', titulo: '', descripcion: '', nombreArchivo: '' });
   const [lanzamientos, setLanzamientos] = useState([]);
   const [comentarios,  setComentarios]  = useState([]);
+  const [filtroComent, setFiltroComent] = useState('pendiente'); // 'pendiente'|'aprobado'|'rechazado'
+  const [cargandoCom,  setCargandoCom]  = useState(false);
   const [msg,          setMsg]          = useState(null);
   const [subiendo,     setSubiendo]     = useState({});  // { [id]: true }
 
   useEffect(() => {
     try { const r = localStorage.getItem('op_video');        if (r) setVideo(JSON.parse(r)); } catch {}
     try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
-    try { const r = localStorage.getItem('op_comentarios');  if (r) setComentarios(JSON.parse(r)); } catch {}
+    cargarComentarios();
   }, []);
+
+  async function cargarComentarios() {
+    setCargandoCom(true);
+    const r = await noticiasAPI.listarAdmin();
+    if (r.ok) setComentarios(r.data);
+    setCargandoCom(false);
+  }
+
+  async function moderarComentario(id, estado) {
+    const res = await noticiasAPI.moderar({ id, estado });
+    if (res.ok) {
+      cargarComentarios();
+      showMsg(true, estado === 'aprobado' ? 'Comentario aprobado' : estado === 'rechazado' ? 'Comentario rechazado' : 'Estado actualizado');
+    } else showMsg(false, res.mensaje);
+  }
+
+  async function eliminarComentario(id) {
+    const res = await noticiasAPI.eliminar(id);
+    if (res.ok) { cargarComentarios(); showMsg(true, 'Comentario eliminado'); }
+    else showMsg(false, res.mensaje);
+  }
 
   function guardar() {
     localStorage.setItem('op_video',        JSON.stringify(video));
@@ -338,28 +363,92 @@ export default function NoticiasAdmin() {
         </div>
       </div>
 
-      {/* ── Comentarios ── */}
+      {/* ── Moderación de comentarios ── */}
       <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.15)', borderRadius: 8, overflow: 'hidden' }}>
         <div style={sectionHeader}>
-          <span style={sectionTitle}>COMENTARIOS ({comentarios.length})</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={sectionTitle}>MODERACIÓN DE COMENTARIOS</span>
+            {comentarios.filter(c => c.estado === 'pendiente').length > 0 && (
+              <span style={{ background: '#e05252', color: '#fff', fontSize: 10, fontFamily: 'Cinzel, serif', borderRadius: 20, padding: '2px 8px', letterSpacing: '0.08em' }}>
+                {comentarios.filter(c => c.estado === 'pendiente').length} pendientes
+              </span>
+            )}
+          </div>
+          <button onClick={cargarComentarios} style={{ background: 'none', border: 'none', color: '#6B6355', cursor: 'pointer', padding: 4 }} title="Recargar">
+            <Ico d={ICO.save} size={14} color="#6B6355" />
+          </button>
         </div>
-        <div style={{ padding: 20 }}>
-          {comentarios.length === 0 && (
-            <p style={{ color: '#9A9180', fontSize: 13, margin: 0 }}>No hay comentarios aún.</p>
-          )}
-          {comentarios.map((c, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '12px 0', borderBottom: '1px solid rgba(201,168,76,0.05)' }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#E8DCC8' }}>{c.nombre}</div>
-                <div style={{ fontSize: 12, color: '#9A9180', marginTop: 3 }}>{c.texto}</div>
-                <div style={{ fontSize: 10, color: 'rgba(201,168,76,0.45)', marginTop: 5 }}>{c.fecha}</div>
-              </div>
-              <button onClick={() => eliminarComentario(i)}
-                style={{ background: 'none', border: 'none', color: '#6B6355', cursor: 'pointer', padding: 4, flexShrink: 0, marginLeft: 12, transition: 'color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#e05252'}
-                onMouseLeave={e => e.currentTarget.style.color = '#6B6355'}>
-                <Ico d={ICO.trash} size={15} />
+
+        {/* Tabs de filtro */}
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
+          {[
+            { key: 'pendiente',  label: 'Pendientes',  color: '#E8A94C' },
+            { key: 'aprobado',   label: 'Aprobados',   color: '#4caf50' },
+            { key: 'rechazado',  label: 'Rechazados',  color: '#e05252' },
+          ].map(t => {
+            const cnt = comentarios.filter(c => c.estado === t.key).length;
+            const active = filtroComent === t.key;
+            return (
+              <button key={t.key} onClick={() => setFiltroComent(t.key)}
+                style={{ flex: 1, padding: '10px 8px', background: active ? `${t.color}12` : 'transparent', border: 'none', borderBottom: `2px solid ${active ? t.color : 'transparent'}`, color: active ? t.color : '#6B6355', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {t.label}
+                <span style={{ background: active ? t.color : 'rgba(255,255,255,0.08)', color: active ? '#0a0a08' : '#6B6355', borderRadius: 20, padding: '1px 7px', fontSize: 10 }}>{cnt}</span>
               </button>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: 20 }}>
+          {cargandoCom && <p style={{ color: '#6B6355', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>Cargando comentarios...</p>}
+
+          {!cargandoCom && comentarios.filter(c => c.estado === filtroComent).length === 0 && (
+            <p style={{ color: '#6B6355', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>
+              No hay comentarios {filtroComent === 'pendiente' ? 'pendientes' : filtroComent === 'aprobado' ? 'aprobados' : 'rechazados'}
+            </p>
+          )}
+
+          {comentarios.filter(c => c.estado === filtroComent).map(c => (
+            <div key={c.id} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '14px 0', borderBottom: '1px solid rgba(201,168,76,0.06)' }}>
+
+              {/* Avatar inicial */}
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'Cinzel, serif', fontSize: 15, fontWeight: 700, color: '#C9A84C' }}>
+                {(c.nombre || '?')[0].toUpperCase()}
+              </div>
+
+              {/* Contenido */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#E8DCC8' }}>{c.nombre}</span>
+                  <span style={{ fontSize: 10, color: '#6B6355' }}>
+                    {new Date(c.fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: '#C8C0B0', margin: 0, lineHeight: 1.6 }}>{c.texto}</p>
+              </div>
+
+              {/* Acciones según estado */}
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                {c.estado !== 'aprobado' && (
+                  <button onClick={() => moderarComentario(c.id, 'aprobado')} title="Aprobar"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.25)', color: '#4caf50', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
+                    <Ico d={ICO.check} size={12} color="#4caf50" sw={2.5} />
+                    Aprobar
+                  </button>
+                )}
+                {c.estado !== 'rechazado' && (
+                  <button onClick={() => moderarComentario(c.id, 'rechazado')} title="Rechazar"
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(224,82,82,0.1)', border: '1px solid rgba(224,82,82,0.25)', color: '#e05252', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
+                    <Ico d={ICO.ban} size={12} color="#e05252" />
+                    Rechazar
+                  </button>
+                )}
+                <button onClick={() => eliminarComentario(c.id)} title="Eliminar"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 6, background: 'none', border: '1px solid rgba(255,255,255,0.07)', color: '#6B6355', cursor: 'pointer', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#e05252'; e.currentTarget.style.borderColor = 'rgba(224,82,82,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#6B6355'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}>
+                  <Ico d={ICO.trash} size={13} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
