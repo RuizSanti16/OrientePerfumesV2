@@ -283,17 +283,69 @@ export default function Producto() {
         {producto.dupes?.length > 0 && (
           <Section titulo="Perfumes Similares" eyebrow="Dupes">
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))', gap:14 }}>
-              {producto.dupes.map(d => (
-                <div key={d.id} style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:10, overflow:'hidden', textAlign:'center' }}>
-                  {d.imagen
-                    ? <img src={d.imagen} alt={d.nombre} style={{ width:'100%', height:110, objectFit:'cover' }} />
-                    : <div style={{ height:110, background:'rgba(201,168,76,0.05)', display:'flex', alignItems:'center', justifyContent:'center' }}><IconBottle size={36}/></div>}
-                  <div style={{ padding:'10px 12px' }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#E8DCC8', marginBottom:3 }}>{d.nombre}</div>
-                    {d.marca && <div style={{ fontSize:11, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.08em' }}>{d.marca}</div>}
+              {producto.dupes.map(d => {
+                const refId    = d.ref_id || d.id_referencia || null;
+                const clicable = !!refId;
+                return (
+                  <div
+                    key={d.id}
+                    onClick={clicable ? () => navigate(`/producto/${refId}`) : undefined}
+                    style={{
+                      background:'#111',
+                      border: clicable ? '1px solid rgba(201,168,76,0.28)' : '1px solid rgba(201,168,76,0.1)',
+                      borderRadius:10, overflow:'hidden', textAlign:'center',
+                      cursor: clicable ? 'pointer' : 'default',
+                      transition:'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+                      position:'relative',
+                    }}
+                    onMouseEnter={e => {
+                      if (!clicable) return;
+                      e.currentTarget.style.borderColor = 'rgba(201,168,76,0.65)';
+                      e.currentTarget.style.transform   = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow   = '0 8px 28px rgba(0,0,0,0.45)';
+                    }}
+                    onMouseLeave={e => {
+                      if (!clicable) return;
+                      e.currentTarget.style.borderColor = 'rgba(201,168,76,0.28)';
+                      e.currentTarget.style.transform   = 'translateY(0)';
+                      e.currentTarget.style.boxShadow   = 'none';
+                    }}>
+
+                    {/* Badge "En catálogo" */}
+                    {clicable && (
+                      <div style={{
+                        position:'absolute', top:8, right:8, zIndex:2,
+                        background:'rgba(201,168,76,0.15)',
+                        border:'1px solid rgba(201,168,76,0.4)',
+                        borderRadius:4, padding:'2px 7px',
+                        fontFamily:'Cinzel,serif', fontSize:8,
+                        letterSpacing:'0.12em', color:'#C9A84C',
+                      }}>
+                        VER →
+                      </div>
+                    )}
+
+                    {d.imagen
+                      ? <img src={d.imagen} alt={d.nombre} style={{ width:'100%', height:110, objectFit:'cover', display:'block' }} />
+                      : <div style={{ height:110, background:'rgba(201,168,76,0.05)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                          <IconBottle size={36}/>
+                        </div>
+                    }
+
+                    <div style={{ padding:'10px 12px 12px' }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:'#E8DCC8', marginBottom:3 }}>{d.nombre}</div>
+                      {d.marca && (
+                        <div style={{ fontSize:11, color:'#9A9180', fontFamily:'Cinzel,serif', letterSpacing:'0.08em' }}>{d.marca}</div>
+                      )}
+                      {clicable && (
+                        <div style={{ marginTop:8, fontSize:10, color:'rgba(201,168,76,0.6)', fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>
+                          Disponible en catálogo
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Section>
         )}

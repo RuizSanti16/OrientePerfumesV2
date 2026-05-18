@@ -10,6 +10,13 @@ header('Access-Control-Allow-Methods: GET, POST, DELETE');
 require_once '../configuracion/Conexion.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
+/* Auto-migración: añadir id_referencia si no existe */
+try {
+    $pdo->query("SELECT id_referencia FROM tbl_producto_dupes LIMIT 1");
+} catch (PDOException $e) {
+    $pdo->exec("ALTER TABLE tbl_producto_dupes ADD COLUMN id_referencia INT NULL DEFAULT NULL");
+}
+
 try {
     switch ($method) {
 
@@ -48,8 +55,19 @@ try {
                 'fondo'    => array_values(array_filter($notas, fn($n) => $n['tipo']==='fondo')),
             ];
 
-            /* Dupes */
-            $s = $pdo->prepare("SELECT * FROM tbl_producto_dupes WHERE id_producto=:id ORDER BY id ASC");
+            /* Dupes — incluye ref_id: id_referencia explícita o búsqueda automática por nombre */
+            $s = $pdo->prepare("
+                SELECT d.*,
+                       COALESCE(
+                           d.id_referencia,
+                           (SELECT p2.id_producto FROM tbl_productos p2
+                            WHERE LOWER(TRIM(p2.nombre)) = LOWER(TRIM(d.nombre))
+                            LIMIT 1)
+                       ) AS ref_id
+                FROM tbl_producto_dupes d
+                WHERE d.id_producto = :id
+                ORDER BY d.id ASC
+            ");
             $s->execute([':id' => $id]);
             $producto['dupes'] = $s->fetchAll();
 
@@ -101,9 +119,12 @@ try {
             /* Dupes */
             if (isset($b['dupes'])) {
                 $pdo->prepare("DELETE FROM tbl_producto_dupes WHERE id_producto=:id")->execute([':id'=>$id]);
-                $sd = $pdo->prepare("INSERT INTO tbl_producto_dupes (id_producto,nombre,marca,imagen) VALUES (:id,:n,:m,:img)");
+                $sd = $pdo->prepare("INSERT INTO tbl_producto_dupes (id_producto,nombre,marca,imagen,id_referencia) VALUES (:id,:n,:m,:img,:ref)");
                 foreach ($b['dupes'] as $dupe) {
-                    if (!empty($dupe['nombre'])) $sd->execute([':id'=>$id,':n'=>$dupe['nombre'],':m'=>$dupe['marca']??'',':img'=>$dupe['imagen']??'']);
+                    if (!empty($dupe['nombre'])) {
+                        $ref = !empty($dupe['id_referencia']) ? intval($dupe['id_referencia']) : null;
+                        $sd->execute([':id'=>$id,':n'=>$dupe['nombre'],':m'=>$dupe['marca']??'',':img'=>$dupe['imagen']??'',':ref'=>$ref]);
+                    }
                 }
             }
 

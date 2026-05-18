@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { productoDetalleAPI, subirImagen } from '../../services/api';
+import { productoDetalleAPI, productosAPI, subirImagen } from '../../services/api';
 
 const IconBottle = ({ size = 24 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -20,8 +20,9 @@ export default function ProductoDetalle() {
   const [loading,  setLoading]  = useState(true);
   const [guardando,  setGuardando]   = useState(false);
   const [msg,        setMsg]         = useState('');
-  const [subiendo,   setSubiendo]    = useState(false);
+  const [subiendo,     setSubiendo]     = useState(false);
   const [subiendoDupe, setSubiendoDupe] = useState({});
+  const [todosProductos, setTodosProductos] = useState([]);
 
   /* Form state */
   const [descripcion, setDescripcion] = useState('');
@@ -47,6 +48,10 @@ export default function ProductoDetalle() {
         setDupes(p.dupes || []);
       }
       setLoading(false);
+    });
+    /* Cargar todos los productos para el selector de vinculación */
+    productosAPI.listar().then(res => {
+      if (res.ok) setTodosProductos(res.data);
     });
   }, [id]);
 
@@ -245,6 +250,31 @@ export default function ProductoDetalle() {
                 <input style={{ ...inp, fontSize:12 }} placeholder="Nombre del perfume *" value={d.nombre} onChange={e => updateDupe(i,'nombre',e.target.value)} />
                 <input style={{ ...inp, fontSize:12 }} placeholder="Marca" value={d.marca} onChange={e => updateDupe(i,'marca',e.target.value)} />
                 <input style={{ ...inp, fontSize:12, gridColumn:'1/-1' }} placeholder="URL imagen externa (opcional)" value={d.imagen.startsWith('data:') || d.imagen.startsWith('/OrientPerfumes') ? '' : d.imagen} onChange={e => updateDupe(i,'imagen',e.target.value)} />
+                {/* Selector de vinculación al catálogo */}
+                <div style={{ gridColumn:'1/-1' }}>
+                  <div style={{ fontFamily:'Cinzel,serif', fontSize:9, letterSpacing:'0.12em', color:'#9A9180', marginBottom:5 }}>
+                    VINCULAR A PRODUCTO DEL CATÁLOGO
+                  </div>
+                  <select
+                    value={d.id_referencia || ''}
+                    onChange={e => updateDupe(i, 'id_referencia', e.target.value || null)}
+                    style={{ ...inp, fontSize:12, color: d.id_referencia ? '#C9A84C' : '#9A9180' }}>
+                    <option value="">— Sin vincular (se buscará por nombre automáticamente)</option>
+                    {todosProductos
+                      .filter(p => String(p.id_producto) !== String(id))
+                      .map(p => (
+                        <option key={p.id_producto} value={p.id_producto}>
+                          {p.nombre}{p.marca ? ` · ${p.marca}` : ''}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {d.id_referencia && (
+                    <div style={{ fontSize:10, color:'rgba(76,175,80,0.8)', marginTop:4, fontFamily:'Cinzel,serif', letterSpacing:'0.08em' }}>
+                      ✓ Vinculado — aparecerá como clicable en la página del producto
+                    </div>
+                  )}
+                </div>
               </div>
               <button onClick={() => setDupes(prev => prev.filter((_,idx)=>idx!==i))}
                 style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:18, flexShrink:0 }}>✕</button>
