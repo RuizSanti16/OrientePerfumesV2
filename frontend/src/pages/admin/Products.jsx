@@ -103,6 +103,21 @@ export default function Products() {
         <button onClick={abrirNuevo} style={btnGold}>+ Nuevo Producto</button>
       </div>
 
+      {/* Alerta: productos sin categoría */}
+      {(() => {
+        const sinCat = productos.filter(p => !p.id_categoria).length;
+        return sinCat > 0 ? (
+          <div style={{ marginBottom: 16, padding: '12px 16px', borderRadius: 6, background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.3)', fontSize: 13, color: '#C9A84C', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width={18} height={18} style={{ flexShrink: 0 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+            </svg>
+            <span>
+              <strong>{sinCat}</strong> producto{sinCat > 1 ? 's' : ''} sin categoría asignada — no aparecerán en las colecciones. Edítalos y asigna una categoría.
+            </span>
+          </div>
+        ) : null;
+      })()}
+
       <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar productos..."
         style={{ ...inputStyle, marginBottom: '16px', maxWidth: '300px' }} />
 
@@ -124,7 +139,11 @@ export default function Products() {
                 <td style={{ padding: '10px 16px', color: '#9A9180', fontSize: '12px' }}>{p.id_producto}</td>
                 <td style={{ padding: '10px 16px', fontWeight: 600 }}>{p.nombre}</td>
                 <td style={{ padding: '10px 16px', color: '#9A9180' }}>{p.marca || '—'}</td>
-                <td style={{ padding: '10px 16px', color: '#9A9180' }}>{p.nombre_categoria || '—'}</td>
+                <td style={{ padding: '10px 16px' }}>
+                  {p.nombre_categoria
+                    ? <span style={{ color: '#9A9180' }}>{p.nombre_categoria}</span>
+                    : <span style={{ color: '#C9A84C', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 4, padding: '2px 8px' }}>SIN CATEGORÍA</span>}
+                </td>
                 <td style={{ padding: '10px 16px', color: '#C9A84C' }}>$ {Number(p.precio || 0).toLocaleString('es-CO')}</td>
               <td style={{ padding: '10px 16px' }}>
                 <button onClick={() => abrirEditar(p)} style={btnOutline}>Editar</button>

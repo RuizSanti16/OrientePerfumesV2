@@ -15,6 +15,23 @@ if ($method !== 'GET' && $method !== 'OPTIONS') {
     verificarTokenAdmin($pdo);
 }
 
+/* ── Auto-seed: asegurar que las 4 colecciones base existan ── */
+try {
+    $count = $pdo->query("SELECT COUNT(*) FROM tbl_categorias")->fetchColumn();
+    if ((int)$count === 0) {
+        $seed = [
+            ['Nicho',      'Perfumería de autor: las casas de nicho más exclusivas'],
+            ['Oriental',   'Oud, Ámbar, Sándalo y Musk en su máxima expresión'],
+            ['Diseñador',  'Las grandes maisons y firmas reconocidas a nivel mundial'],
+            ['Exclusivos', 'Ediciones especiales y fragancias únicas de colección'],
+        ];
+        $ins = $pdo->prepare("INSERT INTO tbl_categorias (nombre, descripcion) VALUES (:n, :d)");
+        foreach ($seed as [$n, $d]) {
+            $ins->execute([':n' => $n, ':d' => $d]);
+        }
+    }
+} catch (PDOException $e) { /* continuar */ }
+
 try {
     switch ($method) {
         case 'GET':

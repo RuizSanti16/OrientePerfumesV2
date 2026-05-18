@@ -166,22 +166,14 @@ export default function Noticias() {
             </svg>
             {cartCount > 0 && <span className="action-btn__badge">{cartCount}</span>}
           </button>
+
+          {/* Botón volver */}
+          <BtnVolver onClick={() => navigate('/')} label="INICIO" />
         </div>
       </header>
 
       {/* ── Hero ── */}
       <div className="noticias-hero">
-        {/* Breadcrumb / back */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
-          <button onClick={() => navigate('/')}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 20, padding: '5px 14px', color: '#9A9180', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.12em', transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#9A9180'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.2)'; }}>
-            <ArrowLeft />
-            Volver al inicio
-          </button>
-        </div>
-
         <div className="section__eyebrow">OrientPerfumes</div>
         <h1 className="noticias-hero__title">Noticias <em>&amp; Novedades</em></h1>
         <p style={{ fontFamily: 'Raleway, sans-serif', fontSize: 14, color: '#9A9180', marginTop: 12, letterSpacing: '0.04em' }}>
@@ -352,5 +344,35 @@ export default function Noticias() {
       </div>
 
     </div>
+  );
+}
+
+/* ── Botón de volver estándar ── */
+function BtnVolver({ onClick, label = 'INICIO' }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        background: 'none',
+        border: '1px solid rgba(201,168,76,0.45)',
+        borderRadius: 4,
+        padding: '8px 20px',
+        color: '#C9A84C',
+        cursor: 'pointer',
+        fontFamily: 'Cinzel, serif',
+        fontSize: 12,
+        letterSpacing: '0.12em',
+        transition: 'background 0.2s, border-color 0.2s',
+        whiteSpace: 'nowrap',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.8)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+        width="14" height="14" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      {label}
+    </button>
   );
 }

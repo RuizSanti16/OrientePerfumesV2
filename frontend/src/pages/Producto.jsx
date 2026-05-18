@@ -89,7 +89,7 @@ export default function Producto() {
   if (!producto) return (
     <div style={{ background:'#0a0a08', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
       <p style={{ fontFamily:'Cinzel,serif', fontSize:13, color:'#9A9180' }}>Producto no encontrado</p>
-      <button onClick={() => navigate(-1)} style={btnOutline}>← Volver</button>
+      <BtnVolver onClick={() => navigate(-1)} label="VOLVER" />
     </div>
   );
 
@@ -139,9 +139,33 @@ export default function Producto() {
             <div className="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
           </div>
         </a>
+
+        {/* Navegación */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
+          {[
+            { label: 'Inicio',    to: '/'          },
+            { label: 'Colección', to: '/coleccion' },
+            { label: 'Noticias',  to: '/noticias'  },
+            { label: 'Contacto',  to: '/contacto'  },
+          ].map(n => (
+            <a key={n.to} href={n.to}
+              style={{
+                fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em',
+                color: '#9A9180',
+                textDecoration: 'none', padding: '6px 12px', borderRadius: 4,
+                transition: 'color 0.2s',
+                borderBottom: '1px solid transparent',
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
+              onMouseLeave={e => e.currentTarget.style.color = '#9A9180'}>
+              {n.label}
+            </a>
+          ))}
+        </nav>
+
         <div className="header__actions">
-          <SocialButtons />
-          <button onClick={() => navigate(-1)} style={{ background:'none', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'6px 14px', color:'#9A9180', cursor:'pointer', fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.1em' }}>← VOLVER</button>
+          <div style={{ marginRight: 4 }}><SocialButtons /></div>
+          <BtnVolver onClick={() => navigate(-1)} label="VOLVER" />
         </div>
       </header>
 
@@ -459,3 +483,33 @@ function Section({ titulo, eyebrow, children }) {
 const labelStyle = { fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', display:'block', marginBottom:6 };
 const inputStyle = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'10px 14px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box', fontFamily:'Raleway,sans-serif' };
 const btnOutline = { background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'8px 20px', color:'#C9A84C', cursor:'pointer', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.1em' };
+
+/* ── Botón de volver estándar ── */
+function BtnVolver({ onClick, label = 'INICIO' }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        background: 'none',
+        border: '1px solid rgba(201,168,76,0.45)',
+        borderRadius: 4,
+        padding: '8px 20px',
+        color: '#C9A84C',
+        cursor: 'pointer',
+        fontFamily: 'Cinzel, serif',
+        fontSize: 12,
+        letterSpacing: '0.12em',
+        transition: 'background 0.2s, border-color 0.2s',
+        whiteSpace: 'nowrap',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.8)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+        width="14" height="14" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      {label}
+    </button>
+  );
+}

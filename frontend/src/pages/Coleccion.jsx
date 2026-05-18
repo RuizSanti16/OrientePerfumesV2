@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { productosAPI } from '../services/api';
+import { productosAPI, categoriasAPI } from '../services/api';
 import { useCarrito }   from '../hooks/useCarrito';
 import { useWishlist }  from '../hooks/useWishlist';
 import SocialButtons   from '../components/SocialButtons';
@@ -53,11 +53,30 @@ export default function Coleccion() {
   const totalCarrito = carrito.reduce((s, i) => s + (i.precio * (i.cantidad || 1)), 0);
 
   useEffect(() => {
-    productosAPI.listar().then(res => {
-      if (res.ok) {
-        setProductos(res.data.filter(p =>
-          (p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()
-        ));
+    Promise.all([
+      productosAPI.listar(),
+      categoriasAPI.listar(),
+    ]).then(([resProd, resCat]) => {
+      if (resProd.ok) {
+        const cats = resCat.ok ? (resCat.data || []) : [];
+
+        /* Buscar la categoría por nombre (insensible a mayúsculas) */
+        const catMatch = cats.find(
+          c => (c.nombre || '').toLowerCase() === categoria.toLowerCase()
+        );
+
+        setProductos(resProd.data.filter(p => {
+          /* Primero: comparar por id_categoria (más fiable) */
+          if (catMatch && p.id_categoria != null &&
+              String(p.id_categoria) === String(catMatch.id_categoria)) {
+            return true;
+          }
+          /* Fallback: comparar por nombre_categoria del JOIN */
+          if ((p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()) {
+            return true;
+          }
+          return false;
+        }));
       }
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -96,6 +115,29 @@ export default function Coleccion() {
           </div>
         </a>
 
+        {/* Navegación */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
+          {[
+            { label: 'Inicio',    to: '/'          },
+            { label: 'Colección', to: '/coleccion' },
+            { label: 'Noticias',  to: '/noticias'  },
+            { label: 'Contacto',  to: '/contacto'  },
+          ].map(n => (
+            <a key={n.to} href={n.to}
+              style={{
+                fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em',
+                color: n.to === '/coleccion' ? '#C9A84C' : '#9A9180',
+                textDecoration: 'none', padding: '6px 12px', borderRadius: 4,
+                transition: 'color 0.2s',
+                borderBottom: n.to === '/coleccion' ? '1px solid rgba(201,168,76,0.5)' : '1px solid transparent',
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
+              onMouseLeave={e => e.currentTarget.style.color = n.to === '/coleccion' ? '#C9A84C' : '#9A9180'}>
+              {n.label}
+            </a>
+          ))}
+        </nav>
+
         <div className="header__actions">
           <button className="action-btn" onClick={() => setPanelAbierto(p => p === 'wishlist' ? null : 'wishlist')} aria-label={`Lista de deseos (${wishCount})`}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
@@ -111,12 +153,9 @@ export default function Coleccion() {
             <span className="action-btn__badge">{cartCount}</span>
           </button>
 
-          <SocialButtons />
+          <div style={{ marginRight: 4 }}><SocialButtons /></div>
 
-          <button onClick={() => navigate('/')}
-            style={{ background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '6px 14px', color: '#9A9180', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.1em' }}>
-            ← INICIO
-          </button>
+          <BtnVolver onClick={() => navigate('/')} label="INICIO" />
         </div>
       </header>
 
@@ -133,9 +172,22 @@ export default function Coleccion() {
           <p style={{ textAlign: 'center', color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', padding: '60px 0' }}>CARGANDO PRODUCTOS...</p>
         )}
         {!loading && !productos.length && (
-          <p style={{ textAlign: 'center', color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', padding: '60px 0' }}>
-            NO HAY PRODUCTOS EN ESTA COLECCIÓN AÚN
-          </p>
+          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+            <div style={{ marginBottom: 20 }}>
+              <IconBottle size={48} />
+            </div>
+            <p style={{ color: '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.18em', marginBottom: 8 }}>
+              PRÓXIMAMENTE EN ESTA COLECCIÓN
+            </p>
+            <p style={{ color: '#6A6460', fontSize: 13, marginBottom: 28 }}>
+              Estamos seleccionando las mejores fragancias para ti
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              style={{ background: 'none', border: '1px solid rgba(201,168,76,0.35)', borderRadius: 4, padding: '10px 28px', color: '#C9A84C', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em' }}>
+              VER TODAS LAS COLECCIONES
+            </button>
+          </div>
         )}
         <div className="products-grid">
           {productos.map(p => (
@@ -277,5 +329,35 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         )}
       </div>
     </article>
+  );
+}
+
+/* ── Botón de volver estándar ── */
+function BtnVolver({ onClick, label = 'INICIO' }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        background: 'none',
+        border: '1px solid rgba(201,168,76,0.45)',
+        borderRadius: 4,
+        padding: '8px 20px',
+        color: '#C9A84C',
+        cursor: 'pointer',
+        fontFamily: 'Cinzel, serif',
+        fontSize: 12,
+        letterSpacing: '0.12em',
+        transition: 'background 0.2s, border-color 0.2s',
+        whiteSpace: 'nowrap',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,168,76,0.1)'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.8)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'rgba(201,168,76,0.45)'; }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+        width="14" height="14" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      {label}
+    </button>
   );
 }
