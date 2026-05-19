@@ -152,3 +152,20 @@ export const productoDetalleAPI = {
   eliminarRating:(id)   => apiFetch(`producto_detalle.php?rating_id=${id}`, 'DELETE'),
   calificar:     (data) => apiFetch('producto_rating.php', 'POST', data),
 };
+
+export const estadisticasAPI = {
+  obtener: () => apiFetch('estadisticas.php'),
+};
+
+export const pedidosAPI = {
+  listar:          ()       => apiFetch('pedidos.php'),
+  obtener:         (id)     => apiFetch(`pedidos.php?id=${id}`),
+  seguimiento:     (codigo) => apiFetch(`pedidos.php?codigo=${encodeURIComponent(codigo)}`),
+  crear:           (data)   => apiFetch('pedidos.php', 'POST', data),
+  actualizarEstado:(data)   => apiFetch('pedidos.php', 'PUT',  data),
+  eliminar:        (id)     => apiFetch(`pedidos.php?id=${id}`, 'DELETE'),
+};
+
+export const notificacionesAPI = {
+  obtener: () => apiFetch('notificaciones.php'),
+};

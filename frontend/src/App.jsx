@@ -25,6 +25,9 @@ import FAQ             from './pages/FAQ';
 import Comparador      from './pages/Comparador';
 import Quiz            from './pages/Quiz';
 import Cupones         from './pages/admin/Cupones';
+import Pedidos         from './pages/admin/Pedidos';
+import Checkout        from './pages/Checkout';
+import SeguimientoPedido from './pages/SeguimientoPedido';
 
 
 
@@ -59,6 +62,9 @@ export default function App() {
         <Route path="/faq"          element={<FAQ />} />
         <Route path="/comparador"   element={<Comparador />} />
         <Route path="/quiz"         element={<Quiz />} />
+        <Route path="/checkout"     element={<Checkout />} />
+        <Route path="/seguimiento"         element={<SeguimientoPedido />} />
+        <Route path="/seguimiento/:codigo" element={<SeguimientoPedido />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -75,6 +81,7 @@ export default function App() {
           <Route path="ajustes"         element={<Ajustes />} />
           <Route path="colecciones"     element={<ColeccionesAdmin />} />
           <Route path="cupones"         element={<Cupones />} />
+          <Route path="pedidos"         element={<Pedidos />} />
           <Route path="producto/:id" element={<ProductoDetalle />} />
         </Route>
 

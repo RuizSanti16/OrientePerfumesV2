@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { productosAPI, clientesAPI, ventasAPI, inventarioAPI } from '../../services/api';
+import { productosAPI, clientesAPI, ventasAPI, inventarioAPI, estadisticasAPI } from '../../services/api';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 function fmt(n) {
@@ -85,15 +85,72 @@ function Badge({ children, color = '#C9A84C' }) {
   );
 }
 
+/* ── Chart components ────────────────────────────────────────── */
+function BarChart({ data, valueKey = 'ingresos', labelKey = 'mes_label', colorLine = '#C9A84C', height = 120 }) {
+  if (!data || data.length === 0) {
+    return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B6355', fontSize: 12 }}>Sin datos disponibles</div>;
+  }
+  const max = Math.max(...data.map(d => parseFloat(d[valueKey]) || 0), 1);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: height + 28 }}>
+      {data.map((d, i) => {
+        const val = parseFloat(d[valueKey]) || 0;
+        const pct = Math.max((val / max) * height, val > 0 ? 4 : 0);
+        return (
+          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 9, color: '#9A9180', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
+              {val > 0 ? new Intl.NumberFormat('es-CO', { notation: 'compact', maximumFractionDigits: 1 }).format(val) : ''}
+            </div>
+            <div
+              title={`${d[labelKey]}: ${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(val)}`}
+              style={{ width: '100%', height: pct, background: `linear-gradient(180deg, ${colorLine}, ${colorLine}88)`, borderRadius: '4px 4px 0 0', transition: 'height 0.4s ease', minHeight: val > 0 ? 4 : 0 }}
+            />
+            <div style={{ fontSize: 9, color: '#6B6355', fontFamily: 'Cinzel, serif', letterSpacing: '0.05em', whiteSpace: 'nowrap', textAlign: 'center' }}>
+              {(d[labelKey] || '').slice(0, 6)}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ProgressList({ items, nameKey = 'nombre', valueKey = 'total_vendido', colorLine = '#C9A84C', suffix = 'uds' }) {
+  if (!items || items.length === 0) {
+    return <div style={{ color: '#6B6355', fontSize: 12, padding: '12px 0' }}>Sin datos disponibles</div>;
+  }
+  const max = Math.max(...items.map(d => parseFloat(d[valueKey]) || 0), 1);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {items.map((item, i) => {
+        const val = parseFloat(item[valueKey]) || 0;
+        const pct = (val / max) * 100;
+        return (
+          <div key={i}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: '#E8DCC8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '72%' }}>{item[nameKey]}</div>
+              <div style={{ fontSize: 11, color: colorLine, fontWeight: 600, flexShrink: 0 }}>{val} {suffix}</div>
+            </div>
+            <div style={{ height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: colorLine, borderRadius: 2, transition: 'width 0.5s ease' }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────────── */
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  const [loading, setLoading]     = useState(true);
-  const [productos, setProductos] = useState([]);
-  const [clientes,  setClientes]  = useState([]);
-  const [ventas,    setVentas]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [productos,  setProductos]  = useState([]);
+  const [clientes,   setClientes]   = useState([]);
+  const [ventas,     setVentas]     = useState([]);
   const [inventario, setInventario] = useState([]);
+  const [stats,      setStats]      = useState(null);
 
   const session = (() => {
     try { return JSON.parse(localStorage.getItem('op_admin_session') || '{}'); } catch { return {}; }
@@ -105,11 +162,13 @@ export default function Dashboard() {
       clientesAPI.listar(),
       ventasAPI.listar(),
       inventarioAPI.listar(),
-    ]).then(([p, c, v, i]) => {
+      estadisticasAPI.obtener(),
+    ]).then(([p, c, v, i, s]) => {
       setProductos(p.ok ? p.data : []);
       setClientes(c.ok  ? c.data : []);
       setVentas(v.ok    ? v.data : []);
       setInventario(i.ok ? i.data : []);
+      if (s.ok) setStats(s.data);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -227,6 +286,123 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── KPIs período (mes actual vs anterior) ── */}
+      {stats && stats.kpis_periodo && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px,1fr))', gap: 16, marginBottom: 24 }}>
+          {(() => {
+            const k     = stats.kpis_periodo;
+            const ingA  = parseFloat(k.ingresos_mes_actual   || 0);
+            const ingAnt = parseFloat(k.ingresos_mes_anterior || 0);
+            const diff  = ingAnt > 0 ? ((ingA - ingAnt) / ingAnt * 100).toFixed(1) : null;
+            const subIngreso = diff !== null
+              ? `${diff >= 0 ? '+' : ''}${diff}% vs mes anterior`
+              : 'Sin datos del mes anterior';
+            return (
+              <>
+                <KpiCard
+                  iconEl={ICONS.ingreso}
+                  label="Ingresos este mes"
+                  value={fmt(ingA)}
+                  sub={subIngreso}
+                  color={diff === null ? '#C9A84C' : parseFloat(diff) >= 0 ? '#6BC48C' : '#e74c3c'}
+                />
+                <KpiCard
+                  iconEl={ICONS.venta}
+                  label="Ventas este mes"
+                  value={parseInt(k.ventas_mes_actual || 0)}
+                  sub={`${parseInt(k.ventas_mes_anterior || 0)} el mes anterior`}
+                  color="#7EB8C4"
+                />
+                {stats.pedidos_pendientes !== undefined && (
+                  <KpiCard
+                    iconEl={ICONS.alerta}
+                    label="Pedidos pendientes"
+                    value={stats.pedidos_pendientes}
+                    sub={stats.pedidos_pendientes === 0 ? 'Ninguno pendiente' : 'Requieren atención'}
+                    color={stats.pedidos_pendientes > 0 ? '#E8A94C' : '#6BC48C'}
+                  />
+                )}
+                {stats.stock_bajo_count !== undefined && (
+                  <KpiCard
+                    iconEl={ICONS.inventario}
+                    label="Productos stock bajo"
+                    value={stats.stock_bajo_count}
+                    sub={stats.stock_bajo_count === 0 ? 'Inventario al día' : 'Stock ≤ 5 unidades'}
+                    color={stats.stock_bajo_count > 0 ? '#e74c3c' : '#6BC48C'}
+                  />
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* ── Gráficas estadísticas ── */}
+      {stats && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+
+          {/* Ventas por mes */}
+          <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
+            <SectionTitle>
+              <Icon d={ICONS.ingreso} size={13} color="#C9A84C" />
+              Ingresos por mes
+            </SectionTitle>
+            <BarChart
+              data={stats.ventas_por_mes || []}
+              valueKey="ingresos"
+              labelKey="mes_label"
+              colorLine="#C9A84C"
+              height={110}
+            />
+          </div>
+
+          {/* Ventas (cantidad) por mes */}
+          <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
+            <SectionTitle>
+              <Icon d={ICONS.venta} size={13} color="#7EB8C4" />
+              Pedidos por mes
+            </SectionTitle>
+            <BarChart
+              data={stats.ventas_por_mes || []}
+              valueKey="cantidad"
+              labelKey="mes_label"
+              colorLine="#7EB8C4"
+              height={110}
+            />
+          </div>
+
+          {/* Productos más vendidos */}
+          <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
+            <SectionTitle>
+              <Icon d={ICONS.estrella} size={13} color="#9B8DC8" />
+              Productos más vendidos
+            </SectionTitle>
+            <ProgressList
+              items={stats.productos_mas_vendidos || []}
+              nameKey="nombre"
+              valueKey="total_vendido"
+              colorLine="#9B8DC8"
+              suffix="uds"
+            />
+          </div>
+
+          {/* Por categoría */}
+          <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 10, padding: '22px 24px' }}>
+            <SectionTitle>
+              <Icon d={ICONS.categoria} size={13} color="#E8A94C" />
+              Movimiento por categoría
+            </SectionTitle>
+            <ProgressList
+              items={(stats.por_categoria || []).map(c => ({ ...c, nombre: c.categoria }))}
+              nameKey="nombre"
+              valueKey="total_vendido"
+              colorLine="#E8A94C"
+              suffix="uds"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Fila secundaria ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>

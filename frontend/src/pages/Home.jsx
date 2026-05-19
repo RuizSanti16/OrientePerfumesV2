@@ -405,6 +405,7 @@ export default function Home() {
                   { label: 'Sobre Nosotros', to: '/nosotros' },
                   { label: 'Quiz Olfativo', to: '/quiz' },
                   { label: 'Comparador', to: '/comparador' },
+                  { label: 'Seguimiento de Pedido', to: '/seguimiento' },
                   { label: 'Preguntas Frecuentes', to: '/faq' },
                   { label: 'Noticias', to: '/noticias' },
                   { label: 'Contáctanos', to: '/contacto' },
@@ -462,6 +463,7 @@ export default function Home() {
             { tipo: 'ruta',   target: '/contacto',   label: 'Contacto' },
             { tipo: 'ruta',   target: '/quiz',        label: 'Quiz Olfativo' },
             { tipo: 'ruta',   target: '/comparador',  label: 'Comparar Fragancias' },
+            { tipo: 'ruta',   target: '/seguimiento', label: 'Mis Pedidos' },
           ].map(({ tipo, target, label }) => (
             <li key={label}>
               <a href={tipo === 'scroll' ? `#${target}` : undefined}
@@ -547,6 +549,12 @@ export default function Home() {
                 <div style={{fontSize:11,color:'#9A9180',letterSpacing:'0.1em'}}>TOTAL</div>
                 <div style={{fontSize:18,color:'#C9A84C',fontWeight:700}}>{formatCOP(Math.max(0,totalCarrito-(cuponAplicado?.descuento||0)))}</div>
               </div>
+              {/* Finalizar pedido */}
+              <button
+                onClick={() => { setPanelAbierto(null); navigate('/checkout'); }}
+                style={{ marginTop:16, width:'100%', padding:'12px', background:'#C9A84C', border:'none', borderRadius:6, color:'#0a0a08', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.18em', fontWeight:700, cursor:'pointer' }}>
+                FINALIZAR PEDIDO
+              </button>
             </>
         }
       </SidePanel>
