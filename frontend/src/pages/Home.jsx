@@ -591,8 +591,22 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
     setTimeout(() => setAdded(false), 1200);
   }
 
-  const BADGE_MAP = { new:{cls:'badge--new',label:'Nuevo'}, excl:{cls:'badge--excl',label:'Exclusivo'}, sale:{cls:'badge--sale',label:'Oferta'}, none:{cls:'',label:''} };
-  const badge = BADGE_MAP[p.badge] || BADGE_MAP.none;
+  const BADGE_CFG = {
+    new: {
+      cls: 'badge--new', label: 'Nuevo',
+      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z"/></svg>,
+    },
+    excl: {
+      cls: 'badge--excl', label: 'Exclusivo',
+      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+    },
+    sale: {
+      cls: 'badge--sale', label: 'Oferta',
+      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
+    },
+    none: { cls: '', label: '', icon: null },
+  };
+  const badge = BADGE_CFG[p.badge] || BADGE_CFG.none;
 
   return (
     <article className="product-card" role="listitem" tabIndex="0">
@@ -600,7 +614,11 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         {p.imagen
           ? <img src={p.imagen} alt={p.nombre} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
           : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
-        {badge.label && <span className={`product-card__badge ${badge.cls}`}>{badge.label}</span>}
+        {badge.label && (
+          <span className={`product-card__badge ${badge.cls}`}>
+            {badge.icon}{badge.label}
+          </span>
+        )}
         <button className="product-card__wish" onClick={onWishlist} data-active={enWishlist} aria-label="Lista de deseos">
           {enWishlist ? <IconHeartFilled /> : <IconHeart />}
         </button>
