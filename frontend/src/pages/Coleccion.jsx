@@ -254,7 +254,17 @@ export default function Coleccion() {
               <ProductCard key={p.id_producto} producto={p} index={i}
                 enWishlist={estaEn(String(p.id_producto))}
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
-                onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
+                onCarrito={(presLabel, precioPres) => {
+                  const precioBase  = Number(p.precio_oferta || p.precio || 0);
+                  const precioOrig  = Number(p.precio || 0);
+                  let precioFinal;
+                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0) {
+                    precioFinal = Math.round(Number(precioPres) * (precioBase / precioOrig));
+                  } else {
+                    precioFinal = Number(precioPres || precioBase);
+                  }
+                  agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: precioFinal, imagen: p.imagen || '', presentacion: presLabel });
+                }}
                 formatCOP={formatCOP}
                 enComparar={estaEnComparar(String(p.id_producto))}
                 onComparar={() => estaEnComparar(String(p.id_producto))
@@ -272,7 +282,17 @@ export default function Coleccion() {
               <ProductCardList key={p.id_producto} producto={p} index={i}
                 enWishlist={estaEn(String(p.id_producto))}
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
-                onCarrito={(presLabel, precio) => agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: Number(precio || p.precio), imagen: p.imagen || '', presentacion: presLabel })}
+                onCarrito={(presLabel, precioPres) => {
+                  const precioBase = Number(p.precio_oferta || p.precio || 0);
+                  const precioOrig = Number(p.precio || 0);
+                  let precioFinal;
+                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0) {
+                    precioFinal = Math.round(Number(precioPres) * (precioBase / precioOrig));
+                  } else {
+                    precioFinal = Number(precioPres || precioBase);
+                  }
+                  agregarCarrito({ id: String(p.id_producto) + (presLabel ? '_' + presLabel : ''), nombre: p.nombre, marca: p.marca || '', precio: precioFinal, imagen: p.imagen || '', presentacion: presLabel });
+                }}
                 formatCOP={formatCOP}
                 enComparar={estaEnComparar(String(p.id_producto))}
                 onComparar={() => estaEnComparar(String(p.id_producto))
@@ -514,13 +534,37 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         <div className="product-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ cursor: 'pointer' }}>
           {p.nombre}
         </div>
-        <div className="product-card__price">{formatCOP(pres[presIdx]?.precio || p.precio)}</div>
+
+        {/* Pills de presentación */}
         {pres.length > 1 && (
-          <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}
-            style={{ width: '100%', background: '#1a1a18', color: '#C8C0B0', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '6px 8px', fontSize: 11, marginTop: 8, cursor: 'pointer' }}>
-            {pres.map((pr, i) => <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>)}
-          </select>
+          <div className="product-card__pres-wrap" onClick={e => e.stopPropagation()}>
+            {pres.map((pr, i) => (
+              <button key={i}
+                className={`product-card__pres-pill${presIdx === i ? ' active' : ''}`}
+                onClick={e => { e.stopPropagation(); setPresIdx(i); }}>
+                {pr.etiqueta}
+              </button>
+            ))}
+          </div>
         )}
+
+        {/* Precio con soporte de oferta */}
+        <div className="product-card__price">
+          {(() => {
+            const precioBase = pres[presIdx]?.precio || p.precio;
+            const precioOrig = Number(p.precio || 0);
+            const precioOferta = Number(p.precio_oferta || 0);
+            if (p.badge === 'sale' && precioOferta > 0 && precioOferta < precioOrig) {
+              const ratio = precioOferta / precioOrig;
+              const precioFinal = pres[presIdx] ? Math.round(pres[presIdx].precio * ratio) : precioOferta;
+              return <>
+                <s className="product-card__price-old">{formatCOP(pres[presIdx]?.precio || precioOrig)}</s>
+                <span className="product-card__price-new">{formatCOP(precioFinal)}</span>
+              </>;
+            }
+            return formatCOP(precioBase);
+          })()}
+        </div>
       </div>
     </article>
   );

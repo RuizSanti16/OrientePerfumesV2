@@ -1143,35 +1143,90 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .product-card:hover .product-card__add { bottom: 0; }
 .product-card__add:hover { background: var(--gold-light); }
 
-.product-card__info { padding: 18px 18px 22px; }
+.product-card__info {
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
+/* Casa / marca */
 .product-card__brand {
   font-family: var(--font-label);
   font-size: 8px;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.32em;
   color: var(--gold);
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
+  opacity: 0.8;
 }
 
+/* Nombre del perfume */
 .product-card__name {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   color: var(--cream);
-  line-height: 1.3;
+  line-height: 1.25;
   margin-bottom: 10px;
 }
 
+/* Pills de presentación */
+.product-card__pres-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.product-card__pres-pill {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--cream-muted);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.product-card__pres-pill:hover {
+  border-color: rgba(201,168,76,0.5);
+  color: var(--cream);
+}
+.product-card__pres-pill.active {
+  background: rgba(201,168,76,0.12);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Precio */
 .product-card__price {
   font-family: var(--font-label);
   font-size: 14px;
   color: var(--gold);
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.product-card__price-old {
+  color: var(--cream-muted);
+  font-size: 10px;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.product-card__price-new {
+  color: #E87878;   /* rojo suave — precio rebajado */
+  font-size: 15px;
 }
 
+/* mantener compatibilidad con <s> genérico */
 .product-card__price s {
   color: var(--cream-muted);
-  font-size: 11px;
-  margin-right: 6px;
+  font-size: 10px;
+  margin-right: 4px;
+  opacity: 0.7;
 }
 
 

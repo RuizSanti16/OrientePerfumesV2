@@ -94,14 +94,15 @@ export default function Home() {
     destacadosAPI.listar().then(res => {
       if (res.ok && res.data.length) {
         setProductosDestacados(res.data.map(p => ({
-          id:             p.id_producto,
-          nombre:         p.nombre,
-          marca:          p.marca || '',
-          precio:         p.precio_oferta   || p.precio || 0,
-          precioAnterior: p.precio_anterior || '',
-          imagen:         p.imagen || '',
-          badge:          p.badge  || 'none',
-          presentaciones: p.presentaciones || [],
+          id:              p.id_producto,
+          nombre:          p.nombre,
+          marca:           p.marca || '',
+          precio:          p.precio_oferta   || p.precio || 0,   // precio final (oferta o normal)
+          precioOriginal:  p.precio          || 0,               // precio base para calcular ratio
+          precioAnterior:  p.precio_anterior || '',
+          imagen:          p.imagen || '',
+          badge:           p.badge  || 'none',
+          presentaciones:  p.presentaciones  || [],
         })));
       }
     }).catch(() => {
@@ -254,7 +255,17 @@ export default function Home() {
                 producto={{ ...p, precio: formatCOP(parsePrecio(p.precio)), precioAnterior: p.precioAnterior ? formatCOP(parsePrecio(p.precioAnterior)) : '' }}
                 enWishlist={estaEn(p.id)}
                 onWishlist={() => toggleWish(p)}
-                onCarrito={(presentacion, precioPres) => agregarCarrito({ ...p, precio: precioPres || parsePrecio(p.precio), presentacion })}
+                onCarrito={(presentacion, precioPres) => {
+                  let precioFinal;
+                  if (precioPres && p.badge === 'sale' && p.precioOriginal > 0 && p.precio < p.precioOriginal) {
+                    // Aplica el mismo ratio de descuento a la presentación
+                    const ratio = p.precio / p.precioOriginal;
+                    precioFinal = Math.round(precioPres * ratio);
+                  } else {
+                    precioFinal = precioPres || p.precio;
+                  }
+                  agregarCarrito({ ...p, precio: precioFinal, presentacion });
+                }}
                 formatCOP={formatCOP}
               />
             ))}
@@ -579,10 +590,40 @@ export default function Home() {
 }
 
 /* ── Sub-componentes ── */
+const BADGE_CFG = {
+  new:  { cls:'badge--new',  label:'Nuevo',
+    icon:<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z"/></svg> },
+  excl: { cls:'badge--excl', label:'Exclusivo',
+    icon:<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+  sale: { cls:'badge--sale', label:'Oferta',
+    icon:<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
+  none: { cls:'', label:'', icon:null },
+};
+
 function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP }) {
-  const [added, setAdded] = useState(false);
+  const navigate = useNavigate();
+  const [added,   setAdded]   = useState(false);
   const [presIdx, setPresIdx] = useState(0);
-  const pres = p.presentaciones || [];
+  const pres  = p.presentaciones || [];
+  const badge = BADGE_CFG[p.badge] || BADGE_CFG.none;
+
+  /* precio visible según presentación seleccionada */
+  const precioMostrado = (() => {
+    if (pres.length === 0) return p.precio;           // ya es el precio de oferta formateado
+    const base = pres[presIdx]?.precio || 0;
+    if (p.badge === 'sale' && p.precioOriginal > 0 && parsePrecio(p.precio) < p.precioOriginal) {
+      const ratio = parsePrecio(p.precio) / p.precioOriginal;
+      return formatCOP(Math.round(base * ratio));
+    }
+    return formatCOP(base);
+  })();
+
+  const precioOriginalMostrado = (() => {
+    if (pres.length === 0) return p.precioAnterior;
+    const base = pres[presIdx]?.precio || 0;
+    if (p.badge === 'sale') return formatCOP(base);   // precio sin descuento de la presentación
+    return '';
+  })();
 
   function handleCarrito() {
     const pr = pres.length > 0 ? pres[presIdx] : null;
@@ -591,54 +632,61 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
     setTimeout(() => setAdded(false), 1200);
   }
 
-  const BADGE_CFG = {
-    new: {
-      cls: 'badge--new', label: 'Nuevo',
-      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.09 6.26L20 10l-5.91 1.74L12 18l-2.09-6.26L4 10l5.91-1.74z"/></svg>,
-    },
-    excl: {
-      cls: 'badge--excl', label: 'Exclusivo',
-      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-    },
-    sale: {
-      cls: 'badge--sale', label: 'Oferta',
-      icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
-    },
-    none: { cls: '', label: '', icon: null },
-  };
-  const badge = BADGE_CFG[p.badge] || BADGE_CFG.none;
-
   return (
-    <article className="product-card" role="listitem" tabIndex="0">
+    <article className="product-card" role="listitem" tabIndex="0"
+      onClick={() => navigate(`/producto/${p.id}`)}
+      style={{ cursor:'pointer' }}>
       <div className="product-card__img-wrap">
         {p.imagen
           ? <img src={p.imagen} alt={p.nombre} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
           : <span className="product-card__placeholder" aria-hidden="true"><IconBottle size={48}/></span>}
+
         {badge.label && (
           <span className={`product-card__badge ${badge.cls}`}>
             {badge.icon}{badge.label}
           </span>
         )}
-        <button className="product-card__wish" onClick={onWishlist} data-active={enWishlist} aria-label="Lista de deseos">
+
+        <button className="product-card__wish"
+          onClick={e => { e.stopPropagation(); onWishlist(); }}
+          data-active={enWishlist} aria-label="Lista de deseos">
           {enWishlist ? <IconHeartFilled /> : <IconHeart />}
         </button>
-        <button className={`product-card__add`} onClick={handleCarrito}
+
+        <button className="product-card__add"
+          onClick={e => { e.stopPropagation(); handleCarrito(); }}
           style={added ? {background:'#4a7c59'} : {}}>
           {added ? '✓ Añadido' : 'Añadir al Carrito'}
         </button>
       </div>
+
       <div className="product-card__info">
+        {/* Casa / Marca */}
         <div className="product-card__brand">{p.marca}</div>
+
+        {/* Nombre del perfume */}
         <div className="product-card__name">{p.nombre}</div>
-        <div className="product-card__price">
-          {p.badge==='sale' && p.precioAnterior ? <><s>{p.precioAnterior}</s> {p.precio}</> : p.precio}
-        </div>
+
+        {/* Selector de presentaciones — pills */}
         {pres.length > 1 && (
-          <select value={presIdx} onChange={e => setPresIdx(Number(e.target.value))}
-            style={{width:'100%',background:'#1a1a18',color:'#C8C0B0',border:'1px solid rgba(201,168,76,0.3)',borderRadius:4,padding:'6px 8px',fontSize:11,marginTop:8}}>
-            {pres.map((pr,i) => <option key={i} value={i}>{pr.etiqueta} — {formatCOP(pr.precio)}</option>)}
-          </select>
+          <div className="product-card__pres-wrap" onClick={e => e.stopPropagation()}>
+            {pres.map((pr, i) => (
+              <button key={i}
+                className={`product-card__pres-pill${presIdx === i ? ' active' : ''}`}
+                onClick={e => { e.stopPropagation(); setPresIdx(i); }}>
+                {pr.etiqueta}
+              </button>
+            ))}
+          </div>
         )}
+
+        {/* Precio */}
+        <div className="product-card__price">
+          {p.badge === 'sale' && precioOriginalMostrado
+            ? <><s className="product-card__price-old">{precioOriginalMostrado}</s><span className="product-card__price-new">{precioMostrado}</span></>
+            : precioMostrado
+          }
+        </div>
       </div>
     </article>
   );
