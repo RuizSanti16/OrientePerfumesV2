@@ -604,93 +604,204 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   gap: 2px;
 }
 
+/* ── Animaciones de categoría ── */
+@keyframes orientalSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes nichoParticleFloat {
+  0%   { transform: translateY(0)    scale(1);    opacity: 0; }
+  15%  { opacity: 0.7; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateY(-180px) scale(0.4); opacity: 0; }
+}
+@keyframes disenadorShimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateX(300%)  skewX(-15deg); opacity: 0; }
+}
+@keyframes exclusivosPulse {
+  0%,100% { opacity: 0.12; transform: scale(0.9); }
+  50%     { opacity: 0.35; transform: scale(1.15); }
+}
+
 /* ── Tarjeta de categoría ── */
 .category-card {
   position: relative;
   aspect-ratio: 3/4;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.4s cubic-bezier(0.2,0,0,1);
+  transition: transform 0.45s cubic-bezier(0.2,0,0,1), box-shadow 0.45s ease;
 }
 
-.category-card:hover { transform: scale(1.015); z-index: 1; }
+.category-card:hover {
+  transform: scale(1.018);
+  z-index: 1;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
 
 .category-card__bg {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
-  transition: transform 0.7s ease;
+  transition: transform 0.8s ease;
+}
+.category-card:hover .category-card__bg { transform: scale(1.08); }
+
+/* ── Patrones ── */
+.cat-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.cat-pattern--oriental {
+  animation: orientalSpin 80s linear infinite;
+  transform-origin: center center;
 }
 
-.category-card:hover .category-card__bg { transform: scale(1.06); }
+/* Partícula flotante (Nicho) */
+.cat-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: nichoParticleFloat linear infinite;
+  pointer-events: none;
+}
 
+/* Shimmer sweep (Diseñador) */
+.cat-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.cat-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--shimmer-color, rgba(192,176,136,0.18)) 50%,
+    transparent 100%
+  );
+  animation: disenadorShimmer 5s ease-in-out infinite;
+}
+
+/* Pulso de luz (Exclusivos) */
+.cat-pulse {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 1;
+  animation: exclusivosPulse 3.5s ease-in-out infinite;
+}
+
+/* ── Overlay ── */
 .category-card__overlay {
   position: absolute;
   inset: 0;
+  z-index: 3;
   background: linear-gradient(
     to top,
-    rgba(10,10,8,0.92) 0%,
-    rgba(10,10,8,0.45) 40%,
-    rgba(10,10,8,0.10) 75%,
+    rgba(10,10,8,0.94) 0%,
+    rgba(10,10,8,0.50) 38%,
+    rgba(10,10,8,0.12) 68%,
     transparent 100%
   );
-  transition: background 0.4s;
+  transition: background 0.45s;
 }
-
 .category-card:hover .category-card__overlay {
   background: linear-gradient(
     to top,
-    rgba(10,10,8,0.96) 0%,
-    rgba(10,10,8,0.55) 45%,
-    rgba(10,10,8,0.15) 80%,
+    rgba(10,10,8,0.97) 0%,
+    rgba(10,10,8,0.65) 45%,
+    rgba(10,10,8,0.20) 72%,
     transparent 100%
   );
 }
 
+/* ── Número decorativo ── */
+.category-card__num {
+  position: absolute;
+  top: 14px; right: 18px;
+  font-family: var(--font-display);
+  font-size: clamp(54px, 8vw, 88px);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  opacity: 0.09;
+  z-index: 4;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.4s;
+}
+.category-card:hover .category-card__num { opacity: 0.18; }
+
+/* ── Ícono con anillo ── */
+.category-card__icon-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  transition: transform 0.45s cubic-bezier(0.2,0,0,1), opacity 0.35s;
+}
+.category-card:hover .category-card__icon-wrap {
+  transform: translate(-50%, -60%);
+  opacity: 0;
+}
+.category-card__icon-ring {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.4s, transform 0.4s;
+}
+.category-card:hover .category-card__icon-ring {
+  transform: scale(1.1);
+}
+.category-card__icon { opacity: 0.9; }
+
+/* ── Info base (se oculta en hover) ── */
 .category-card__content {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  padding: 28px 20px 30px;
+  padding: 22px 20px 28px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  z-index: 6;
+  transition: transform 0.4s cubic-bezier(0.2,0,0,1), opacity 0.35s;
 }
-
-.category-card__icon {
-  margin-bottom: 4px;
-  opacity: 0.85;
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.category-card:hover .category-card__icon {
-  opacity: 1;
-  transform: translateY(-3px);
+.category-card:hover .category-card__content {
+  transform: translateY(12px);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .category-card__eyebrow {
   font-family: var(--font-label);
   font-size: 8px;
   letter-spacing: 0.28em;
-  color: rgba(201,168,76,0.55);
   text-transform: uppercase;
-  transition: color 0.3s;
 }
-
-.category-card:hover .category-card__eyebrow {
-  color: rgba(201,168,76,0.85);
-}
-
 .category-card__name {
   font-family: var(--font-label);
   font-size: 13px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--cream);
   text-transform: uppercase;
 }
-
 .category-card__count {
   font-family: var(--font-body);
   font-size: 11px;
@@ -698,14 +809,80 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   letter-spacing: 0.04em;
 }
 
+/* ── Panel reveal ── */
+.category-card__reveal {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 24px 22px 30px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  transform: translateY(100%);
+  transition: transform 0.45s cubic-bezier(0.2,0,0,1);
+}
+.category-card:hover .category-card__reveal {
+  transform: translateY(0);
+}
+
+.category-card__reveal-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.5vw, 46px);
+  font-weight: 300;
+  line-height: 0.92;
+  color: #F5F0E8;
+  letter-spacing: -0.01em;
+}
+.category-card__reveal-eyebrow {
+  font-family: var(--font-label);
+  font-size: 8px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.category-card__reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 9px 18px;
+  font-family: var(--font-label);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.category-card__reveal-btn:hover {
+  background: currentColor;
+}
+.category-card__reveal-btn:hover svg { stroke: #0a0a08; }
+
+/* ── Borde de acento (cuatro lados) ── */
+.category-card__border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  border: 1px solid transparent;
+  transition: border-color 0.45s;
+}
+.category-card:hover .category-card__border {
+  border-color: var(--accent, rgba(201,168,76,0.25));
+}
+
+/* ── Línea inferior ── */
 .category-card__line {
   position: absolute;
   bottom: 0; left: 0;
   width: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
   transition: width 0.55s ease;
+  z-index: 9;
 }
-
 .category-card:hover .category-card__line { width: 100%; }
 
 
