@@ -107,13 +107,18 @@ export default function Coleccion() {
     Promise.all([productosAPI.listar(), categoriasAPI.listar()])
       .then(([resProd, resCat]) => {
         if (resProd.ok) {
-          const cats = resCat.ok ? (resCat.data || []) : [];
-          const catMatch = cats.find(c => (c.nombre || '').toLowerCase() === categoria.toLowerCase());
-          setProductos(resProd.data.filter(p => {
-            if (catMatch && p.id_categoria != null && String(p.id_categoria) === String(catMatch.id_categoria)) return true;
-            if ((p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()) return true;
-            return false;
-          }));
+          if (!categoria) {
+            /* Sin filtro → mostrar todos */
+            setProductos(resProd.data);
+          } else {
+            const cats = resCat.ok ? (resCat.data || []) : [];
+            const catMatch = cats.find(c => (c.nombre || '').toLowerCase() === categoria.toLowerCase());
+            setProductos(resProd.data.filter(p => {
+              if (catMatch && p.id_categoria != null && String(p.id_categoria) === String(catMatch.id_categoria)) return true;
+              if ((p.nombre_categoria || '').toLowerCase() === categoria.toLowerCase()) return true;
+              return false;
+            }));
+          }
         }
         setLoading(false);
       }).catch(() => setLoading(false));
