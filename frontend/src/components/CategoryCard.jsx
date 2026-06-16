@@ -151,109 +151,178 @@ function PatternOriental({ color }) {
   );
 }
 
-/* Nicho — trazos orgánicos + partículas flotantes */
+/* Nicho — red molecular orgánica + partículas flotantes */
 function PatternNicho({ color }) {
+  const NODES = [
+    { x: 35,  y: 50,  r: 8 }, { x: 95,  y: 32,  r: 5 },
+    { x: 162, y: 68,  r: 7 }, { x: 55,  y: 132, r: 6 },
+    { x: 132, y: 152, r: 8 }, { x: 180, y: 112, r: 4 },
+    { x: 28,  y: 218, r: 7 }, { x: 108, y: 242, r: 5 },
+    { x: 170, y: 226, r: 6 }, { x: 60,  y: 320, r: 7 },
+    { x: 148, y: 308, r: 5 }, { x: 188, y: 292, r: 4 },
+  ];
+  const BONDS = [
+    [0,1],[1,2],[0,3],[1,3],[2,4],[2,5],[3,4],[4,5],
+    [3,6],[4,7],[5,8],[6,7],[7,8],[7,9],[8,10],[9,10],[8,11],[10,11],
+  ];
   const PARTICLES = [
-    { x: '18%', y: '70%', r: 2.5,  delay: '0s',    dur: '4.2s'  },
-    { x: '45%', y: '80%', r: 1.5,  delay: '0.8s',  dur: '5.1s'  },
-    { x: '72%', y: '65%', r: 3,    delay: '1.6s',  dur: '3.8s'  },
-    { x: '30%', y: '55%', r: 1.8,  delay: '2.4s',  dur: '4.7s'  },
-    { x: '60%', y: '85%', r: 2,    delay: '0.4s',  dur: '5.5s'  },
-    { x: '85%', y: '75%', r: 1.2,  delay: '3.1s',  dur: '4s'    },
-    { x: '10%', y: '88%', r: 1.6,  delay: '1.2s',  dur: '6s'    },
-    { x: '55%', y: '60%', r: 2.2,  delay: '2.8s',  dur: '3.5s'  },
+    { x: '18%', y: '68%', r: 2.5, delay: '0s',   dur: '4.2s' },
+    { x: '48%', y: '80%', r: 1.5, delay: '0.8s', dur: '5.1s' },
+    { x: '75%', y: '62%', r: 3,   delay: '1.6s', dur: '3.8s' },
+    { x: '32%', y: '52%', r: 1.8, delay: '2.4s', dur: '4.7s' },
+    { x: '63%', y: '84%', r: 2,   delay: '0.4s', dur: '5.5s' },
+    { x: '86%', y: '72%', r: 1.2, delay: '3.1s', dur: '4s'   },
+    { x: '12%', y: '87%', r: 1.6, delay: '1.2s', dur: '6s'   },
+    { x: '55%', y: '58%', r: 2.2, delay: '2.8s', dur: '3.5s' },
   ];
   return (
     <div className="cat-pattern" aria-hidden="true"
-      style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-      {/* Trazo orgánico de fondo */}
-      <svg viewBox="0 0 300 400" style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity:0.12 }}>
-        <path d="M-10,120 C60,90 90,170 70,230 C50,290 130,250 160,320 C190,390 140,420 180,460"
-          fill="none" stroke={color} strokeWidth="32" strokeLinecap="round"/>
-        <path d="M130,-20 C200,50 150,130 220,170 C290,210 240,300 300,340"
-          fill="none" stroke={color} strokeWidth="48" strokeLinecap="round"/>
-        <circle cx="80"  cy="170" r="55" fill="none" stroke={color} strokeWidth="1.5" opacity="0.6"/>
-        <circle cx="220" cy="300" r="75" fill="none" stroke={color} strokeWidth="1"   opacity="0.4"/>
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <svg viewBox="0 0 200 360"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        {/* Curvas orgánicas de fondo */}
+        <path d="M-20,80 C55,42 82,145 54,208 C32,272 128,248 152,318"
+          fill="none" stroke={color} strokeWidth="30" strokeLinecap="round" opacity="0.09"/>
+        <path d="M142,-18 C202,52 148,134 215,172"
+          fill="none" stroke={color} strokeWidth="44" strokeLinecap="round" opacity="0.07"/>
+        {/* Líneas de enlace molecular */}
+        {BONDS.map(([a, b], i) => (
+          <line key={i} x1={NODES[a].x} y1={NODES[a].y} x2={NODES[b].x} y2={NODES[b].y}
+            stroke={color} strokeWidth="0.45" opacity="0.3"/>
+        ))}
+        {/* Nodos moleculares */}
+        {NODES.map((n, i) => (
+          <g key={i}>
+            <circle cx={n.x} cy={n.y} r={n.r} fill="none" stroke={color} strokeWidth="0.6" opacity="0.45"/>
+            <circle cx={n.x} cy={n.y} r={n.r * 0.32} fill={color} opacity="0.4"/>
+          </g>
+        ))}
       </svg>
-      {/* Partículas flotantes */}
       {PARTICLES.map((p, i) => (
         <div key={i} className="cat-particle" style={{
           position: 'absolute', left: p.x, bottom: p.y,
           width: p.r * 2, height: p.r * 2, borderRadius: '50%',
           background: color,
           animationDelay: p.delay, animationDuration: p.dur,
-          boxShadow: `0 0 ${p.r * 3}px ${color}`,
+          boxShadow: `0 0 ${p.r * 4}px ${color}90`,
         }}/>
       ))}
     </div>
   );
 }
 
-/* Diseñador — retícula de diamantes + shimmer */
+/* Diseñador — retícula de lujo + marco ornamental + shimmer */
 function PatternDisenador({ color }) {
   const id = 'pat-disenador';
+  const DOTS = [];
+  for (let col = 0; col < 9; col++) {
+    for (let row = 0; row < 14; row++) {
+      const x = col * 28 + (row % 2 === 0 ? 0 : 14);
+      const y = row * 28;
+      if (x >= 0 && x <= 210 && y >= 0 && y <= 375) DOTS.push({ x, y });
+    }
+  }
   return (
     <>
       <div className="cat-pattern" aria-hidden="true"
-        style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-        <svg viewBox="0 0 200 200" style={{ width:'100%', height:'100%', opacity:0.13 }}>
+        style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <svg viewBox="0 0 200 368"
+          style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
           <defs>
-            <pattern id={id} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-              <path d="M15,0 L30,15 L15,30 L0,15 Z" fill="none" stroke={color} strokeWidth="0.6"/>
-              <circle cx="15" cy="15" r="1.5" fill={color} opacity="0.5"/>
-              <line x1="15" y1="0"  x2="15" y2="30" stroke={color} strokeWidth="0.2" opacity="0.5"/>
-              <line x1="0"  y1="15" x2="30" y2="15" stroke={color} strokeWidth="0.2" opacity="0.5"/>
+            <pattern id={id} x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+              <path d="M14,0 L28,14 L14,28 L0,14 Z" fill="none" stroke={color} strokeWidth="0.55"/>
+              <line x1="14" y1="0" x2="14" y2="28" stroke={color} strokeWidth="0.18" opacity="0.5"/>
+              <line x1="0" y1="14" x2="28" y2="14" stroke={color} strokeWidth="0.18" opacity="0.5"/>
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill={`url(#${id})`}/>
+          {/* Retícula con opacidad aumentada */}
+          <rect width="100%" height="100%" fill={`url(#${id})`} opacity="0.3"/>
+          {/* Puntos de acento en intersecciones */}
+          {DOTS.map((d, i) => (
+            <circle key={i} cx={d.x} cy={d.y} r="1.1" fill={color} opacity="0.22"/>
+          ))}
+          {/* Marco doble con esquinas ornamentadas */}
+          <rect x="9"  y="9"  width="182" height="350" fill="none" stroke={color} strokeWidth="0.75" opacity="0.4"/>
+          <rect x="15" y="15" width="170" height="338" fill="none" stroke={color} strokeWidth="0.35" opacity="0.22"/>
+          {[[9,9],[191,9],[9,359],[191,359]].map(([cx,cy], i) => (
+            <g key={i}>
+              <circle cx={cx} cy={cy} r="3.5" fill="none" stroke={color} strokeWidth="0.6" opacity="0.5"/>
+              <circle cx={cx} cy={cy} r="1.2" fill={color} opacity="0.45"/>
+            </g>
+          ))}
         </svg>
       </div>
-      {/* Shimmer sweep */}
       <div className="cat-shimmer" aria-hidden="true"
         style={{ '--shimmer-color': color + '30' }}/>
     </>
   );
 }
 
-/* Exclusivos — facetas de gema + pulso */
+/* Exclusivos — corte brillante de gema + pulso */
 function PatternExclusivos({ color }) {
-  const cx = 150, cy = 200;
-  const ANGLES = Array.from({ length: 12 }, (_, i) => i * 30);
-  const RINGS  = [55, 95, 140];
+  const cx = 100, cy = 178;
+
+  function ring(r, n, offset = 0) {
+    return Array.from({ length: n }, (_, i) => {
+      const a = (i * 2 * Math.PI / n) + offset - Math.PI / 2;
+      return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+    });
+  }
+
+  const OUTER = ring(72, 8, 0);
+  const INNER = ring(45, 8, Math.PI / 8);
+  const RAYS  = 16;
+  const rayPts = Array.from({ length: RAYS }, (_, i) => {
+    const a = (i * 2 * Math.PI / RAYS) - Math.PI / 2;
+    return { x: cx + Math.cos(a) * 185, y: cy + Math.sin(a) * 245 };
+  });
+
   return (
     <>
       <div className="cat-pattern" aria-hidden="true"
-        style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-        <svg viewBox="0 0 300 400" style={{ width:'100%', height:'100%', opacity:0.18 }}>
-          {/* Rayos de faceta */}
-          {ANGLES.map((a, i) => {
-            const rad = a * Math.PI / 180;
-            return (
-              <line key={i}
-                x1={cx} y1={cy}
-                x2={cx + Math.cos(rad) * 200}
-                y2={cy + Math.sin(rad) * 250}
-                stroke={color} strokeWidth="0.7" opacity="0.6"/>
-            );
-          })}
-          {/* Anillos concéntricos */}
-          {RINGS.map((r, i) => (
-            <ellipse key={i} cx={cx} cy={cy} rx={r} ry={r * 1.3}
-              fill="none" stroke={color} strokeWidth="0.6"
-              opacity={0.7 - i * 0.15}/>
+        style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <svg viewBox="0 0 200 368"
+          style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
+          {/* 16 rayos desde el centro */}
+          {rayPts.map((r, i) => (
+            <line key={i} x1={cx} y1={cy} x2={r.x} y2={r.y}
+              stroke={color} strokeWidth="0.5" opacity="0.2"/>
           ))}
-          {/* Facetas horizontales */}
-          {[-80, -30, 20, 70, 120].map((y, i) => (
-            <line key={i}
-              x1={cx - 200} y1={cy + y}
-              x2={cx + 200} y2={cy + y}
+          {/* Destellos en puntas alternas */}
+          {rayPts.filter((_, i) => i % 2 === 0).map((r, i) => (
+            <circle key={i} cx={r.x} cy={r.y} r="1.6" fill={color} opacity="0.25"/>
+          ))}
+          {/* Anillos concéntricos */}
+          {[42, 78, 116].map((r, i) => (
+            <ellipse key={i} cx={cx} cy={cy} rx={r} ry={r * 1.22}
+              fill="none" stroke={color} strokeWidth="0.65"
+              opacity={0.42 - i * 0.09}/>
+          ))}
+          {/* Octágono exterior — arista de gema */}
+          <polygon points={OUTER.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
+            fill="none" stroke={color} strokeWidth="0.85" opacity="0.48"/>
+          {/* Octágono interior */}
+          <polygon points={INNER.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
+            fill="none" stroke={color} strokeWidth="0.65" opacity="0.36"/>
+          {/* Facetas exterior→interior */}
+          {OUTER.map((p, i) => (
+            <line key={i} x1={p.x} y1={p.y} x2={INNER[i].x} y2={INNER[i].y}
               stroke={color} strokeWidth="0.4" opacity="0.3"/>
           ))}
-          {/* Punto central */}
-          <circle cx={cx} cy={cy} r="4" fill={color} opacity="0.7"/>
+          {/* Facetas interior→centro */}
+          {INNER.map((p, i) => (
+            <line key={i} x1={p.x} y1={p.y} x2={cx} y2={cy}
+              stroke={color} strokeWidth="0.3" opacity="0.22"/>
+          ))}
+          {/* Centro */}
+          <circle cx={cx} cy={cy} r="7"   fill="none" stroke={color} strokeWidth="0.55" opacity="0.42"/>
+          <circle cx={cx} cy={cy} r="3.5" fill={color}               opacity="0.58"/>
+          {/* Vértices del octágono marcados */}
+          {OUTER.map((p, i) => (
+            <circle key={i} cx={p.x} cy={p.y} r="1.8" fill={color} opacity="0.35"/>
+          ))}
         </svg>
       </div>
-      {/* Pulso de luz */}
       <div className="cat-pulse" aria-hidden="true"
         style={{ background: `radial-gradient(circle at 50% 50%, ${color}40 0%, transparent 65%)` }}/>
     </>
