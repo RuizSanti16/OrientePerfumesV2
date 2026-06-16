@@ -1,32 +1,63 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 
 const KEY = 'op_admin_settings';
 const DEFAULT = {
-  storeName:      'OrientPerfumes',
-  storeEmail:     'info@orientperfumes.com',
-  storePhone:     '+57 300 000 0000',
-  storeAddress:   'Rionegro, Antioquia, Colombia',
-  storeDesc:      'Fragancias exclusivas de lujo. Tu destino para los mejores perfumes del mundo.',
-  // WhatsApp
-  whatsappNumber: '',        // ej: 573001234567
-  whatsappMessage: 'Hola! Me interesa conocer más sobre sus fragancias 🌹',
-  whatsappVisible: true,
-  // Redes sociales
-  instagram: '',
-  facebook:  '',
-  tiktok:    '',
-  // Envío
-  freeShippingMin: 150000,
-  // Inventario
-  stockThreshold: 20,
-  currency: 'COP',
-  // Notificaciones
-  notifStock: true, notifOrders: true, notifDaily: false,
+  storeName:        'OrientPerfumes',
+  storeEmail:       'info@orientperfumes.com',
+  storePhone:       '+57 300 000 0000',
+  storeAddress:     'Rionegro, Antioquia, Colombia',
+  storeDesc:        'Fragancias exclusivas de lujo. Tu destino para los mejores perfumes del mundo.',
+  whatsappNumber:   '',
+  whatsappMessage:  'Hola! Me interesa conocer más sobre sus fragancias.',
+  whatsappVisible:  true,
+  instagram:        '',
+  facebook:         '',
+  tiktok:           '',
+  freeShippingMin:  150000,
+  stockThreshold:   20,
+  currency:         'COP',
+  notifStock:       true,
+  notifOrders:      true,
+  notifDaily:       false,
 };
+
+/* ── SVG icon paths ─────────────────────────────────────── */
+const IC = {
+  store:    'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10',
+  mail:     'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6',
+  phone:    'M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z',
+  location: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M12 10a2 2 0 100-4 2 2 0 000 4',
+  edit:     'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z',
+  shipping: 'M1 3h15v13H1z M16 8h4l3 3v5h-7V8z M5.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3z M18.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
+  whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z',
+  insta:    'M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z M17.5 6.5h.01 M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5z',
+  facebook: 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z',
+  tiktok:   'M9 12a4 4 0 104 4V4a5 5 0 005 5',
+  bell:     'M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 01-3.46 0',
+  box:      'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 001 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12',
+  currency: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+  warn:     'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01',
+  check:    'M20 6L9 17l-5-5',
+};
+
+function Ic({ d, size = 14, color = '#9A9180', stroke = 1.6 }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke}
+      strokeLinecap="round" strokeLinejoin="round"
+      width={size} height={size} aria-hidden="true">
+      {d.split(' M').map((seg, i) => (
+        <path key={i} d={(i === 0 ? '' : 'M') + seg} />
+      ))}
+    </svg>
+  );
+}
 
 export default function Ajustes() {
   const [settings, setSettings] = useState(() => {
-    try { const r = localStorage.getItem(KEY); return r ? { ...DEFAULT, ...JSON.parse(r) } : DEFAULT; } catch { return DEFAULT; }
+    try {
+      const r = localStorage.getItem(KEY);
+      return r ? { ...DEFAULT, ...JSON.parse(r) } : DEFAULT;
+    } catch { return DEFAULT; }
   });
   const [msg, setMsg] = useState('');
 
@@ -34,172 +65,339 @@ export default function Ajustes() {
 
   function guardar() {
     localStorage.setItem(KEY, JSON.stringify(settings));
-    setMsg('✓ Ajustes guardados correctamente');
+    setMsg('ok');
     setTimeout(() => setMsg(''), 3000);
   }
 
   function resetData() {
     if (!confirm('¿Restablecer todos los datos? Esta acción no se puede deshacer.')) return;
-    ['op_carrusel','op_productos_destacados','op_lanzamientos','op_video','op_comentarios','op_admin_settings'].forEach(k => localStorage.removeItem(k));
+    ['op_carrusel','op_productos_destacados','op_lanzamientos','op_video','op_comentarios','op_admin_settings']
+      .forEach(k => localStorage.removeItem(k));
     setSettings(DEFAULT);
-    setMsg('✓ Datos restablecidos');
+    setMsg('reset');
     setTimeout(() => setMsg(''), 3000);
   }
 
-  // Preview URL de WhatsApp
   const waUrl = settings.whatsappNumber
     ? `https://wa.me/${settings.whatsappNumber.replace(/\D/g,'')}?text=${encodeURIComponent(settings.whatsappMessage)}`
     : '';
 
-  const inp = { width: '100%', background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '8px 12px', color: '#E8DCC8', fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 12 };
+  const inp = {
+    width: '100%', background: '#151513', border: '1px solid rgba(201,168,76,0.18)',
+    borderRadius: 6, padding: '9px 12px', color: '#E8DCC8', fontSize: 13,
+    outline: 'none', boxSizing: 'border-box', fontFamily: 'Raleway, sans-serif',
+    transition: 'border-color 0.2s',
+  };
+
+  const inpIcon = { ...inp, paddingLeft: 38 };
 
   return (
-    <div style={{ padding: 32, color: '#E8DCC8', maxWidth: 680 }}>
-      <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 22, color: '#C9A84C', margin: '0 0 4px' }}>Ajustes</h1>
-      <p style={{ color: '#9A9180', fontSize: 13, marginBottom: 24 }}>Configuración del panel de administración</p>
+    <div style={{ padding: '28px 32px', color: '#E8DCC8', minHeight: '100vh' }}>
 
-      {msg && <div style={{ marginBottom: 16, padding: '10px 16px', background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)', borderRadius: 6, fontSize: 13 }}>{msg}</div>}
-
-      {/* ── Tienda ── */}
-      <Card titulo="Información de la Tienda">
-        <Label>Nombre de la Tienda</Label>
-        <input style={inp} value={settings.storeName} onChange={e => set('storeName', e.target.value)} />
-        <Label>Email de Contacto</Label>
-        <input style={inp} type="email" value={settings.storeEmail} onChange={e => set('storeEmail', e.target.value)} />
-        <Label>Teléfono</Label>
-        <input style={inp} value={settings.storePhone} onChange={e => set('storePhone', e.target.value)} />
-        <Label>Dirección</Label>
-        <input style={inp} value={settings.storeAddress} onChange={e => set('storeAddress', e.target.value)} />
-        <Label>Descripción</Label>
-        <textarea style={{ ...inp, resize: 'vertical' }} rows={3} value={settings.storeDesc} onChange={e => set('storeDesc', e.target.value)} />
-        <Label>Mínimo para envío gratis (COP)</Label>
-        <input style={{ ...inp, maxWidth: 220 }} type="number" value={settings.freeShippingMin} onChange={e => set('freeShippingMin', parseInt(e.target.value)||0)} />
-      </Card>
-
-      {/* ── WhatsApp ── */}
-      <Card titulo="WhatsApp">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-          <Label>Mostrar botón de WhatsApp en el header</Label>
-          <Toggle value={settings.whatsappVisible} onChange={v => set('whatsappVisible', v)} />
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
+        <div>
+          <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 20, color: '#C9A84C', margin: 0, letterSpacing: '0.08em' }}>
+            AJUSTES
+          </h1>
+          <p style={{ color: '#9A9180', fontSize: 12, margin: '4px 0 0', letterSpacing: '0.05em' }}>
+            Configuración general del panel de administración
+          </p>
         </div>
-        <Label>Número de WhatsApp</Label>
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <input style={{ ...inp, marginBottom: 0, paddingLeft: 44 }}
-            value={settings.whatsappNumber}
-            onChange={e => set('whatsappNumber', e.target.value)}
-            placeholder="Ej: 573001234567 (con código de país, sin + ni espacios)" />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 18 }}>📱</span>
-        </div>
-        <Label>Mensaje predeterminado</Label>
-        <textarea style={{ ...inp, resize: 'vertical' }} rows={2}
-          value={settings.whatsappMessage}
-          onChange={e => set('whatsappMessage', e.target.value)}
-          placeholder="Mensaje que verá el cliente al abrir el chat" />
-        {waUrl && (
-          <div style={{ background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.25)', borderRadius: 6, padding: '10px 14px', fontSize: 12, color: '#9A9180', marginBottom: 12 }}>
-            <span style={{ color: '#25D366', marginRight: 6 }}>✓</span>
-            Vista previa:{' '}
-            <a href={waUrl} target="_blank" rel="noreferrer" style={{ color: '#25D366', wordBreak: 'break-all' }}>{waUrl}</a>
-          </div>
-        )}
-      </Card>
-
-      {/* ── Redes sociales ── */}
-      <Card titulo="Redes Sociales">
-        <Label>Instagram (usuario sin @)</Label>
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <input style={{ ...inp, marginBottom: 0, paddingLeft: 44 }}
-            value={settings.instagram}
-            onChange={e => set('instagram', e.target.value)}
-            placeholder="orientperfumes" />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16 }}>📸</span>
-        </div>
-        <Label>Facebook (usuario o página)</Label>
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <input style={{ ...inp, marginBottom: 0, paddingLeft: 44 }}
-            value={settings.facebook}
-            onChange={e => set('facebook', e.target.value)}
-            placeholder="orientperfumes" />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', lineHeight: 1 }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#9A9180" strokeWidth="1.6" width="16" height="16" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-          </span>
-        </div>
-        <Label>TikTok (usuario sin @)</Label>
-        <div style={{ position: 'relative', marginBottom: 0 }}>
-          <input style={{ ...inp, marginBottom: 0, paddingLeft: 44 }}
-            value={settings.tiktok}
-            onChange={e => set('tiktok', e.target.value)}
-            placeholder="orientperfumes" />
-          <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16 }}>🎵</span>
-        </div>
-      </Card>
-
-      {/* ── Notificaciones ── */}
-      <Card titulo="Notificaciones">
-        {[
-          ['notifStock',  'Alertas de Stock Bajo',  'Notificar cuando el stock sea menor al umbral'],
-          ['notifOrders', 'Nuevos Pedidos',          'Notificar al recibir nuevos pedidos'],
-          ['notifDaily',  'Resumen Diario',          'Recibir resumen de ventas cada día'],
-        ].map(([key, label, sub]) => (
-          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid rgba(201,168,76,0.05)' }}>
-            <div>
-              <div style={{ fontSize: 13, color: '#E8DCC8' }}>{label}</div>
-              <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>{sub}</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          {msg === 'ok' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+              background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)',
+              borderRadius: 6, fontSize: 12, color: '#81C784' }}>
+              <Ic d={IC.check} size={13} color="#81C784" stroke={2.5} />
+              Cambios guardados
             </div>
-            <Toggle value={settings[key]} onChange={v => set(key, v)} />
-          </div>
-        ))}
-      </Card>
-
-      {/* ── Inventario ── */}
-      <Card titulo="Inventario">
-        <Label>Umbral de Stock Bajo (unidades)</Label>
-        <input style={{ ...inp, maxWidth: 160 }} type="number" min="1" value={settings.stockThreshold} onChange={e => set('stockThreshold', parseInt(e.target.value)||20)} />
-        <Label>Moneda</Label>
-        <select style={{ ...inp, maxWidth: 220 }} value={settings.currency} onChange={e => set('currency', e.target.value)}>
-          <option value="COP">Peso Colombiano (COP)</option>
-        </select>
-      </Card>
-
-      {/* ── Zona peligro ── */}
-      <Card titulo="Zona de Peligro" titleColor="#e05252">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: 13, color: '#E8DCC8' }}>Restablecer Datos</div>
-            <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>Borra la configuración del localStorage</div>
-          </div>
-          <button onClick={resetData} style={{ background: 'transparent', border: '1px solid #e05252', borderRadius: 6, padding: '6px 14px', color: '#e05252', cursor: 'pointer', fontSize: 12 }}>Restablecer</button>
+          )}
+          {msg === 'reset' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+              background: 'rgba(255,152,0,0.1)', border: '1px solid rgba(255,152,0,0.3)',
+              borderRadius: 6, fontSize: 12, color: '#FFB74D' }}>
+              <Ic d={IC.check} size={13} color="#FFB74D" stroke={2.5} />
+              Datos restablecidos
+            </div>
+          )}
+          <button onClick={guardar} style={{
+            background: '#C9A84C', border: 'none', borderRadius: 6,
+            padding: '9px 24px', color: '#0a0a08', cursor: 'pointer',
+            fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.12em',
+            fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <Ic d={IC.check} size={13} color="#0a0a08" stroke={2.5} />
+            GUARDAR CAMBIOS
+          </button>
         </div>
-      </Card>
+      </div>
 
-      <button onClick={guardar} style={{ background: '#C9A84C', border: 'none', borderRadius: 6, padding: '10px 28px', color: '#0a0a08', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.1em', marginTop: 8 }}>
-        Guardar Cambios
-      </button>
+      {/* ── Grid principal ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, alignItems: 'start' }}>
+
+        {/* ── Columna izquierda ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Información de la tienda */}
+          <Card icon={IC.store} titulo="Información de la Tienda">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <Label>Nombre de la Tienda</Label>
+                <FieldIcon icon={IC.store} size={13}>
+                  <input style={inpIcon} value={settings.storeName}
+                    onChange={e => set('storeName', e.target.value)} />
+                </FieldIcon>
+              </div>
+              <div>
+                <Label>Email de Contacto</Label>
+                <FieldIcon icon={IC.mail} size={13}>
+                  <input style={inpIcon} type="email" value={settings.storeEmail}
+                    onChange={e => set('storeEmail', e.target.value)} />
+                </FieldIcon>
+              </div>
+              <div>
+                <Label>Teléfono</Label>
+                <FieldIcon icon={IC.phone} size={13}>
+                  <input style={inpIcon} value={settings.storePhone}
+                    onChange={e => set('storePhone', e.target.value)} />
+                </FieldIcon>
+              </div>
+              <div>
+                <Label>Mínimo envío gratis (COP)</Label>
+                <FieldIcon icon={IC.shipping} size={13}>
+                  <input style={inpIcon} type="number" value={settings.freeShippingMin}
+                    onChange={e => set('freeShippingMin', parseInt(e.target.value) || 0)} />
+                </FieldIcon>
+              </div>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <Label>Dirección</Label>
+              <FieldIcon icon={IC.location} size={13}>
+                <input style={inpIcon} value={settings.storeAddress}
+                  onChange={e => set('storeAddress', e.target.value)} />
+              </FieldIcon>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <Label>Descripción de la tienda</Label>
+              <textarea style={{ ...inp, resize: 'vertical', marginTop: 0 }} rows={3}
+                value={settings.storeDesc}
+                onChange={e => set('storeDesc', e.target.value)} />
+            </div>
+          </Card>
+
+          {/* WhatsApp */}
+          <Card icon={IC.whatsapp} titulo="WhatsApp" accentColor="#25D366">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16,
+              padding: '10px 14px', background: 'rgba(37,211,102,0.05)', border: '1px solid rgba(37,211,102,0.12)', borderRadius: 6 }}>
+              <div>
+                <div style={{ fontSize: 13, color: '#E8DCC8' }}>Mostrar botón de WhatsApp</div>
+                <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>Visible en el header del sitio</div>
+              </div>
+              <Toggle value={settings.whatsappVisible} onChange={v => set('whatsappVisible', v)} accentColor="#25D366" />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <Label>Número de WhatsApp</Label>
+                <FieldIcon icon={IC.phone} size={13}>
+                  <input style={inpIcon} value={settings.whatsappNumber}
+                    onChange={e => set('whatsappNumber', e.target.value)}
+                    placeholder="573001234567" />
+                </FieldIcon>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                {waUrl ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 12px',
+                    background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.25)',
+                    borderRadius: 6, fontSize: 11, color: '#25D366' }}>
+                    <Ic d={IC.check} size={12} color="#25D366" stroke={2.5} />
+                    Número válido
+                  </div>
+                ) : (
+                  <div style={{ padding: '9px 12px', background: '#151513',
+                    border: '1px solid rgba(201,168,76,0.08)', borderRadius: 6, fontSize: 11, color: '#5a5448' }}>
+                    Ingresa el número para habilitar
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <Label>Mensaje predeterminado al abrir el chat</Label>
+              <textarea style={{ ...inp, resize: 'vertical' }} rows={2}
+                value={settings.whatsappMessage}
+                onChange={e => set('whatsappMessage', e.target.value)}
+                placeholder="Mensaje que verá el cliente al abrir el chat" />
+            </div>
+          </Card>
+
+          {/* Redes sociales */}
+          <Card icon={IC.insta} titulo="Redes Sociales">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              <div>
+                <Label>Instagram</Label>
+                <FieldIcon icon={IC.insta} size={13} color="#E1306C">
+                  <input style={{ ...inpIcon }}
+                    value={settings.instagram}
+                    onChange={e => set('instagram', e.target.value)}
+                    placeholder="orientperfumes" />
+                </FieldIcon>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Sin @</div>
+              </div>
+              <div>
+                <Label>Facebook</Label>
+                <FieldIcon icon={IC.facebook} size={13} color="#1877F2">
+                  <input style={{ ...inpIcon }}
+                    value={settings.facebook}
+                    onChange={e => set('facebook', e.target.value)}
+                    placeholder="orientperfumes" />
+                </FieldIcon>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Usuario o página</div>
+              </div>
+              <div>
+                <Label>TikTok</Label>
+                <FieldIcon icon={IC.tiktok} size={13} color="#EE1D52">
+                  <input style={{ ...inpIcon }}
+                    value={settings.tiktok}
+                    onChange={e => set('tiktok', e.target.value)}
+                    placeholder="orientperfumes" />
+                </FieldIcon>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Sin @</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* ── Columna derecha ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Notificaciones */}
+          <Card icon={IC.bell} titulo="Notificaciones">
+            {[
+              { key: 'notifStock',  label: 'Alertas de Stock Bajo',  sub: 'Cuando el stock baja del umbral' },
+              { key: 'notifOrders', label: 'Nuevos Pedidos',          sub: 'Al recibir pedidos en tiempo real' },
+              { key: 'notifDaily',  label: 'Resumen Diario',          sub: 'Informe de ventas cada día' },
+            ].map(({ key, label, sub }, i, arr) => (
+              <div key={key} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '13px 0',
+                borderBottom: i < arr.length - 1 ? '1px solid rgba(201,168,76,0.07)' : 'none',
+              }}>
+                <div>
+                  <div style={{ fontSize: 13, color: '#E8DCC8' }}>{label}</div>
+                  <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>{sub}</div>
+                </div>
+                <Toggle value={settings[key]} onChange={v => set(key, v)} />
+              </div>
+            ))}
+          </Card>
+
+          {/* Inventario y moneda */}
+          <Card icon={IC.box} titulo="Inventario">
+            <Label>Umbral de Stock Bajo</Label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <input style={{ ...inp, width: 100 }} type="number" min="1"
+                value={settings.stockThreshold}
+                onChange={e => set('stockThreshold', parseInt(e.target.value) || 20)} />
+              <span style={{ fontSize: 12, color: '#9A9180' }}>unidades</span>
+            </div>
+            <Label>Moneda</Label>
+            <FieldIcon icon={IC.currency} size={13}>
+              <select style={{ ...inpIcon, cursor: 'pointer' }}
+                value={settings.currency}
+                onChange={e => set('currency', e.target.value)}>
+                <option value="COP">Peso Colombiano (COP)</option>
+              </select>
+            </FieldIcon>
+            <div style={{ marginTop: 14, padding: '10px 14px',
+              background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.1)',
+              borderRadius: 6 }}>
+              <div style={{ fontSize: 11, color: '#9A9180', marginBottom: 6 }}>Estado actual del inventario</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#E8DCC8' }}>Alertar si stock &lt; {settings.stockThreshold}</span>
+                <span style={{ fontSize: 10, padding: '3px 8px', background: 'rgba(255,152,0,0.15)',
+                  border: '1px solid rgba(255,152,0,0.3)', borderRadius: 4, color: '#FFB74D' }}>
+                  ACTIVO
+                </span>
+              </div>
+            </div>
+          </Card>
+
+          {/* Zona de peligro */}
+          <Card icon={IC.warn} titulo="Zona de Peligro" accentColor="#e05252">
+            <div style={{ padding: '12px 14px', background: 'rgba(224,82,82,0.05)',
+              border: '1px solid rgba(224,82,82,0.15)', borderRadius: 6 }}>
+              <div style={{ fontSize: 12, color: '#E8DCC8', marginBottom: 4 }}>Restablecer Datos</div>
+              <div style={{ fontSize: 11, color: '#9A9180', marginBottom: 12, lineHeight: 1.5 }}>
+                Elimina toda la configuración guardada en localStorage y restaura los valores predeterminados. Esta acción no se puede deshacer.
+              </div>
+              <button onClick={resetData} style={{
+                background: 'transparent', border: '1px solid #e05252', borderRadius: 6,
+                padding: '7px 16px', color: '#e05252', cursor: 'pointer', fontSize: 12,
+                display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Raleway, sans-serif',
+                transition: 'background 0.2s',
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(224,82,82,0.1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                <Ic d={IC.warn} size={13} color="#e05252" />
+                Restablecer todo
+              </button>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
 
-function Card({ titulo, titleColor, children }) {
+/* ── Sub-componentes ──────────────────────────────────────── */
+
+function Card({ icon, titulo, accentColor, children }) {
+  const accent = accentColor || '#C9A84C';
   return (
-    <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.15)', borderRadius: 8, marginBottom: 20, overflow: 'hidden' }}>
-      <div style={{ padding: '12px 20px', background: '#0f0f0d', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: titleColor || '#C9A84C' }}>{titulo.toUpperCase()}</span>
+    <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.13)', borderRadius: 8, overflow: 'hidden' }}>
+      <div style={{ padding: '11px 18px', background: '#0f0f0d', borderBottom: '1px solid rgba(201,168,76,0.08)',
+        display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Ic d={icon} size={13} color={accent} />
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.2em', color: accent }}>
+          {titulo.toUpperCase()}
+        </span>
       </div>
-      <div style={{ padding: 20 }}>{children}</div>
+      <div style={{ padding: 18 }}>{children}</div>
     </div>
   );
 }
 
 function Label({ children }) {
-  return <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em', color: '#9A9180', marginBottom: 6 }}>{children}</div>;
+  return (
+    <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9.5, letterSpacing: '0.15em',
+      color: '#9A9180', marginBottom: 6, textTransform: 'uppercase' }}>
+      {children}
+    </div>
+  );
 }
 
-function Toggle({ value, onChange }) {
+function FieldIcon({ icon, size = 13, color, children }) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 1, display: 'flex' }}>
+        <Ic d={icon} size={size} color={color || '#5a5448'} />
+      </span>
+      {children}
+    </div>
+  );
+}
+
+function Toggle({ value, onChange, accentColor }) {
+  const accent = accentColor || '#C9A84C';
   return (
     <label style={{ position: 'relative', display: 'inline-block', width: 40, height: 22, flexShrink: 0, cursor: 'pointer' }}>
-      <input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-      <span style={{ position: 'absolute', inset: 0, background: value ? '#C9A84C' : '#333', borderRadius: 22, transition: '0.3s' }}>
-        <span style={{ position: 'absolute', height: 16, width: 16, left: value ? 20 : 3, bottom: 3, background: 'white', borderRadius: '50%', transition: '0.3s' }} />
+      <input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)}
+        style={{ opacity: 0, width: 0, height: 0 }} />
+      <span style={{ position: 'absolute', inset: 0, background: value ? accent : '#2a2a28',
+        borderRadius: 22, transition: '0.25s', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ position: 'absolute', height: 15, width: 15,
+          left: value ? 21 : 4, bottom: 3,
+          background: value ? '#fff' : '#5a5448', borderRadius: '50%', transition: '0.25s' }} />
       </span>
     </label>
   );
