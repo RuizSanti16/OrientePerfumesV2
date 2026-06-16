@@ -73,20 +73,8 @@ export default function Products() {
     setSubiendo(false);
   }
 
-  function agregarPresentacion() {
-    setForm(f => ({ ...f, presentaciones: [...f.presentaciones, { etiqueta: '', precio: 0 }] }));
-  }
-
-  function updatePres(i, key, val) {
-    setForm(f => {
-      const p = [...f.presentaciones];
-      p[i] = { ...p[i], [key]: val };
-      return { ...f, presentaciones: p };
-    });
-  }
-
-  function quitarPres(i) {
-    setForm(f => ({ ...f, presentaciones: f.presentaciones.filter((_, idx) => idx !== i) }));
+  function setPresentaciones(nuevas) {
+    setForm(f => ({ ...f, presentaciones: nuevas }));
   }
 
   const filtrados = productos.filter(p =>
@@ -228,17 +216,10 @@ export default function Products() {
 
             {/* Presentaciones */}
             <Label>Opciones de Presentación</Label>
-            {form.presentaciones.map((pr, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '8px', marginBottom: '8px' }}>
-                <input placeholder="Ej: 100ml" value={pr.etiqueta} onChange={e => updatePres(i, 'etiqueta', e.target.value)} style={inputStyle} />
-                <input type="number" placeholder="Precio" value={pr.precio} onChange={e => updatePres(i, 'precio', e.target.value)} style={inputStyle} />
-                <button onClick={() => quitarPres(i)} style={{ background: 'none', border: '1px solid #e05252', color: '#e05252', borderRadius: '4px', padding: '0 10px', cursor: 'pointer' }}>✕</button>
-              </div>
-            ))}
-            <button onClick={agregarPresentacion}
-              style={{ width: '100%', background: 'transparent', border: '1px dashed rgba(201,168,76,0.4)', borderRadius: '6px', padding: '8px', color: '#C9A84C', cursor: 'pointer', fontSize: '12px', marginBottom: '20px' }}>
-              + Agregar presentación
-            </button>
+            <PresentacionesEditor
+              presentaciones={form.presentaciones}
+              onChange={setPresentaciones}
+            />
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button onClick={() => setModal(false)} style={btnGhost}>Cancelar</button>
@@ -257,3 +238,156 @@ const btnGold    = { background: '#C9A84C', border: 'none', borderRadius: '6px',
 const btnGhost   = { background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '6px', padding: '8px 16px', color: '#9A9180', cursor: 'pointer', fontSize: '13px' };
 const btnOutline = { background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '4px', padding: '4px 10px', color: '#C9A84C', cursor: 'pointer', fontSize: '11px' };
 function Label({ children }) { return <div style={{ fontFamily: 'Cinzel, serif', fontSize: '10px', letterSpacing: '0.15em', color: '#9A9180', marginBottom: '6px' }}>{children}</div>; }
+
+/* ── Selector de presentaciones predefinidas ── */
+const PRESET_GROUPS = [
+  { label: 'Decants',   note: 'Sin descuento en oferta', sizes: ['1ml','2ml','5ml','10ml'] },
+  { label: 'Pequeñas',  note: '',                        sizes: ['30ml','50ml'] },
+  { label: 'Medianas',  note: '',                        sizes: ['75ml','100ml','125ml'] },
+  { label: 'Grandes',   note: '',                        sizes: ['150ml','200ml','250ml'] },
+];
+const ALL_PRESETS = PRESET_GROUPS.flatMap(g => g.sizes);
+
+function PresentacionesEditor({ presentaciones, onChange }) {
+  function togglePreset(size) {
+    if (presentaciones.find(p => p.etiqueta === size)) {
+      onChange(presentaciones.filter(p => p.etiqueta !== size));
+    } else {
+      const nuevas = [...presentaciones, { etiqueta: size, precio: '' }];
+      nuevas.sort((a, b) => {
+        const ia = ALL_PRESETS.indexOf(a.etiqueta);
+        const ib = ALL_PRESETS.indexOf(b.etiqueta);
+        if (ia === -1 && ib === -1) return 0;
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+      });
+      onChange(nuevas);
+    }
+  }
+
+  function setPrecioPreset(size, val) {
+    onChange(presentaciones.map(p => p.etiqueta === size ? { ...p, precio: val } : p));
+  }
+
+  function agregarCustom() {
+    onChange([...presentaciones, { etiqueta: '', precio: '' }]);
+  }
+
+  function updateCustom(idx, key, val) {
+    onChange(presentaciones.map((p, i) => i === idx ? { ...p, [key]: val } : p));
+  }
+
+  function quitarCustom(idx) {
+    onChange(presentaciones.filter((_, i) => i !== idx));
+  }
+
+  const customPres = presentaciones
+    .map((p, i) => ({ ...p, _idx: i }))
+    .filter(p => !ALL_PRESETS.includes(p.etiqueta));
+
+  const chipBase = {
+    padding: '6px 14px', borderRadius: 4, cursor: 'pointer',
+    fontSize: 12, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em',
+    transition: 'all 0.15s', border: '1px solid', background: 'none',
+  };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {PRESET_GROUPS.map(g => (
+        <div key={g.label} style={{ marginBottom: 14 }}>
+          {/* Cabecera de grupo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.15em', color: '#9A9180' }}>
+              {g.label.toUpperCase()}
+            </span>
+            {g.note && (
+              <span style={{ fontSize: 9, color: '#4a4038', background: 'rgba(201,168,76,0.07)',
+                border: '1px solid rgba(201,168,76,0.15)', borderRadius: 3, padding: '1px 6px' }}>
+                {g.note}
+              </span>
+            )}
+          </div>
+          {/* Chips de talla */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {g.sizes.map(size => {
+              const activa = presentaciones.find(p => p.etiqueta === size);
+              return (
+                <div key={size} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <button
+                    type="button"
+                    onClick={() => togglePreset(size)}
+                    style={{
+                      ...chipBase,
+                      borderColor: activa ? '#C9A84C' : 'rgba(201,168,76,0.2)',
+                      color: activa ? '#C9A84C' : '#5a5448',
+                      background: activa ? 'rgba(201,168,76,0.1)' : 'transparent',
+                    }}>
+                    {size}
+                  </button>
+                  {activa && (
+                    <input
+                      type="number"
+                      placeholder="$ precio"
+                      value={activa.precio}
+                      onChange={e => setPrecioPreset(size, e.target.value)}
+                      style={{
+                        background: '#1a1a18', border: '1px solid rgba(201,168,76,0.25)',
+                        borderRadius: 4, padding: '5px 8px', color: '#E8DCC8',
+                        fontSize: 11, outline: 'none', width: 80, textAlign: 'center',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Presentaciones personalizadas (tallas no estándar) */}
+      {customPres.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.15em', color: '#9A9180', marginBottom: 8 }}>
+            PERSONALIZADA
+          </div>
+          {customPres.map(pr => (
+            <div key={pr._idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8, marginBottom: 8 }}>
+              <input
+                placeholder="Ej: 175ml"
+                value={pr.etiqueta}
+                onChange={e => updateCustom(pr._idx, 'etiqueta', e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0 }}
+              />
+              <input
+                type="number"
+                placeholder="Precio"
+                value={pr.precio}
+                onChange={e => updateCustom(pr._idx, 'precio', e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0 }}
+              />
+              <button
+                type="button"
+                onClick={() => quitarCustom(pr._idx)}
+                style={{ background: 'none', border: '1px solid #e05252', color: '#e05252', borderRadius: 4, padding: '0 10px', cursor: 'pointer' }}>
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={agregarCustom}
+        style={{
+          background: 'transparent', border: '1px dashed rgba(201,168,76,0.25)',
+          borderRadius: 6, padding: '6px 14px', color: '#6a5a4a',
+          cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif',
+        }}>
+        + Talla personalizada
+      </button>
+    </div>
+  );
+}
