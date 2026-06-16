@@ -93,17 +93,21 @@ const IconExclusivos = ({ color }) => (
 /* Oriental — estrellas individuales que giran sobre su propio eje */
 function PatternOriental({ color }) {
   const STARS = [
-    { cx: 30,  cy: 55,  r: 22 },
-    { cx: 105, cy: 32,  r: 18 },
-    { cx: 175, cy: 65,  r: 20 },
-    { cx: 55,  cy: 140, r: 17 },
-    { cx: 148, cy: 125, r: 24 },
-    { cx: 22,  cy: 230, r: 18 },
-    { cx: 95,  cy: 210, r: 21 },
-    { cx: 168, cy: 215, r: 17 },
-    { cx: 118, cy: 308, r: 22 },
-    { cx: 58,  cy: 318, r: 18 },
-    { cx: 188, cy: 335, r: 15 },
+    /* Zona superior */
+    { cx: 28,  cy: 45,  r: 21 },
+    { cx: 100, cy: 28,  r: 17 },
+    { cx: 174, cy: 52,  r: 20 },
+    /* Franja media-alta — evita el centro del ícono */
+    { cx: 48,  cy: 118, r: 16 },
+    { cx: 162, cy: 112, r: 23 },
+    /* Laterales al nivel del ícono — bien pegados a los bordes */
+    { cx: 14,  cy: 200, r: 15 },
+    { cx: 186, cy: 196, r: 14 },
+    /* Zona inferior */
+    { cx: 42,  cy: 288, r: 18 },
+    { cx: 162, cy: 280, r: 16 },
+    { cx: 96,  cy: 318, r: 21 },
+    { cx: 188, cy: 338, r: 13 },
   ];
   const DURS = [14, 18, 16, 20, 15, 17, 19, 14, 16, 18, 21];
 
@@ -123,10 +127,11 @@ function PatternOriental({ color }) {
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       <svg viewBox="0 0 200 370"
         style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-        {/* Líneas conectoras sutiles entre estrellas */}
-        {STARS.map(({ cx, cy }, i) => i < STARS.length - 1 && (
+        {/* Líneas conectoras — solo dentro de cada zona, sin cruzar el centro */}
+        {[[0,1],[1,2],[0,3],[2,4],[3,5],[4,6],[7,9],[8,9],[9,10]].map(([a,b], i) => (
           <line key={`l${i}`}
-            x1={cx} y1={cy} x2={STARS[i+1].cx} y2={STARS[i+1].cy}
+            x1={STARS[a].cx} y1={STARS[a].cy}
+            x2={STARS[b].cx} y2={STARS[b].cy}
             stroke={color} strokeWidth="0.18" opacity="0.18"/>
         ))}
         {/* Cada estrella rota sobre su propio eje */}
