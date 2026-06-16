@@ -383,10 +383,6 @@ export function CategoryCard({ nombre }) {
       {/* Overlay oscuro */}
       <div className="category-card__overlay" aria-hidden="true" />
 
-      {/* Número decorativo */}
-      <div className="category-card__num" style={{ color: accent }} aria-hidden="true">
-        {cfg.num}
-      </div>
 
       {/* Anillo del ícono */}
       <div className="category-card__icon-wrap">
