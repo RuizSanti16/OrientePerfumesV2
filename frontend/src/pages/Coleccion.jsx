@@ -255,10 +255,11 @@ export default function Coleccion() {
                 enWishlist={estaEn(String(p.id_producto))}
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
                 onCarrito={(presLabel, precioPres) => {
-                  const precioBase  = Number(p.precio_oferta || p.precio || 0);
-                  const precioOrig  = Number(p.precio || 0);
+                  const esDecant   = label => /^(5|10)\s*ml$/i.test((label || '').trim());
+                  const precioBase = Number(p.precio_oferta || p.precio || 0);
+                  const precioOrig = Number(p.precio || 0);
                   let precioFinal;
-                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0) {
+                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0 && !esDecant(presLabel)) {
                     precioFinal = Math.round(Number(precioPres) * (precioBase / precioOrig));
                   } else {
                     precioFinal = Number(precioPres || precioBase);
@@ -283,10 +284,11 @@ export default function Coleccion() {
                 enWishlist={estaEn(String(p.id_producto))}
                 onWishlist={() => toggleWish({ id: String(p.id_producto), nombre: p.nombre, marca: p.marca || '', precio: p.precio, imagen: p.imagen || '' })}
                 onCarrito={(presLabel, precioPres) => {
+                  const esDecant   = label => /^(5|10)\s*ml$/i.test((label || '').trim());
                   const precioBase = Number(p.precio_oferta || p.precio || 0);
                   const precioOrig = Number(p.precio || 0);
                   let precioFinal;
-                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0) {
+                  if (precioPres && p.badge === 'sale' && precioBase < precioOrig && precioOrig > 0 && !esDecant(presLabel)) {
                     precioFinal = Math.round(Number(precioPres) * (precioBase / precioOrig));
                   } else {
                     precioFinal = Number(precioPres || precioBase);
@@ -551,10 +553,12 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         {/* Precio con soporte de oferta */}
         <div className="product-card__price">
           {(() => {
+            const etiqueta   = pres[presIdx]?.etiqueta || '';
+            const esDecant   = /^(5|10)\s*ml$/i.test(etiqueta.trim());
             const precioBase = pres[presIdx]?.precio || p.precio;
             const precioOrig = Number(p.precio || 0);
             const precioOferta = Number(p.precio_oferta || 0);
-            if (p.badge === 'sale' && precioOferta > 0 && precioOferta < precioOrig) {
+            if (!esDecant && p.badge === 'sale' && precioOferta > 0 && precioOferta < precioOrig) {
               const ratio = precioOferta / precioOrig;
               const precioFinal = pres[presIdx] ? Math.round(pres[presIdx].precio * ratio) : precioOferta;
               return <>

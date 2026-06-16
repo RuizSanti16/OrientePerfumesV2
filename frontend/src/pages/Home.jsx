@@ -256,9 +256,9 @@ export default function Home() {
                 enWishlist={estaEn(p.id)}
                 onWishlist={() => toggleWish(p)}
                 onCarrito={(presentacion, precioPres) => {
+                  const esDecant = label => /^(5|10)\s*ml$/i.test((label || '').trim());
                   let precioFinal;
-                  if (precioPres && p.badge === 'sale' && p.precioOriginal > 0 && p.precio < p.precioOriginal) {
-                    // Aplica el mismo ratio de descuento a la presentación
+                  if (precioPres && p.badge === 'sale' && p.precioOriginal > 0 && p.precio < p.precioOriginal && !esDecant(presentacion)) {
                     const ratio = p.precio / p.precioOriginal;
                     precioFinal = Math.round(precioPres * ratio);
                   } else {
@@ -607,11 +607,16 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
   const pres  = p.presentaciones || [];
   const badge = BADGE_CFG[p.badge] || BADGE_CFG.none;
 
+  /* decants (5ml / 10ml) no reciben descuento */
+  const esDecant = label => /^(5|10)\s*ml$/i.test((label || '').trim());
+  const presActual = pres[presIdx];
+  const estaEnDecant = esDecant(presActual?.etiqueta);
+
   /* precio visible según presentación seleccionada */
   const precioMostrado = (() => {
-    if (pres.length === 0) return p.precio;           // ya es el precio de oferta formateado
-    const base = pres[presIdx]?.precio || 0;
-    if (p.badge === 'sale' && p.precioOriginal > 0 && parsePrecio(p.precio) < p.precioOriginal) {
+    if (pres.length === 0) return p.precio;
+    const base = presActual?.precio || 0;
+    if (!estaEnDecant && p.badge === 'sale' && p.precioOriginal > 0 && parsePrecio(p.precio) < p.precioOriginal) {
       const ratio = parsePrecio(p.precio) / p.precioOriginal;
       return formatCOP(Math.round(base * ratio));
     }
@@ -620,8 +625,8 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
 
   const precioOriginalMostrado = (() => {
     if (pres.length === 0) return p.precioAnterior;
-    const base = pres[presIdx]?.precio || 0;
-    if (p.badge === 'sale') return formatCOP(base);   // precio sin descuento de la presentación
+    const base = presActual?.precio || 0;
+    if (!estaEnDecant && p.badge === 'sale') return formatCOP(base);
     return '';
   })();
 
