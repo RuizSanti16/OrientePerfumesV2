@@ -370,6 +370,7 @@ export function CategoryCard({ nombre }) {
       className="category-card"
       role="listitem"
       tabIndex="0"
+      style={{ '--accent': accent }}
       onClick={ir}
       onKeyDown={e => e.key === 'Enter' && ir()}>
 
@@ -419,8 +420,7 @@ export function CategoryCard({ nombre }) {
         style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} aria-hidden="true" />
 
       {/* Borde acento en hover */}
-      <div className="category-card__border"
-        style={{ '--accent': accent }} aria-hidden="true" />
+      <div className="category-card__border" aria-hidden="true" />
     </article>
   );
 }

@@ -855,7 +855,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   transition: background 0.3s, color 0.3s;
 }
 .category-card__reveal-btn:hover {
-  background: currentColor;
+  background: var(--accent, #C9A84C);
+  color: #0a0a08;
 }
 .category-card__reveal-btn:hover svg { stroke: #0a0a08; }
 
