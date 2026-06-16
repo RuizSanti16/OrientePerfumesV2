@@ -90,30 +90,62 @@ const IconExclusivos = ({ color }) => (
 
 /* ── Patrones SVG únicos por categoría ──────────────────────── */
 
-/* Oriental — arabesco geométrico islámico */
+/* Oriental — estrellas individuales que giran sobre su propio eje */
 function PatternOriental({ color }) {
-  const id = 'pat-oriental';
+  const STARS = [
+    { cx: 30,  cy: 55,  r: 22 },
+    { cx: 105, cy: 32,  r: 18 },
+    { cx: 175, cy: 65,  r: 20 },
+    { cx: 55,  cy: 140, r: 17 },
+    { cx: 148, cy: 125, r: 24 },
+    { cx: 22,  cy: 230, r: 18 },
+    { cx: 95,  cy: 210, r: 21 },
+    { cx: 168, cy: 215, r: 17 },
+    { cx: 118, cy: 308, r: 22 },
+    { cx: 58,  cy: 318, r: 18 },
+    { cx: 188, cy: 335, r: 15 },
+  ];
+  const DURS = [14, 18, 16, 20, 15, 17, 19, 14, 16, 18, 21];
+
+  function starPath(r) {
+    const inner = r * 0.42;
+    const pts = [];
+    for (let i = 0; i < 16; i++) {
+      const a = (i * Math.PI / 8) - Math.PI / 2;
+      const rr = i % 2 === 0 ? r : inner;
+      pts.push(`${(rr * Math.cos(a)).toFixed(2)},${(rr * Math.sin(a)).toFixed(2)}`);
+    }
+    return `M${pts.join('L')}Z`;
+  }
+
   return (
-    <div className="cat-pattern cat-pattern--oriental" aria-hidden="true">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
-        style={{ width: '140%', height: '140%', position: 'absolute', top: '-20%', left: '-20%' }}>
-        <defs>
-          <pattern id={id} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            {/* Estrella de 8 puntas */}
-            <polygon
-              points="20,2 22.9,10.1 31.5,7.6 28,16 36.5,20 28,24 31.5,32.4 22.9,29.9 20,38 17.1,29.9 8.5,32.4 12,24 3.5,20 12,16 8.5,7.6 17.1,10.1"
-              fill="none" stroke={color} strokeWidth="0.55" opacity="0.8"/>
-            <circle cx="20" cy="20" r="4.5" fill="none" stroke={color} strokeWidth="0.45"/>
-            <rect x="14" y="14" width="12" height="12" transform="rotate(45 20 20)"
-              fill="none" stroke={color} strokeWidth="0.35"/>
-            {/* Puntos en las esquinas */}
-            <circle cx="0"  cy="0"  r="1" fill={color} opacity="0.4"/>
-            <circle cx="40" cy="0"  r="1" fill={color} opacity="0.4"/>
-            <circle cx="0"  cy="40" r="1" fill={color} opacity="0.4"/>
-            <circle cx="40" cy="40" r="1" fill={color} opacity="0.4"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#${id})`} opacity="0.7"/>
+    <div className="cat-pattern" aria-hidden="true"
+      style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <svg viewBox="0 0 200 370"
+        style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+        {/* Líneas conectoras sutiles entre estrellas */}
+        {STARS.map(({ cx, cy }, i) => i < STARS.length - 1 && (
+          <line key={`l${i}`}
+            x1={cx} y1={cy} x2={STARS[i+1].cx} y2={STARS[i+1].cy}
+            stroke={color} strokeWidth="0.18" opacity="0.18"/>
+        ))}
+        {/* Cada estrella rota sobre su propio eje */}
+        {STARS.map(({ cx, cy, r }, i) => (
+          <g key={i} transform={`translate(${cx},${cy})`}>
+            <g style={{
+              transformBox: 'fill-box',
+              transformOrigin: 'center',
+              animation: `orientalSpin ${DURS[i % DURS.length]}s linear infinite`,
+              animationDelay: `${-(i * 1.4).toFixed(1)}s`,
+            }}>
+              <path d={starPath(r)} fill="none" stroke={color} strokeWidth="0.55" opacity="0.78"/>
+              <circle cx="0" cy="0" r={r * 0.27} fill="none" stroke={color} strokeWidth="0.42" opacity="0.65"/>
+              <rect x={-r*0.38} y={-r*0.38} width={r*0.76} height={r*0.76}
+                transform="rotate(45)"
+                fill="none" stroke={color} strokeWidth="0.32" opacity="0.45"/>
+            </g>
+          </g>
+        ))}
       </svg>
     </div>
   );

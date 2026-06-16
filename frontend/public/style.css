@@ -658,10 +658,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   overflow: hidden;
   z-index: 1;
 }
-.cat-pattern--oriental {
-  animation: orientalSpin 80s linear infinite;
-  transform-origin: center center;
-}
+/* .cat-pattern--oriental — rotación de contenedor eliminada; cada estrella gira individualmente */
 
 /* Partícula flotante (Nicho) */
 .cat-particle {
