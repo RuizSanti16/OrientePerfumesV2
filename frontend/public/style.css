@@ -852,6 +852,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
+  color: var(--accent, #C9A84C);
   transition: background 0.3s, color 0.3s;
 }
 .category-card__reveal-btn:hover {

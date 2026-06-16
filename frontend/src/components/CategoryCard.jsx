@@ -407,11 +407,11 @@ export function CategoryCard({ nombre }) {
         <div className="category-card__reveal-eyebrow"
           style={{ color: accent }}>{cfg.eyebrow}</div>
         <button className="category-card__reveal-btn"
-          style={{ borderColor: accent, color: accent }}
+          style={{ borderColor: accent }}
           onClick={e => { e.stopPropagation(); ir(); }}
           tabIndex="-1">
           Explorar colección
-          <ArrowRight color={accent} />
+          <ArrowRight color="currentColor" />
         </button>
       </div>
 
