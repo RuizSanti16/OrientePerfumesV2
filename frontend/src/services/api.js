@@ -1,6 +1,5 @@
 const API_BASE = '/api';
 
-/** Obtiene el token admin del localStorage, o null si no hay sesión activa */
 function getAdminToken() {
   try {
     const s = JSON.parse(localStorage.getItem('op_admin_session'));
@@ -8,11 +7,6 @@ function getAdminToken() {
   } catch { return null; }
 }
 
-/**
- * Sube una imagen al servidor y devuelve la URL pública.
- * @param {File} file
- * @returns {Promise<{ok:boolean, url?:string, mensaje?:string}>}
- */
 export async function subirImagen(file) {
   const form = new FormData();
   form.append('imagen', file);
@@ -22,12 +16,6 @@ export async function subirImagen(file) {
   return res.json();
 }
 
-/**
- * Sube un video al servidor y devuelve la URL pública.
- * @param {File} file
- * @param {function} onProgress  callback(porcentaje) — opcional
- * @returns {Promise<{ok:boolean, url?:string, nombre?:string, mensaje?:string}>}
- */
 export function subirVideo(file, onProgress) {
   return new Promise((resolve) => {
     const token = getAdminToken();
@@ -61,7 +49,6 @@ async function apiFetch(endpoint, method = 'GET', data = null) {
   if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
   const res = await fetch(url, opts);
 
-  /* Si el token expiró, limpiar sesión y redirigir al login */
   if (res.status === 401) {
     localStorage.removeItem('op_admin_session');
     window.location.href = '/login';
@@ -131,11 +118,12 @@ export const destacadosAPI = {
 };
 
 export const noticiasAPI = {
-  listarAprobados: ()       => apiFetch('noticias.php'),
-  listarAdmin:     ()       => apiFetch('noticias.php?admin=1'),
-  enviar:          (data)   => apiFetch('noticias.php', 'POST', data),
-  moderar:         (data)   => apiFetch('noticias.php', 'PUT',  data),   // { id, estado }
-  eliminar:        (id)     => apiFetch(`noticias.php?id=${id}`, 'DELETE'),
+  listarAprobados: ()     => apiFetch('noticias.php'),
+  listarAdmin:     ()     => apiFetch('noticias.php?admin=1'),
+  enviar:          (data) => apiFetch('noticias.php', 'POST', data),
+  moderar:         (data) => apiFetch('noticias.php', 'PUT',  data),
+  cambiarEstado:   (data) => apiFetch('noticias.php', 'PUT',  data),
+  eliminar:        (id)   => apiFetch(`noticias.php?id=${id}`, 'DELETE'),
 };
 
 export const cuponesAPI = {

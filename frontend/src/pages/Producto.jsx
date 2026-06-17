@@ -111,15 +111,14 @@ export default function Producto() {
 
   async function enviarRating(e) {
     e.preventDefault();
-    if (!rNombre || !rEstrellas) { setRMsg('△ Completa nombre y estrellas'); return; }
+    if (!rNombre || !rEstrellas) { setRMsg('warn:Completa nombre y estrellas'); return; }
     setREnviando(true);
     const res = await productoDetalleAPI.calificar({ id_producto: id, nombre_usuario: rNombre, estrellas: rEstrellas, comentario: rComentario });
     if (res.ok) {
-      setRMsg('✓ ¡Gracias por tu calificación!');
+      setRMsg('ok:¡Gracias por tu calificación!');
       setRNombre(''); setREstrellas(0); setRComentario('');
-      /* Refrescar ratings */
       productoDetalleAPI.obtener(id).then(r => { if (r.ok) setProducto(r.data); });
-    } else { setRMsg('✗ Error al enviar'); }
+    } else { setRMsg('err:Error al enviar'); }
     setREnviando(false);
     setTimeout(() => setRMsg(''), 4000);
   }
@@ -183,29 +182,49 @@ export default function Producto() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, marginBottom:64 }}>
 
           {/* Galería */}
-          <div>
-            {/* Imagen principal */}
-            <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, overflow:'hidden', aspectRatio:'1', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12, position:'relative' }}>
-              {galeria.length > 0
-                ? <img src={galeria[imgActiva]} alt={producto.nombre} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                : <IconBottle size={80}/>}
-              {/* Wishlist */}
-              <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
-                style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.6)', border:'none', borderRadius:'50%', width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {enWishlist ? <IconHeartFilled size={20}/> : <IconHeart size={20}/>}
-              </button>
-            </div>
-            {/* Thumbnails */}
+          <div style={{ display:'grid', gridTemplateColumns: galeria.length > 1 ? '72px 1fr' : '1fr', gap:10 }}>
+            {/* Thumbnails verticales */}
             {galeria.length > 1 && (
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                 {galeria.map((img, i) => (
                   <div key={i} onClick={() => setImgActiva(i)}
-                    style={{ width:68, height:68, border:`2px solid ${imgActiva===i?'#C9A84C':'rgba(201,168,76,0.15)'}`, borderRadius:8, overflow:'hidden', cursor:'pointer', transition:'border-color 0.2s' }}>
+                    style={{ width:68, height:68, border:`2px solid ${imgActiva===i?'#C9A84C':'rgba(201,168,76,0.12)'}`, borderRadius:8, overflow:'hidden', cursor:'pointer', transition:'border-color 0.2s, opacity 0.2s', opacity: imgActiva===i ? 1 : 0.6, flexShrink:0 }}>
                     <img src={img} alt={`${producto.nombre} ${i+1}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
                   </div>
                 ))}
               </div>
             )}
+            {/* Imagen principal */}
+            <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, overflow:'hidden', aspectRatio:'1', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+              {galeria.length > 0
+                ? <img src={galeria[imgActiva]} alt={producto.nombre} style={{ width:'100%', height:'100%', objectFit:'cover', transition:'opacity 0.25s' }} />
+                : <IconBottle size={80}/>}
+              {/* Badge categoría */}
+              {producto.nombre_categoria && (
+                <div style={{ position:'absolute', top:12, left:12, background:'rgba(0,0,0,0.7)', border:'1px solid rgba(201,168,76,0.3)', borderRadius:4, padding:'3px 10px', fontFamily:'Cinzel,serif', fontSize:9, letterSpacing:'0.15em', color:'#C9A84C' }}>
+                  {producto.nombre_categoria.toUpperCase()}
+                </div>
+              )}
+              {/* Wishlist */}
+              <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
+                aria-label={enWishlist ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                style={{ position:'absolute', top:12, right:12, background:'rgba(0,0,0,0.6)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:'50%', width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'border-color 0.2s' }}>
+                {enWishlist ? <IconHeartFilled size={20}/> : <IconHeart size={20}/>}
+              </button>
+              {/* Flechas navegación si hay múltiples imágenes */}
+              {galeria.length > 1 && (
+                <>
+                  <button onClick={() => setImgActiva(i => (i - 1 + galeria.length) % galeria.length)} aria-label="Imagen anterior"
+                    style={{ position:'absolute', left:10, top:'50%', transform:'translateY(-50%)', background:'rgba(0,0,0,0.55)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:'50%', width:34, height:34, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" width="14" height="14"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                  </button>
+                  <button onClick={() => setImgActiva(i => (i + 1) % galeria.length)} aria-label="Imagen siguiente"
+                    style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'rgba(0,0,0,0.55)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:'50%', width:34, height:34, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" width="14" height="14"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Info */}
@@ -260,7 +279,7 @@ export default function Producto() {
               <button onClick={handleCarrito}
                 disabled={producto.stock_actual === 0}
                 style={{ flex:1, background: producto.stock_actual===0 ? '#2a2a28' : added?'#4a7c59':'#C9A84C', border:'none', borderRadius:8, padding:'14px', color: producto.stock_actual===0 ? '#666' : '#0a0a08', fontFamily:'Cinzel,serif', fontSize:12, letterSpacing:'0.15em', cursor: producto.stock_actual===0 ? 'not-allowed' : 'pointer', transition:'all 0.3s' }}>
-                {producto.stock_actual === 0 ? 'AGOTADO' : added ? '✓ AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
+                {producto.stock_actual === 0 ? 'AGOTADO' : added ? 'AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
               </button>
               <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
                 style={{ width:50, background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -269,10 +288,14 @@ export default function Producto() {
             </div>
 
             {/* Info extra */}
-            <div style={{ display:'flex', flexDirection:'column', gap:8, paddingTop:16, borderTop:'1px solid rgba(201,168,76,0.1)' }}>
-              {[['◆','Fragancia 100% Original'],['◈','Envío a todo Colombia'],['◇','Compra segura y garantizada']].map(([ic,tx]) => (
-                <div key={tx} style={{ display:'flex', gap:10, alignItems:'center', fontSize:13, color:'#9A9180' }}>
-                  <span style={{ color:'#C9A84C', fontSize:10 }}>{ic}</span><span>{tx}</span>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, paddingTop:16, borderTop:'1px solid rgba(201,168,76,0.1)' }}>
+              {[
+                { icon: <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.4" width="16" height="16" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>, text: 'Fragancia 100% Original' },
+                { icon: <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.4" width="16" height="16" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0v10l-8 4m0-14L4 17m8 4V11m-4-2.5l8 4"/></svg>, text: 'Envío a todo Colombia' },
+                { icon: <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.4" width="16" height="16" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path strokeLinecap="round" d="M7 11V7a5 5 0 0110 0v4"/></svg>, text: 'Compra segura y garantizada' },
+              ].map(({ icon, text }) => (
+                <div key={text} style={{ display:'flex', gap:10, alignItems:'center', fontSize:13, color:'#9A9180' }}>
+                  {icon}<span>{text}</span>
                 </div>
               ))}
             </div>
@@ -282,36 +305,73 @@ export default function Producto() {
         {/* ── Notas olfativas ── */}
         {tieneNotas && (
           <Section titulo="Pirámide Olfativa" eyebrow="Acordes">
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:16 }}>
-              {['salida','corazon','fondo'].map(tipo => {
-                const cfg = NOTA_CONFIG[tipo];
-                const notas = producto.notas?.[tipo] || [];
-                if (!notas.length) return null;
-                return (
-                  <div key={tipo} style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:10, padding:20 }}>
-                    <div style={{ textAlign:'center', marginBottom:14 }}>
-                      <div style={{ marginBottom:6 }}>{cfg.icono}</div>
-                      <div style={{ fontFamily:'Cinzel,serif', fontSize:11, color:'#C9A84C', letterSpacing:'0.15em' }}>{cfg.label.toUpperCase()}</div>
-                      <div style={{ fontSize:11, color:'#9A9180', marginTop:3 }}>{cfg.sub}</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:32, alignItems:'center' }}>
+
+              {/* Pirámide visual SVG */}
+              <div style={{ display:'flex', justifyContent:'center' }}>
+                <svg viewBox="0 0 200 220" width="200" height="220" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="pyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#C9A84C" stopOpacity="0.9"/>
+                      <stop offset="100%" stopColor="#C9A84C" stopOpacity="0.2"/>
+                    </linearGradient>
+                  </defs>
+                  {/* Tier salida (top) */}
+                  <polygon points="100,8 138,68 62,68" fill="rgba(201,168,76,0.18)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.6"/>
+                  {/* Tier corazón (mid) */}
+                  <polygon points="62,72 138,72 158,132 42,132" fill="rgba(201,168,76,0.1)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.4"/>
+                  {/* Tier fondo (base) */}
+                  <polygon points="42,136 158,136 178,196 22,196" fill="rgba(201,168,76,0.06)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.25"/>
+                  {/* Separadores */}
+                  <line x1="62" y1="70" x2="138" y2="70" stroke="#C9A84C" strokeWidth="0.5" strokeOpacity="0.5"/>
+                  <line x1="42" y1="134" x2="158" y2="134" stroke="#C9A84C" strokeWidth="0.5" strokeOpacity="0.3"/>
+                  {/* Íconos centrados */}
+                  <text x="100" y="46" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.9">SALIDA</text>
+                  <text x="100" y="108" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.75">CORAZÓN</text>
+                  <text x="100" y="170" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.6">FONDO</text>
+                </svg>
+              </div>
+
+              {/* Tiers de notas */}
+              <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+                {['salida','corazon','fondo'].map((tipo, idx) => {
+                  const cfg = NOTA_CONFIG[tipo];
+                  const notas = producto.notas?.[tipo] || [];
+                  if (!notas.length) return null;
+                  const opacities = [1, 0.8, 0.65];
+                  const borders = ['rgba(201,168,76,0.2)','rgba(201,168,76,0.13)','rgba(201,168,76,0.08)'];
+                  return (
+                    <div key={tipo} style={{ borderLeft:`2px solid ${borders[idx]}`, paddingLeft:20, paddingBottom: idx < 2 ? 24 : 0, position:'relative' }}>
+                      {/* Punto conector */}
+                      <div style={{ position:'absolute', left:-5, top:6, width:8, height:8, borderRadius:'50%', background:'#C9A84C', opacity:opacities[idx] }}/>
+                      {/* Header */}
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+                        <span style={{ opacity: opacities[idx] }}>{cfg.icono}</span>
+                        <div>
+                          <div style={{ fontFamily:'Cinzel,serif', fontSize:10, color:'#C9A84C', letterSpacing:'0.15em', opacity: opacities[idx] }}>{cfg.label.toUpperCase()}</div>
+                          <div style={{ fontSize:11, color:'#9A9180', marginTop:2 }}>{cfg.sub}</div>
+                        </div>
+                      </div>
+                      {/* Pills de notas */}
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                        {notas.map((n,i) => (
+                          <span key={i} style={{ background:`rgba(201,168,76,${0.06 + (2-idx)*0.03})`, border:`1px solid rgba(201,168,76,${0.15 + (2-idx)*0.05})`, borderRadius:20, padding:'5px 14px', fontSize:12, color:'#E8DCC8' }}>
+                            {n.nota}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display:'flex', flexWrap:'wrap', gap:6, justifyContent:'center' }}>
-                      {notas.map((n,i) => (
-                        <span key={i} style={{ background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:20, padding:'4px 12px', fontSize:12, color:'#E8DCC8' }}>
-                          {n.nota}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </Section>
         )}
 
         {/* ── Dupes ── */}
         {producto.dupes?.length > 0 && (
-          <Section titulo="Perfumes Similares" eyebrow="Dupes">
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))', gap:14 }}>
+          <Section titulo="Perfumes Similares" eyebrow="También te puede gustar">
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))', gap:16 }}>
               {producto.dupes.map(d => {
                 const refId    = d.ref_id || d.id_referencia || null;
                 const clicable = !!refId;
@@ -395,11 +455,15 @@ export default function Producto() {
                   <label style={labelStyle}>CALIFICACIÓN</label>
                   <div style={{ display:'flex', gap:6, marginTop:6 }}>
                     {[1,2,3,4,5].map(n => (
-                      <button key={n} type="button"
+                      <button key={n} type="button" aria-label={`${n} estrella${n>1?'s':''}`}
                         onMouseEnter={() => setRHover(n)} onMouseLeave={() => setRHover(0)}
                         onClick={() => setREstrellas(n)}
-                        style={{ background:'none', border:'none', cursor:'pointer', fontSize:28, color:(rHover||rEstrellas)>=n?'#C9A84C':'rgba(201,168,76,0.2)', transition:'color 0.15s' }}>
-                        ★
+                        style={{ background:'none', border:'none', cursor:'pointer', padding:2, lineHeight:0, transition:'transform 0.15s' }}
+                        onMouseDown={e => e.currentTarget.style.transform='scale(1.2)'}
+                        onMouseUp={e => e.currentTarget.style.transform='scale(1)'}>
+                        <svg viewBox="0 0 24 24" fill={(rHover||rEstrellas)>=n?'#C9A84C':'none'} stroke="#C9A84C" strokeWidth="1.5" width="30" height="30" style={{ transition:'fill 0.15s', opacity:(rHover||rEstrellas)>=n?1:0.3 }}>
+                          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                        </svg>
                       </button>
                     ))}
                   </div>
@@ -408,7 +472,7 @@ export default function Producto() {
                   <label style={labelStyle}>COMENTARIO (OPCIONAL)</label>
                   <textarea value={rComentario} onChange={e=>setRComentario(e.target.value)} rows={3} placeholder="Cuéntanos tu experiencia con esta fragancia..." style={{ ...inputStyle, resize:'vertical' }} />
                 </div>
-                {rMsg && <div style={{ fontSize:13, padding:'8px 12px', borderRadius:6, background:rMsg.startsWith('✓')?'rgba(76,175,80,0.1)':rMsg.startsWith('△')?'rgba(255,152,0,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${rMsg.startsWith('✓')?'rgba(76,175,80,0.3)':rMsg.startsWith('△')?'rgba(255,152,0,0.3)':'rgba(224,82,82,0.3)'}` }}>{rMsg}</div>}
+                {rMsg && <div style={{ fontSize:13, padding:'8px 12px', borderRadius:6, background:rMsg.startsWith('ok')?'rgba(76,175,80,0.1)':rMsg.startsWith('warn')?'rgba(255,152,0,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${rMsg.startsWith('ok')?'rgba(76,175,80,0.3)':rMsg.startsWith('warn')?'rgba(255,152,0,0.3)':'rgba(224,82,82,0.3)'}`, color: rMsg.startsWith('ok')?'#7ecf7e':rMsg.startsWith('warn')?'#ffa040':'#e07070' }}>{rMsg.split(':')[1]}</div>}
                 <button type="submit" disabled={rEnviando} style={{ background:'#C9A84C', border:'none', borderRadius:8, padding:'12px', color:'#0a0a08', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.15em', cursor:rEnviando?'not-allowed':'pointer', opacity:rEnviando?0.7:1 }}>
                   {rEnviando ? 'ENVIANDO...' : 'ENVIAR RESEÑA'}
                 </button>
@@ -466,7 +530,9 @@ function Stars({ valor, size = 16 }) {
   return (
     <div style={{ display:'flex', gap:2 }}>
       {[1,2,3,4,5].map(n => (
-        <span key={n} style={{ fontSize:size, color: n <= Math.round(valor) ? '#C9A84C' : 'rgba(201,168,76,0.2)', lineHeight:1 }}>★</span>
+        <svg key={n} viewBox="0 0 24 24" fill={n <= Math.round(valor) ? '#C9A84C' : 'none'} stroke="#C9A84C" strokeWidth="1.5" width={size} height={size} aria-hidden="true" style={{ opacity: n <= Math.round(valor) ? 1 : 0.25 }}>
+          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+        </svg>
       ))}
     </div>
   );
