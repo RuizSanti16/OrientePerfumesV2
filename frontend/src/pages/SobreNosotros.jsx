@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useInView }   from '../hooks/useInView';
 import SocialButtons   from '../components/SocialButtons';
+import Footer from '../components/Footer';
 
 /* ── Íconos SVG ── */
 const IconLeaf = () => (
@@ -218,11 +219,7 @@ export default function SobreNosotros() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back">↑ Volver Arriba</a>
-      </footer>
+      <Footer />
     </div>
   );
 }

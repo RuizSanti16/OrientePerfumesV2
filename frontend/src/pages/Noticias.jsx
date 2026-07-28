@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
 import SocialButtons   from '../components/SocialButtons';
@@ -305,34 +306,7 @@ export default function Noticias() {
         </div>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="footer" style={{ borderTop: '1px solid rgba(201,168,76,0.12)' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '32px 40px' }}>
-
-          {/* Redes sociales */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.25em', color: '#6B6355' }}>SÍGUENOS</span>
-            <SocialButtons />
-          </div>
-
-          <div style={{ width: 40, height: 1, background: 'rgba(201,168,76,0.15)' }} />
-
-          <nav style={{ display: 'flex', gap: 24 }}>
-            {NAV.map(n => (
-              <a key={n.to} href={n.to}
-                style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.18em', color: '#6B6355', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
-                onMouseLeave={e => e.currentTarget.style.color = '#6B6355'}>
-                {n.label.toUpperCase()}
-              </a>
-            ))}
-          </nav>
-
-          <p className="footer__copy" style={{ margin: 0 }}>
-            &copy; {new Date().getFullYear()} OrientPerfumes · Todos los derechos reservados
-          </p>
-        </div>
-      </footer>
+      <Footer />
 
       {/* ── WhatsApp flotante ── */}
       <WhatsAppButton />

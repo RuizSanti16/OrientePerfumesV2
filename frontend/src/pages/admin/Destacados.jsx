@@ -94,80 +94,81 @@ export default function Destacados() {
         placeholder="Buscar productos..."
         style={{ width: '100%', maxWidth: '300px', background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '6px', padding: '8px 12px', color: '#E8DCC8', fontSize: '13px', outline: 'none', marginBottom: '20px', boxSizing: 'border-box' }} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px,1fr))', gap: '14px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px,1fr))', gap: '10px' }}>
         {filtrados.map(p => {
           const sel  = estaSeleccionado(p.id_producto);
           const item = getItem(p.id_producto);
           const badge = item.badge || 'none';
-          const badgeInfo = BADGES.find(b => b.value === badge) || BADGES[0];
 
           return (
             <div key={p.id_producto} style={{ background: sel ? 'rgba(201,168,76,0.08)' : '#111', border: `1px solid ${sel ? '#C9A84C' : 'rgba(201,168,76,0.1)'}`, borderRadius: '8px', overflow: 'hidden', transition: 'all 0.2s', position: 'relative' }}>
 
               {sel && (
-                <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, background: '#C9A84C', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#0a0a08', fontWeight: 700 }}>✓</div>
+                <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, background: '#C9A84C', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#0a0a08', fontWeight: 700 }}>✓</div>
               )}
 
+              {/* Imagen */}
               <div onClick={() => toggleProducto(p.id_producto)} style={{ cursor: 'pointer' }}>
                 {p.imagen
-                  ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '110px', objectFit: 'cover', display: 'block' }} />
-                  : <div style={{ width: '100%', height: '110px', background: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={36}/></div>
+                  ? <img src={p.imagen} alt={p.nombre} style={{ width: '100%', height: '80px', objectFit: 'cover', display: 'block' }} />
+                  : <div style={{ width: '100%', height: '80px', background: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={28}/></div>
                 }
               </div>
 
-              <div style={{ padding: '12px' }}>
-                <div onClick={() => toggleProducto(p.id_producto)} style={{ cursor: 'pointer' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#c8d2e8', marginBottom: '2px' }}>{p.nombre}</div>
-                  <div style={{ fontSize: '11px', color: '#9A9180' }}>{p.marca || '—'}</div>
-                  <div style={{ fontSize: '12px', color: '#C9A84C', marginTop: '4px', marginBottom: sel ? '10px' : 0 }}>
-                    $ {Number(p.precio || 0).toLocaleString('es-CO')}
-                  </div>
+              {/* Info básica */}
+              <div style={{ padding: '8px 10px' }} onClick={() => toggleProducto(p.id_producto)} >
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#c8d2e8', marginBottom: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}>{p.nombre}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                  <span style={{ fontSize: '10px', color: '#9A9180' }}>{p.marca || '—'}</span>
+                  <span style={{ fontSize: '11px', color: '#C9A84C' }}>$ {Number(p.precio || 0).toLocaleString('es-CO')}</span>
                 </div>
+              </div>
 
-                {sel && (
-                  <div>
-                    {/* Badge selector */}
-                    <div style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', letterSpacing: '0.15em', color: '#9A9180', marginBottom: '6px' }}>BADGE</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '12px' }}>
-                      {BADGES.map(b => (
-                        <button key={b.value} onClick={() => updateItem(p.id_producto, 'badge', b.value)}
-                          style={{ padding: '5px 6px', borderRadius: '4px', border: `1px solid ${badge === b.value ? b.color : 'rgba(201,168,76,0.15)'}`, background: badge === b.value ? `${b.color}20` : 'transparent', color: badge === b.value ? b.color : '#9A9180', fontSize: '10px', fontFamily: 'Cinzel, serif', letterSpacing: '0.08em', cursor: 'pointer', transition: 'all 0.15s' }}>
-                          {b.label}
-                        </button>
-                      ))}
-                    </div>
+              {/* Controles (solo si seleccionado) */}
+              {sel && (
+                <div style={{ padding: '0 10px 10px', borderTop: '1px solid rgba(201,168,76,0.1)', paddingTop: '8px' }}>
+                  {/* Badge en una sola fila */}
+                  <div style={{ display: 'flex', gap: '3px', marginBottom: badge === 'sale' ? '8px' : 0 }}>
+                    {BADGES.map(b => (
+                      <button key={b.value} onClick={() => updateItem(p.id_producto, 'badge', b.value)}
+                        style={{ flex: 1, padding: '4px 2px', borderRadius: '4px', border: `1px solid ${badge === b.value ? b.color : 'rgba(201,168,76,0.15)'}`, background: badge === b.value ? `${b.color}22` : 'transparent', color: badge === b.value ? b.color : '#9A9180', fontSize: '9px', fontFamily: 'Cinzel, serif', letterSpacing: '0.04em', cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
 
-                    {/* Precios para Oferta */}
-                    {badge === 'sale' && (
-                      <div style={{ background: 'rgba(224,82,82,0.06)', border: '1px solid rgba(224,82,82,0.2)', borderRadius: '6px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', letterSpacing: '0.15em', color: '#e05252' }}>PRECIOS DE OFERTA</div>
-                        <div>
-                          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', color: '#9A9180', letterSpacing: '0.1em', display: 'block', marginBottom: '4px' }}>PRECIO OFERTA (COP)</label>
+                  {/* Precios oferta: inputs lado a lado */}
+                  {badge === 'sale' && (
+                    <div style={{ background: 'rgba(224,82,82,0.06)', border: '1px solid rgba(224,82,82,0.2)', borderRadius: '6px', padding: '8px' }}>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '8px', color: '#9A9180', letterSpacing: '0.08em', display: 'block', marginBottom: '3px' }}>OFERTA</label>
                           <input style={inp} type="number" min="0"
                             value={item.precioOferta || ''}
                             onChange={e => updateItem(p.id_producto, 'precioOferta', e.target.value)}
-                            placeholder={`Ej: ${Math.round(Number(p.precio||0) * 0.8).toLocaleString('es-CO')}`}
+                            placeholder="0"
                           />
                         </div>
-                        <div>
-                          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', color: '#9A9180', letterSpacing: '0.1em', display: 'block', marginBottom: '4px' }}>PRECIO ANTERIOR (tachado)</label>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '8px', color: '#9A9180', letterSpacing: '0.08em', display: 'block', marginBottom: '3px' }}>ANTERIOR</label>
                           <input style={inp} type="number" min="0"
                             value={item.precioAnterior || ''}
                             onChange={e => updateItem(p.id_producto, 'precioAnterior', e.target.value)}
-                            placeholder={`Ej: ${Number(p.precio||0).toLocaleString('es-CO')}`}
+                            placeholder="0"
                           />
                         </div>
-                        <div style={{ fontSize: '11px', color: '#9A9180', marginTop: '2px' }}>
-                          Vista previa:{' '}
+                      </div>
+                      {(item.precioOferta || item.precioAnterior) && (
+                        <div style={{ fontSize: '10px', color: '#9A9180', marginTop: '5px' }}>
                           {item.precioAnterior && <s style={{ color: '#9A9180' }}>$ {Number(item.precioAnterior).toLocaleString('es-CO')}</s>}
                           {' '}
                           {item.precioOferta && <span style={{ color: '#e05252', fontWeight: 600 }}>$ {Number(item.precioOferta).toLocaleString('es-CO')}</span>}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}

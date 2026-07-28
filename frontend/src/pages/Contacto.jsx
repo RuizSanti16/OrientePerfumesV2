@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 import { useSettings, getWhatsappUrl } from '../hooks/useSettings';
 import SocialButtons from '../components/SocialButtons';
 
@@ -371,11 +372,7 @@ export default function Contacto() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back">↑ Volver Arriba</a>
-      </footer>
+      <Footer />
     </div>
   );
 }

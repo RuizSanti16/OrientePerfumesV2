@@ -28,18 +28,21 @@ if ($isAdmin && $method !== 'GET') {
     verificarTokenAdmin($pdo);
 }
 
-/* ── Auto-migración: crear tabla si no existe ── */
+/* ── Auto-migración: crear tabla y columnas opcionales ── */
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS tbl_comentarios_noticias (
-            id        INT AUTO_INCREMENT PRIMARY KEY,
-            nombre    VARCHAR(100) NOT NULL,
-            texto     TEXT         NOT NULL,
-            estado    ENUM('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
-            fecha     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+            id          INT AUTO_INCREMENT PRIMARY KEY,
+            nombre      VARCHAR(100) NOT NULL,
+            texto       TEXT         NOT NULL,
+            estado      ENUM('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
+            fecha       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
-} catch (PDOException $e) { /* tabla ya existe */ }
+} catch (PDOException $e) {}
+
+try { $pdo->exec("ALTER TABLE tbl_comentarios_noticias ADD COLUMN id_cliente INT NULL"); } catch (PDOException $e) {}
+try { $pdo->exec("ALTER TABLE tbl_comentarios_noticias ADD COLUMN estrellas TINYINT NOT NULL DEFAULT 5"); } catch (PDOException $e) {}
 
 try {
     switch ($method) {
@@ -57,7 +60,7 @@ try {
             } else {
                 /* Público: solo aprobados */
                 $s = $pdo->query("
-                    SELECT id, nombre, texto, fecha
+                    SELECT id, nombre, texto, estrellas, fecha
                     FROM tbl_comentarios_noticias
                     WHERE estado = 'aprobado'
                     ORDER BY fecha DESC
@@ -69,8 +72,10 @@ try {
         /* ── POST: enviar nuevo comentario (queda pendiente) ── */
         case 'POST':
             $b = json_decode(file_get_contents('php://input'), true);
-            $nombre = trim($b['nombre'] ?? '');
-            $texto  = trim($b['texto']  ?? '');
+            $nombre     = trim($b['nombre']     ?? '');
+            $texto      = trim($b['texto']      ?? '');
+            $id_cliente = intval($b['id_cliente'] ?? 0);
+            $estrellas  = max(1, min(5, intval($b['estrellas'] ?? 5)));
 
             if (!$nombre || !$texto) {
                 echo json_encode(['ok' => false, 'mensaje' => 'Nombre y comentario requeridos']);
@@ -81,11 +86,26 @@ try {
                 exit;
             }
 
+            /* Verificar que el cliente existe si se proporcionó id_cliente */
+            if ($id_cliente > 0) {
+                $check = $pdo->prepare("SELECT id_cliente FROM tbl_clientes WHERE id_cliente = :id LIMIT 1");
+                $check->execute([':id' => $id_cliente]);
+                if (!$check->fetch()) {
+                    echo json_encode(['ok' => false, 'mensaje' => 'Cliente no encontrado']);
+                    exit;
+                }
+            }
+
             $s = $pdo->prepare("
-                INSERT INTO tbl_comentarios_noticias (nombre, texto)
-                VALUES (:nombre, :texto)
+                INSERT INTO tbl_comentarios_noticias (nombre, texto, id_cliente, estrellas)
+                VALUES (:nombre, :texto, :id_cliente, :estrellas)
             ");
-            $s->execute([':nombre' => $nombre, ':texto' => $texto]);
+            $s->execute([
+                ':nombre'     => $nombre,
+                ':texto'      => $texto,
+                ':id_cliente' => $id_cliente > 0 ? $id_cliente : null,
+                ':estrellas'  => $estrellas,
+            ]);
             echo json_encode(['ok' => true, 'mensaje' => 'Comentario enviado. Será visible tras la revisión del equipo.']);
             break;
 

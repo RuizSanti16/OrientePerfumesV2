@@ -384,6 +384,12 @@ export function CategoryCard({ nombre }) {
       {/* Overlay oscuro */}
       <div className="category-card__overlay" aria-hidden="true" />
 
+      {/* Número decorativo */}
+      {cfg.num && (
+        <div className="category-card__num" style={{ color: accent }} aria-hidden="true">
+          {cfg.num}
+        </div>
+      )}
 
       {/* Anillo del ícono */}
       <div className="category-card__icon-wrap">
@@ -398,16 +404,17 @@ export function CategoryCard({ nombre }) {
         <div className="category-card__eyebrow"
           style={{ color: accent + 'BB' }}>{cfg.eyebrow}</div>
         <div className="category-card__name">{nombre}</div>
-        <div className="category-card__count">{cfg.count} fragancias</div>
+        <div className="category-card__count"
+          style={{ color: accent + '99' }}>{cfg.count} fragancias</div>
       </div>
 
       {/* Panel reveal en hover */}
       <div className="category-card__reveal">
-        <div className="category-card__reveal-title">{nombre}</div>
         <div className="category-card__reveal-eyebrow"
           style={{ color: accent }}>{cfg.eyebrow}</div>
+        <div className="category-card__reveal-title">{nombre}</div>
         <button className="category-card__reveal-btn"
-          style={{ borderColor: accent }}
+          style={{ borderColor: accent, color: accent }}
           onClick={e => { e.stopPropagation(); ir(); }}
           tabIndex="-1">
           Explorar colección

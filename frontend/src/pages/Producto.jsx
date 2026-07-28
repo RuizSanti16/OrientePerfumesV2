@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 import { productoDetalleAPI } from '../services/api';
 import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
@@ -168,10 +169,10 @@ export default function Producto() {
         </div>
       </header>
 
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'48px 24px' }}>
+      <div style={{ maxWidth:1100, margin:'0 auto', padding:'32px 24px' }}>
 
         {/* Breadcrumb */}
-        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:32, fontSize:12, color:'#9A9180' }}>
+        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:20, fontSize:12, color:'#9A9180' }}>
           <span onClick={() => navigate('/')} style={{ cursor:'pointer', color:'#C9A84C' }}>Inicio</span>
           <span>›</span>
           {producto.nombre_categoria && <><span onClick={() => navigate(`/coleccion?categoria=${encodeURIComponent(producto.nombre_categoria)}`)} style={{ cursor:'pointer', color:'#C9A84C' }}>{producto.nombre_categoria}</span><span>›</span></>}
@@ -179,7 +180,7 @@ export default function Producto() {
         </div>
 
         {/* ── Sección principal ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:48, marginBottom:64 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40, marginBottom:32, alignItems:'start' }}>
 
           {/* Galería */}
           <div style={{ display:'grid', gridTemplateColumns: galeria.length > 1 ? '72px 1fr' : '1fr', gap:10 }}>
@@ -195,7 +196,7 @@ export default function Producto() {
               </div>
             )}
             {/* Imagen principal */}
-            <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, overflow:'hidden', aspectRatio:'1', display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+            <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, overflow:'hidden', aspectRatio:'4/5', maxHeight:480, display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
               {galeria.length > 0
                 ? <img src={galeria[imgActiva]} alt={producto.nombre} style={{ width:'100%', height:'100%', objectFit:'cover', transition:'opacity 0.25s' }} />
                 : <IconBottle size={80}/>}
@@ -305,65 +306,37 @@ export default function Producto() {
         {/* ── Notas olfativas ── */}
         {tieneNotas && (
           <Section titulo="Pirámide Olfativa" eyebrow="Acordes">
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:32, alignItems:'center' }}>
-
-              {/* Pirámide visual SVG */}
-              <div style={{ display:'flex', justifyContent:'center' }}>
-                <svg viewBox="0 0 200 220" width="200" height="220" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="pyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#C9A84C" stopOpacity="0.9"/>
-                      <stop offset="100%" stopColor="#C9A84C" stopOpacity="0.2"/>
-                    </linearGradient>
-                  </defs>
-                  {/* Tier salida (top) */}
-                  <polygon points="100,8 138,68 62,68" fill="rgba(201,168,76,0.18)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.6"/>
-                  {/* Tier corazón (mid) */}
-                  <polygon points="62,72 138,72 158,132 42,132" fill="rgba(201,168,76,0.1)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.4"/>
-                  {/* Tier fondo (base) */}
-                  <polygon points="42,136 158,136 178,196 22,196" fill="rgba(201,168,76,0.06)" stroke="#C9A84C" strokeWidth="0.8" strokeOpacity="0.25"/>
-                  {/* Separadores */}
-                  <line x1="62" y1="70" x2="138" y2="70" stroke="#C9A84C" strokeWidth="0.5" strokeOpacity="0.5"/>
-                  <line x1="42" y1="134" x2="158" y2="134" stroke="#C9A84C" strokeWidth="0.5" strokeOpacity="0.3"/>
-                  {/* Íconos centrados */}
-                  <text x="100" y="46" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.9">SALIDA</text>
-                  <text x="100" y="108" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.75">CORAZÓN</text>
-                  <text x="100" y="170" textAnchor="middle" fontSize="8" fill="#C9A84C" fontFamily="Cinzel,serif" letterSpacing="1" opacity="0.6">FONDO</text>
-                </svg>
-              </div>
-
-              {/* Tiers de notas */}
-              <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
-                {['salida','corazon','fondo'].map((tipo, idx) => {
-                  const cfg = NOTA_CONFIG[tipo];
-                  const notas = producto.notas?.[tipo] || [];
-                  if (!notas.length) return null;
-                  const opacities = [1, 0.8, 0.65];
-                  const borders = ['rgba(201,168,76,0.2)','rgba(201,168,76,0.13)','rgba(201,168,76,0.08)'];
-                  return (
-                    <div key={tipo} style={{ borderLeft:`2px solid ${borders[idx]}`, paddingLeft:20, paddingBottom: idx < 2 ? 24 : 0, position:'relative' }}>
-                      {/* Punto conector */}
-                      <div style={{ position:'absolute', left:-5, top:6, width:8, height:8, borderRadius:'50%', background:'#C9A84C', opacity:opacities[idx] }}/>
-                      {/* Header */}
-                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                        <span style={{ opacity: opacities[idx] }}>{cfg.icono}</span>
-                        <div>
-                          <div style={{ fontFamily:'Cinzel,serif', fontSize:10, color:'#C9A84C', letterSpacing:'0.15em', opacity: opacities[idx] }}>{cfg.label.toUpperCase()}</div>
-                          <div style={{ fontSize:11, color:'#9A9180', marginTop:2 }}>{cfg.sub}</div>
-                        </div>
-                      </div>
-                      {/* Pills de notas */}
-                      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
-                        {notas.map((n,i) => (
-                          <span key={i} style={{ background:`rgba(201,168,76,${0.06 + (2-idx)*0.03})`, border:`1px solid rgba(201,168,76,${0.15 + (2-idx)*0.05})`, borderRadius:20, padding:'5px 14px', fontSize:12, color:'#E8DCC8' }}>
-                            {n.nota}
-                          </span>
-                        ))}
+            <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
+              {['salida','corazon','fondo'].map((tipo, idx) => {
+                const cfg = NOTA_CONFIG[tipo];
+                const notas = producto.notas?.[tipo] || [];
+                if (!notas.length) return null;
+                const fills   = ['rgba(201,168,76,0.13)','rgba(201,168,76,0.08)','rgba(201,168,76,0.04)'];
+                const borders = ['rgba(201,168,76,0.22)','rgba(201,168,76,0.14)','rgba(201,168,76,0.09)'];
+                const opacities = [1, 0.82, 0.65];
+                /* widths decrecientes: salida es más estrecha (arriba), fondo más ancha (abajo) */
+                const widths = ['66%','82%','100%'];
+                const margins = ['auto','auto','0'];
+                return (
+                  <div key={tipo}
+                    style={{ background: fills[idx], border:`1px solid ${borders[idx]}`, borderRadius: idx===0?'8px 8px 0 0': idx===2?'0 0 8px 8px':'0', padding:'16px 20px', width: widths[idx], marginLeft: margins[idx], marginRight: margins[idx] }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
+                      <span style={{ opacity: opacities[idx], flexShrink:0 }}>{cfg.icono}</span>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontFamily:'Cinzel,serif', fontSize:10, color:'#C9A84C', letterSpacing:'0.14em', opacity: opacities[idx] }}>{cfg.label.toUpperCase()}</div>
+                        <div style={{ fontSize:11, color:'#9A9180', marginTop:2 }}>{cfg.sub}</div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                      {notas.map((n,i) => (
+                        <span key={i} style={{ background:`rgba(201,168,76,${0.08 + (2-idx)*0.04})`, border:`1px solid rgba(201,168,76,${0.18 + (2-idx)*0.06})`, borderRadius:20, padding:'4px 13px', fontSize:12, color:'#E8DCC8' }}>
+                          {n.nota}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Section>
         )}
@@ -441,7 +414,7 @@ export default function Producto() {
 
         {/* ── Calificaciones ── */}
         <Section titulo="Reseñas y Calificaciones" eyebrow="Opiniones">
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:40 }}>
+          <div style={{ display:'grid', gridTemplateColumns: producto.ratings?.length > 0 ? '1fr 1fr' : '1fr', gap:40, maxWidth: producto.ratings?.length > 0 ? '100%' : 520 }}>
 
             {/* Formulario */}
             <div>
@@ -479,12 +452,12 @@ export default function Producto() {
               </form>
             </div>
 
-            {/* Lista de reseñas */}
-            <div>
+            {/* Lista de reseñas — solo si hay */}
+            {producto.ratings?.length > 0 && <div>
               <div style={{ fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.15em', color:'#C9A84C', marginBottom:16 }}>
-                {producto.ratings?.length > 0 ? `${producto.ratings.length} RESEÑA${producto.ratings.length!==1?'S':''}` : 'SIN RESEÑAS AÚN'}
+                {`${producto.ratings.length} RESEÑA${producto.ratings.length!==1?'S':''}`}
               </div>
-              {producto.ratings?.length > 0 && (
+              {(
                 <>
                   {/* Promedio */}
                   <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20, padding:'14px 16px', background:'#111', borderRadius:10, border:'1px solid rgba(201,168,76,0.1)' }}>
@@ -511,16 +484,12 @@ export default function Producto() {
                   </div>
                 </>
               )}
-            </div>
+            </div>}
           </div>
         </Section>
       </div>
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back">↑ Volver Arriba</a>
-      </footer>
+      <Footer />
     </div>
   );
 }
@@ -540,8 +509,8 @@ function Stars({ valor, size = 16 }) {
 
 function Section({ titulo, eyebrow, children }) {
   return (
-    <div style={{ marginBottom:56 }}>
-      <div style={{ marginBottom:24 }}>
+    <div style={{ marginBottom:40 }}>
+      <div style={{ marginBottom:20 }}>
         <div style={{ fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.2em', color:'#C9A84C', marginBottom:8 }}>{eyebrow?.toUpperCase()}</div>
         <h2 style={{ fontFamily:'Cormorant Garamond,serif', fontSize:'clamp(22px,3vw,32px)', color:'#E8DCC8', margin:0, fontWeight:400 }}>{titulo}</h2>
         <div style={{ width:40, height:1, background:'linear-gradient(90deg,#C9A84C,transparent)', marginTop:10 }} />

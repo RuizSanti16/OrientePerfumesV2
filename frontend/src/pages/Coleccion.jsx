@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 import { productosAPI, categoriasAPI, cuponesAPI } from '../services/api';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
@@ -306,11 +307,7 @@ export default function Coleccion() {
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back">↑ Volver Arriba</a>
-      </footer>
+      <Footer />
 
       {/* ── Barra flotante de comparación ── */}
       {comparar.length > 0 && (
@@ -520,7 +517,7 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         <button
           onClick={e => { e.stopPropagation(); onComparar?.(); }}
           title={enComparar ? 'Quitar de comparación' : 'Añadir a comparación'}
-          style={{ position: 'absolute', bottom: 44, left: 8, zIndex: 3, width: 28, height: 28, background: enComparar ? 'rgba(201,168,76,0.25)' : 'rgba(0,0,0,0.6)', border: `1px solid ${enComparar ? '#C9A84C' : 'rgba(255,255,255,0.12)'}`, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: enComparar ? '#C9A84C' : '#aaa', transition: 'all 0.2s' }}
+          style={{ position: 'absolute', bottom: 48, left: 10, zIndex: 3, width: 34, height: 34, background: enComparar ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', border: `1px solid ${enComparar ? '#C9A84C' : 'rgba(255,255,255,0.25)'}`, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: enComparar ? '#C9A84C' : '#fff', transition: 'all 0.25s', boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}
           aria-label={enComparar ? 'Quitar de comparación' : 'Comparar fragancia'}>
           <IconCompare />
         </button>
@@ -533,6 +530,9 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
 
       <div className="product-card__info">
         <div className="product-card__brand">{p.marca || ''}</div>
+        {p.nombre_categoria && (
+          <div className="product-card__category">{p.nombre_categoria}</div>
+        )}
         <div className="product-card__name" onClick={() => navigate(`/producto/${p.id_producto}`)} style={{ cursor: 'pointer' }}>
           {p.nombre}
         </div>

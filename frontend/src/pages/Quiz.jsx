@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 import { productosAPI } from '../services/api';
 import { useCarrito }   from '../hooks/useCarrito';
 import SocialButtons    from '../components/SocialButtons';
@@ -357,10 +358,7 @@ export default function Quiz() {
         </div>
       )}
 
-      <footer className="footer">
-        <p className="footer__copy">© 2024 OrientPerfumes · Todos los derechos reservados</p>
-        <a href="#" className="footer__back">↑ Volver Arriba</a>
-      </footer>
+      <Footer />
     </div>
   );
 }
