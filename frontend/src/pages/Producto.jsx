@@ -17,7 +17,7 @@ const IconBottle = ({ size = 60 }) => (
   </svg>
 );
 const IconHeart = ({ size = 22 }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" width={size} height={size} aria-hidden="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.6" width={size} height={size} aria-hidden="true" style={{ display:'block' }}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 );
@@ -283,7 +283,7 @@ export default function Producto() {
                 {producto.stock_actual === 0 ? 'AGOTADO' : added ? 'AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
               </button>
               <button onClick={() => toggleWish({ id:String(producto.id_producto), nombre:producto.nombre, marca:producto.marca||'', precio:Number(precio), imagen:producto.imagen||'' })}
-                style={{ width:50, background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                style={{ width:50, background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.35)', borderRadius:8, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                 {enWishlist ? <IconHeartFilled size={22}/> : <IconHeart size={22}/>}
               </button>
             </div>
