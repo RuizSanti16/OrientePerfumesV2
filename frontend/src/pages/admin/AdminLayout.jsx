@@ -33,6 +33,7 @@ export default function AdminLayout() {
   const navigate  = useNavigate();
   const [notifs,      setNotifs]      = useState(null);
   const [bellOpen,    setBellOpen]    = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const bellRef = useRef(null);
 
   const session = (() => {
@@ -72,9 +73,53 @@ export default function AdminLayout() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0a08', fontFamily: 'Raleway, sans-serif' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            position: fixed !important;
+            top: 0; left: 0; bottom: 0;
+            z-index: 300;
+            transform: translateX(-100%);
+            transition: transform 0.28s ease;
+          }
+          .admin-sidebar.open {
+            transform: translateX(0);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+          }
+          .admin-sidebar-overlay {
+            display: block !important;
+          }
+          .admin-topbar {
+            display: flex !important;
+          }
+          .admin-main {
+            margin-left: 0 !important;
+          }
+        }
+        .admin-sidebar-overlay {
+          display: none;
+          position: fixed; inset: 0;
+          background: rgba(0,0,0,0.55);
+          z-index: 299;
+        }
+        .admin-topbar {
+          display: none;
+          position: sticky; top: 0; z-index: 200;
+          background: #111;
+          border-bottom: 1px solid rgba(201,168,76,0.1);
+          padding: 12px 16px;
+          align-items: center;
+          gap: 12px;
+        }
+      `}</style>
+
+      {/* Overlay móvil */}
+      <div className={`admin-sidebar-overlay${sidebarOpen ? ' open' : ''}`}
+        onClick={() => setSidebarOpen(false)} style={{ opacity: sidebarOpen ? 1 : 0, pointerEvents: sidebarOpen ? 'auto' : 'none', transition: 'opacity 0.25s' }}/>
 
       {/* Sidebar */}
-      <aside style={{ width: '220px', background: '#111', borderRight: '1px solid rgba(201,168,76,0.1)', display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
+      <aside className={`admin-sidebar${sidebarOpen ? ' open' : ''}`}
+        style={{ width: '220px', background: '#111', borderRight: '1px solid rgba(201,168,76,0.1)', display: 'flex', flexDirection: 'column', padding: '24px 0', flexShrink: 0 }}>
         <div style={{ padding: '0 20px 24px', borderBottom: '1px solid rgba(201,168,76,0.1)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontFamily: 'Cinzel, serif', fontSize: '14px', color: '#C9A84C', letterSpacing: '0.1em' }}>ORIENTPERFUMES</div>
@@ -146,6 +191,7 @@ export default function AdminLayout() {
         <nav style={{ flex: 1, padding: '16px 0', overflowY: 'auto' }}>
           {NAV.map(item => (
             <NavLink key={item.to} to={item.to} end={item.to === '/admin'}
+              onClick={() => setSidebarOpen(false)}
               style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '10px 20px',
@@ -179,8 +225,17 @@ export default function AdminLayout() {
         </div>
       </aside>
 
+      {/* Topbar móvil */}
+      <div className="admin-topbar" style={{ flex: 'none' }}>
+        <button onClick={() => setSidebarOpen(true)}
+          style={{ background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '6px 8px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {[0,1,2].map(i => <span key={i} style={{ display: 'block', width: 18, height: 2, background: '#C9A84C', borderRadius: 1 }}/>)}
+        </button>
+        <div style={{ fontFamily: 'Cinzel, serif', fontSize: 12, color: '#C9A84C', letterSpacing: '0.12em' }}>ORIENTPERFUMES</div>
+      </div>
+
       {/* Contenido */}
-      <main style={{ flex: 1, overflow: 'auto' }}>
+      <main className="admin-main" style={{ flex: 1, overflow: 'auto', marginLeft: 0 }}>
         <Outlet />
       </main>
     </div>

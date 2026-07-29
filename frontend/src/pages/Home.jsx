@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
 import { destacadosAPI, noticiasAPI } from '../services/api';
-import SocialButtons     from '../components/SocialButtons';
+import Header            from '../components/Header';
 import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
@@ -21,7 +21,6 @@ export default function Home() {
   const { agregar: agregarCarrito, count: cartCount, carrito, quitar: quitarCarrito } = useCarrito();
   const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
   const [panelAbierto, setPanelAbierto] = useState(null);
-  const [drawerAbierto, setDrawerAbierto] = useState(false);
   const [productosDestacados, setProductosDestacados] = useState([]);
   const [lanzamientos, setLanzamientos] = useState([]);
   const [carruselData, setCarruselData] = useState([]);
@@ -127,59 +126,19 @@ export default function Home() {
 
   useEffect(() => { startAuto(); return stopAuto; }, [slides.length]);
 
-  /* ── Scroll header ── */
-  useEffect(() => {
-    function onScroll() {
-      const h = document.getElementById('header');
-      if (h) h.classList.toggle('scrolled', window.scrollY > 10);
-    }
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   /* ── Panel lateral ── */
   const totalCarrito = carrito.reduce((s,i) => s+(i.precio*(i.cantidad||1)), 0);
 
   return (
     <>
-      {/* ── Announcement Bar ── */}
-      <div className="announcement-bar" role="banner" aria-label="Promociones">
-        <div className="announcement-bar__track" aria-hidden="true">
-          <span className="announcement-bar__text">
-            Envío gratuito en pedidos superiores a $150.000 <span>·</span> Fragancias 100% Originales <span>·</span> Más de 500 referencias exclusivas <span>·</span> Atención personalizada <span>·</span> Envío gratuito en pedidos superiores a $150.000 <span>·</span> Fragancias 100% Originales <span>·</span> Más de 500 referencias exclusivas <span>·</span> Atención personalizada <span>·</span>
-          </span>
-        </div>
-      </div>
-
-      {/* ── Header ── */}
-      <header className="header" id="header" role="banner">
-        <a href="/" className="header__logo" aria-label="OrientPerfumes – Inicio">
-          <div className="logo-icon" aria-hidden="true">
-            <img src="/assets/Logo Oriente SIN FONDO (1) (1).png" alt="OrientPerfumes logo" />
-          </div>
-          <div className="logo-text">
-            <div className="logo-text__name">OrientPerfumes</div>
-            <div className="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
-          </div>
-        </a>
-
-<SearchBar />
-
-        <div className="header__actions" role="navigation">
-          <button className="action-btn" id="btn-wishlist" onClick={() => setPanelAbierto(p => p==='wishlist'?null:'wishlist')} aria-label={`Lista de deseos (${wishCount} items)`}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-            <span className="action-btn__badge" aria-hidden="true">{wishCount}</span>
-          </button>
-          <button className="action-btn" id="btn-cart" onClick={() => setPanelAbierto(p => p==='carrito'?null:'carrito')} aria-label={`Carrito (${cartCount} items)`}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>
-          </button>
-          <SocialButtons />
-          <button className="menu-btn" id="menu-toggle" onClick={() => setDrawerAbierto(true)} aria-label="Abrir menú" aria-expanded={drawerAbierto}>
-            <span/><span/><span/>
-          </button>
-        </div>
-      </header>
+      <Header
+        showSearch={true}
+        cartCount={cartCount}
+        wishCount={wishCount}
+        onCartClick={() => setPanelAbierto(p => p === 'carrito' ? null : 'carrito')}
+        onWishlistClick={() => setPanelAbierto(p => p === 'wishlist' ? null : 'wishlist')}
+      />
 
       {/* ── Hero Carrusel ── */}
       <section className="hero" aria-label="Presentación principal">
@@ -429,38 +388,6 @@ export default function Home() {
 
       <Footer />
 
-      {/* ── Drawer ── */}
-      <div className="drawer-overlay" id="drawer-overlay" aria-hidden={!drawerAbierto}
-        onClick={() => setDrawerAbierto(false)}
-        style={{opacity: drawerAbierto?1:0, pointerEvents: drawerAbierto?'all':'none'}}/>
-      <nav className={`drawer${drawerAbierto?' open':''}`} id="drawer" aria-hidden={!drawerAbierto}>
-        <button className="drawer__close" onClick={() => setDrawerAbierto(false)} aria-label="Cerrar menú">✕</button>
-        <div className="drawer__logo" aria-hidden="true">OrientPerfumes</div>
-        <div className="drawer__session">
-          {session || adminSession
-            ? <div className="drawer__session-info">
-                <div className="drawer__session-user">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="17" height="17"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                  <span>{(session||adminSession)?.nombre}</span>
-                </div>
-                <button className="drawer__session-logout" onClick={() => { localStorage.removeItem('op_session'); localStorage.removeItem('op_admin_session'); window.location.reload(); }}>
-                  Cerrar Sesión
-                </button>
-              </div>
-            : <a href="/login" className="drawer__session-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="17" height="17"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                Iniciar Sesión
-              </a>
-          }
-        </div>
-        <div className="drawer__divider" aria-hidden="true"/>
-        <ul className="drawer__nav">
-          {[['#categorias','Fragancias Orientales'],['#categorias','Perfumería Nicho'],['#productos','Productos destacados'],['#productos','Novedades'],['#productos','Ofertas'],['#productos','Exclusivos'],['/noticias','Noticias'],['/contacto','Contacto'],['#','Acerca de Nosotros']].map(([href,label]) => (
-            <li key={label}><a href={href} onClick={() => setDrawerAbierto(false)}>{label}</a></li>
-          ))}
-          {adminSession && <li><a href="/admin" onClick={() => setDrawerAbierto(false)}>Panel Admin</a></li>}
-        </ul>
-      </nav>
 
       {/* ── Paneles laterales ── */}
       {panelAbierto && <div onClick={() => setPanelAbierto(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:999}}/>}

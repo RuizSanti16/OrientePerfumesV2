@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import { useInView }   from '../hooks/useInView';
-import SocialButtons   from '../components/SocialButtons';
+import Header from '../components/Header';
 
 const CATEGORIAS = [
   {
@@ -105,38 +105,7 @@ export default function FAQ() {
   return (
     <div style={{ background:'#0a0a08', minHeight:'100vh', color:'#E8DCC8', fontFamily:'Raleway,sans-serif' }}>
 
-      {/* Header */}
-      <header className="header">
-        <a onClick={() => navigate('/')} className="header__logo" style={{ cursor:'pointer' }}>
-          <div className="logo-icon"><img src="/assets/Logo Oriente SIN FONDO (1) (1).png" alt="Logo" /></div>
-          <div className="logo-text">
-            <div className="logo-text__name">OrientPerfumes</div>
-            <div className="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
-          </div>
-        </a>
-
-        <nav style={{ display:'flex', alignItems:'center', gap:4, marginLeft:32 }}>
-          {[
-            { label:'Inicio',    to:'/'          },
-            { label:'Colección', to:'/coleccion' },
-            { label:'Noticias',  to:'/noticias'  },
-            { label:'Contacto',  to:'/contacto'  },
-          ].map(n => (
-            <a key={n.to} href={n.to}
-              style={{ fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.18em', color:'#9A9180',
-                textDecoration:'none', padding:'6px 12px', borderRadius:4, transition:'color 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.color='#C9A84C'}
-              onMouseLeave={e => e.currentTarget.style.color='#9A9180'}>
-              {n.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="header__actions">
-          <div style={{ marginRight:4 }}><SocialButtons /></div>
-          <BtnVolver onClick={() => navigate('/')} label="INICIO" />
-        </div>
-      </header>
+      <Header />
 
       {/* ── Hero ── */}
       <section ref={refHero} className={`fade-up${visHero ? ' visible' : ''}`}
@@ -155,7 +124,7 @@ export default function FAQ() {
 
       {/* ── Contenido ── */}
       <div ref={refBody} className={`fade-up${visBody ? ' visible' : ''}`}
-        style={{ maxWidth:900, margin:'0 auto', padding:'0 24px 80px', display:'grid', gridTemplateColumns:'200px 1fr', gap:40, alignItems:'start' }}>
+        className="rsp-grid-faq" style={{ maxWidth:900, margin:'0 auto', padding:'0 24px 80px' }}>
 
         {/* Sidebar de categorías */}
         <nav style={{ position:'sticky', top:100 }}>

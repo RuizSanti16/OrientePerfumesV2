@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import { useSettings, getWhatsappUrl } from '../hooks/useSettings';
-import SocialButtons from '../components/SocialButtons';
+import Header from '../components/Header';
 
 /* ── SVG Icons ───────────────────────────────────────────────── */
 function Ic({ d, size = 18, color = 'currentColor', sw = 1.6, fill = 'none' }) {
@@ -117,44 +117,7 @@ export default function Contacto() {
   return (
     <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif' }}>
 
-      {/* Announcement bar */}
-      <div className="announcement-bar">
-        <div className="announcement-bar__track" aria-hidden="true">
-          <span className="announcement-bar__text">
-            Envío gratuito en pedidos superiores a ${(settings.freeShippingMin || 150000).toLocaleString('es-CO')} <span>·</span> Fragancias 100% Originales <span>·</span> Atención personalizada <span>·</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="header">
-        <a onClick={() => navigate('/')} className="header__logo" style={{ cursor: 'pointer' }}>
-          <div className="logo-icon"><img src="/assets/Logo Oriente SIN FONDO (1) (1).png" alt="Logo" /></div>
-          <div className="logo-text">
-            <div className="logo-text__name">OrientPerfumes</div>
-            <div className="logo-text__tagline">Fragancias Orientales · Nicho · Diseñador</div>
-          </div>
-        </a>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
-          {[
-            { label: 'Inicio',    to: '/'          },
-            { label: 'Colección', to: '/coleccion' },
-            { label: 'Noticias',  to: '/noticias'  },
-            { label: 'Contacto',  to: '/contacto'  },
-          ].map(n => (
-            <a key={n.to} href={n.to}
-              style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em', color: n.to === '/contacto' ? '#C9A84C' : '#9A9180', textDecoration: 'none', padding: '6px 12px', borderRadius: 4, transition: 'color 0.2s', borderBottom: n.to === '/contacto' ? '1px solid rgba(201,168,76,0.5)' : '1px solid transparent' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#C9A84C'}
-              onMouseLeave={e => e.currentTarget.style.color = n.to === '/contacto' ? '#C9A84C' : '#9A9180'}>
-              {n.label}
-            </a>
-          ))}
-        </nav>
-        <div className="header__actions">
-          <div style={{ marginRight: 4 }}><SocialButtons /></div>
-          <BtnVolver onClick={() => navigate('/')} label="INICIO" />
-        </div>
-      </header>
+      <Header />
 
       {/* ── Hero ── */}
       <div style={{ position: 'relative', padding: '72px 24px 56px', textAlign: 'center', overflow: 'hidden' }}>
@@ -179,7 +142,7 @@ export default function Contacto() {
       </div>
 
       {/* ── Contenido principal ── */}
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: '1fr 360px', gap: 32, alignItems: 'start' }}>
+      <div className="rsp-grid-sidebar" style={{ maxWidth: 1080, margin: '0 auto', padding: '0 24px 80px' }}>
 
         {/* ════ Formulario ════ */}
         <div style={{ background: '#0f0f0d', border: '1px solid rgba(201,168,76,0.1)', borderRadius: 12, padding: '36px 32px' }}>
