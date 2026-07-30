@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SocialButtons from './SocialButtons';
 import SearchBar from './SearchBar';
 
@@ -19,11 +19,18 @@ export default function Header({
   wishCount    = 0,
   onCartClick,
   onWishlistClick,
-  showSearch   = false,
+  showSearch   = true,
   showAnnouncement = true,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const isHome = location.pathname === '/';
+  const isAdmin = location.pathname.startsWith('/admin');
+  const isLogin = location.pathname === '/login';
+  const showBackBar = !isHome && !isAdmin && !isLogin;
 
   const session = (() => {
     try { return JSON.parse(localStorage.getItem('op_session')); }
@@ -87,6 +94,18 @@ export default function Header({
 
         {/* Acciones */}
         <div className="header__actions" role="navigation">
+          {/* Botón de búsqueda solo en móvil */}
+          <button
+            className="action-btn search-mobile-btn"
+            onClick={() => { setSearchOpen(o => !o); setDrawerOpen(false); }}
+            aria-label="Buscar"
+            aria-expanded={searchOpen}
+          >
+            {searchOpen
+              ? <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="20" height="20" style={{ display: 'block' }}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="20" height="20" style={{ display: 'block' }}><circle cx="11" cy="11" r="8"/><path strokeLinecap="round" d="m21 21-4.35-4.35"/></svg>
+            }
+          </button>
           {onWishlistClick && (
             <button className="action-btn" onClick={onWishlistClick} aria-label={`Lista de deseos (${wishCount} items)`}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
@@ -103,12 +122,44 @@ export default function Header({
               {cartCount > 0 && <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>}
             </button>
           )}
-          <SocialButtons />
+          <div className="header-social">
+            <SocialButtons />
+          </div>
           <button className="menu-btn" onClick={() => setDrawerOpen(true)} aria-label="Abrir menú" aria-expanded={drawerOpen}>
             <span/><span/><span/>
           </button>
         </div>
       </header>
+
+      {/* Barra de volver en páginas internas (solo móvil) */}
+      {showBackBar && (
+        <div className="mobile-back-bar">
+          <button onClick={() => navigate(-1)} className="mobile-back-btn" aria-label="Volver">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" width="14" height="14" style={{ display: 'block', flexShrink: 0 }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            VOLVER
+          </button>
+          <span className="mobile-back-sep" aria-hidden="true"/>
+          <span className="mobile-back-page">{location.pathname.replace('/', '').replace(/-/g, ' ').toUpperCase() || 'INICIO'}</span>
+        </div>
+      )}
+
+      {/* Panel de búsqueda móvil */}
+      {searchOpen && (
+        <div className="mobile-search-panel">
+          <SearchBar />
+          <button
+            onClick={() => setSearchOpen(false)}
+            aria-label="Cerrar búsqueda"
+            style={{ background: 'none', border: 'none', color: '#9A9180', cursor: 'pointer', padding: 6, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" width="20" height="20" style={{ display: 'block' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Drawer overlay */}
       <div

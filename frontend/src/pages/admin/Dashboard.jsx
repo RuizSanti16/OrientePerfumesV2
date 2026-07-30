@@ -260,10 +260,26 @@ export default function Dashboard() {
   );
 
   return (
-    <div style={{ padding: '36px 40px', maxWidth: 1280, margin: '0 auto', color: '#E8DCC8' }}>
+    <div className="admin-dash" style={{ padding: '36px 40px', maxWidth: 1280, margin: '0 auto', color: '#E8DCC8' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-dash           { padding: 20px 16px !important; }
+          .admin-greeting       { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+          .admin-greeting-right { display: none !important; }
+          .admin-greeting h1    { font-size: 26px !important; }
+          .admin-kpi-grid       { grid-template-columns: repeat(2, 1fr) !important; }
+          .admin-access-grid    { grid-template-columns: repeat(3, 1fr) !important; }
+          .admin-charts-grid    { grid-template-columns: 1fr !important; }
+          .admin-tables-grid    { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .admin-dash           { padding: 14px 12px !important; }
+          .admin-access-grid    { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
 
       {/* ── Header ── */}
-      <div style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div className="admin-greeting" style={{ marginBottom: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
             <div style={{ height: 1, width: 24, background: 'rgba(201,168,76,0.4)' }}/>
@@ -277,14 +293,14 @@ export default function Dashboard() {
             {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div className="admin-greeting-right" style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.5)', textTransform: 'uppercase', marginBottom: 4 }}>OrientPerfumes</div>
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 13, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Administración</div>
         </div>
       </div>
 
       {/* ── KPIs principales ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+      <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
         <KpiCard iconEl={ICONS.producto} label="Productos en catálogo" value={productos.length}
           sub={`${productos.length} referencias disponibles`} color="#C9A84C" />
         <KpiCard iconEl={ICONS.cliente} label="Clientes registrados" value={clientes.length}
@@ -297,7 +313,7 @@ export default function Dashboard() {
 
       {/* ── KPIs período ── */}
       {stats?.kpis_periodo && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+        <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
           <KpiCard iconEl={ICONS.ingreso} label="Ingresos este mes"
             value={fmtCompact(parseFloat(stats.kpis_periodo.ingresos_mes_actual || 0))}
             sub={fmt(parseFloat(stats.kpis_periodo.ingresos_mes_actual || 0))}
@@ -324,7 +340,7 @@ export default function Dashboard() {
       {/* ── Accesos rápidos ── */}
       <Panel style={{ marginBottom: 28 }}>
         <SectionTitle>Accesos rápidos</SectionTitle>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+        <div className="admin-access-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
           {ACCESOS.map(a => (
             <button key={a.to} onClick={() => navigate(a.to)}
               style={{
@@ -359,7 +375,7 @@ export default function Dashboard() {
 
       {/* ── Gráficas ── */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
           <Panel>
             <SectionTitle color="#C9A84C">Ingresos por mes</SectionTitle>
             <BarChart data={stats.ventas_por_mes || []} valueKey="ingresos" labelKey="mes_label" color="#C9A84C" height={100}/>
@@ -380,7 +396,7 @@ export default function Dashboard() {
       )}
 
       {/* ── Tablas ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
+      <div className="admin-tables-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 16 }}>
 
         {/* Últimas ventas */}
         <Panel>
@@ -388,7 +404,8 @@ export default function Dashboard() {
           {ultimasVentas.length === 0 ? (
             <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, textAlign: 'center', padding: '24px 0' }}>No hay ventas registradas</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 360 }}>
               <thead>
                 <tr>
                   {['#', 'Cliente', 'Fecha', 'Total'].map(h => (
@@ -407,6 +424,7 @@ export default function Dashboard() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
           {ventas.length > 8 && (
             <button onClick={() => navigate('/admin/ventas')}

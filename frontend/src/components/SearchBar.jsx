@@ -118,7 +118,7 @@ export default function SearchBar() {
   }
 
   return (
-    <div ref={wrapRef} style={{ position: 'relative', flex: 1, maxWidth: 600 }}>
+    <div ref={wrapRef} className="header__search-wrap" style={{ position: 'relative', flex: 1, maxWidth: 600 }}>
 
       {/* Input */}
       <div className="header__search" style={{ position: 'relative' }}>

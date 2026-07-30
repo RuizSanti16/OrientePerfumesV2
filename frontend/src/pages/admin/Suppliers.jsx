@@ -48,8 +48,8 @@ export default function Suppliers() {
       <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar proveedores..."
         style={{ ...inp, maxWidth:280, marginBottom:16 }} />
 
-      <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:8, overflow:'hidden' }}>
-        <table style={{ width:'100%', borderCollapse:'collapse' }}>
+      <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:8, overflowX:'auto' }}>
+        <table style={{ width:'100%', borderCollapse:'collapse', minWidth: 480 }}>
           <thead>
             <tr style={{ borderBottom:'1px solid rgba(201,168,76,0.1)' }}>
               {['ID','Nombre','Contacto','Correo','Teléfono','Acciones'].map(h => (

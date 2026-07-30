@@ -239,8 +239,8 @@ export default function Cupones() {
           </button>
         </div>
       ) : (
-        <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: 10, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: 10, overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 520 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
                 {['CÓDIGO','TIPO','DESCUENTO','MIN. COMPRA','USOS','ESTADO','VENCE',''].map(h => (

@@ -17,8 +17,8 @@ export default function NotFound() {
     <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif', position: 'relative', overflow: 'hidden' }}>
 
       {/* Destellos de fondo */}
-      <div aria-hidden="true" style={{ position: 'absolute', top: '15%', left: '8%',  width: 360, height: 360, background: 'radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div aria-hidden="true" style={{ position: 'absolute', bottom: '18%', right: '6%', width: 440, height: 440, background: 'radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', top: '15%', left: '8%',  width: 'min(360px, 80vw)', height: 'min(360px, 80vw)', background: 'radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', bottom: '18%', right: '6%', width: 'min(440px, 85vw)', height: 'min(440px, 85vw)', background: 'radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       {/* Header */}
       <header className="header">
@@ -32,7 +32,7 @@ export default function NotFound() {
           </div>
         </a>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
+        <nav className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 32 }}>
           {NAV.map(n => (
             <a key={n.to} href={n.to}
               style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.18em', color: '#9A9180', textDecoration: 'none', padding: '6px 12px', borderRadius: 4, transition: 'color 0.2s', borderBottom: '1px solid transparent' }}

@@ -265,10 +265,23 @@ export default function Pedidos() {
   }, {});
 
   return (
-    <div style={{ padding: '36px 40px', maxWidth: 1280, margin: '0 auto', color: '#E8DCC8' }}>
+    <div className="admin-ped-page" style={{ padding: '36px 40px', maxWidth: 1280, margin: '0 auto', color: '#E8DCC8' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-ped-page  { padding: 20px 16px !important; }
+          .admin-ped-head  { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+          .admin-ped-head-right { display: none !important; }
+          .admin-ped-head h1 { font-size: 26px !important; }
+          .admin-ped-kpis  { grid-template-columns: repeat(3, 1fr) !important; }
+          .admin-ped-table { overflow-x: auto !important; }
+        }
+        @media (max-width: 480px) {
+          .admin-ped-kpis  { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
 
       {/* ── Header ── */}
-      <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div className="admin-ped-head" style={{ marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
             <div style={{ height: 1, width: 24, background: 'rgba(201,168,76,0.4)' }}/>
@@ -281,14 +294,14 @@ export default function Pedidos() {
             {pedidos.length} {pedidos.length === 1 ? 'pedido registrado' : 'pedidos registrados'}
           </p>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div className="admin-ped-head-right" style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.5)', textTransform: 'uppercase', marginBottom: 4 }}>OrientPerfumes</div>
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 13, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Administración</div>
         </div>
       </div>
 
       {/* ── KPIs ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 28 }}>
+      <div className="admin-ped-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 28 }}>
         {Object.entries(ESTADOS).map(([key, cfg]) => (
           <KpiCard
             key={key}
@@ -343,10 +356,10 @@ export default function Pedidos() {
       </div>
 
       {/* ── Tabla ── */}
-      <div style={{
+      <div className="admin-ped-table" style={{
         background: 'linear-gradient(145deg,#161614,#111110)',
         border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 12, overflow: 'hidden',
+        borderRadius: 12, overflowX: 'auto',
       }}>
         {loading ? (
           <div style={{ padding: '60px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>

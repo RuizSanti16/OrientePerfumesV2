@@ -1809,9 +1809,18 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* ── 768px: tablet portrait ──────────────────────────────── */
 @media (max-width: 768px) {
   /* Header */
-  .header            { padding: 0 16px; }
+  .header            { padding: 0 16px; gap: 14px; }
   .header__search    { display: none; }
+  .header__search-wrap { display: none; }
   .logo-text__tagline{ display: none; }
+  .header-social     { display: none; }
+  .logo-icon         { width: 40px; height: 40px; }
+  .logo-icon img     { width: 40px; height: 40px; }
+  .header__logo      { gap: 8px; }
+  .logo-text__name   { font-size: 13px; letter-spacing: 0.08em; }
+  .action-btn        { width: 36px; height: 36px; }
+  .menu-btn          { width: 36px; height: 36px; }
+  .header__actions   { gap: 5px; }
 
   /* Hero */
   .hero__title       { font-size: clamp(36px, 8vw, 64px); }
@@ -1851,7 +1860,9 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 @media (max-width: 540px) {
   .header            { padding: 0 14px; }
   .header__search    { display: none; }
+  .header__search-wrap { display: none; }
   .logo-text__tagline{ display: none; }
+  .header-social     { display: none; }
 
   .categories-grid   { grid-template-columns: repeat(2, 1fr); gap: 1px; }
   .products-grid     { grid-template-columns: 1fr; gap: 14px; }
@@ -1922,4 +1933,87 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
   .show-mobile { display: block; }
+}
+
+/* ── Barra de volver en páginas internas ─────────────────── */
+.mobile-back-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 32px;
+  background: var(--dark);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+  position: sticky;
+  top: 80px;
+  z-index: 98;
+}
+.mobile-back-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.mobile-back-btn:hover { opacity: 0.7; }
+.mobile-back-sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(201,168,76,0.25);
+  flex-shrink: 0;
+}
+.mobile-back-page {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: rgba(245,240,232,0.45);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .mobile-back-bar { padding: 7px 16px; }
+}
+
+/* ── Botón de búsqueda móvil ─────────────────────────────── */
+.search-mobile-btn { display: none; }
+
+@media (max-width: 768px) {
+  .search-mobile-btn { display: flex; }
+}
+
+/* ── Panel de búsqueda móvil ─────────────────────────────── */
+.mobile-search-panel {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-search-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #111;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 10px 16px;
+    position: sticky;
+    top: 80px;
+    z-index: 999;
+  }
+
+  /* Mostrar el wrapper y el input dentro del panel */
+  .mobile-search-panel .header__search-wrap { display: block !important; }
+  .mobile-search-panel .header__search { display: block !important; }
+}
+
+/* ── Reseñas de producto: colapsar a 1 col en móvil ─── */
+@media (max-width: 768px) {
+  .prod-reviews-grid { grid-template-columns: 1fr !important; }
 }

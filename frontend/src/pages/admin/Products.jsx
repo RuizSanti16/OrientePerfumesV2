@@ -109,8 +109,8 @@ export default function Products() {
       <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar productos..."
         style={{ ...inputStyle, marginBottom: '16px', maxWidth: '300px' }} />
 
-      <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '8px', overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
               {['Img','ID','Nombre','Marca','Categoría','Precio','Acciones'].map(h => (

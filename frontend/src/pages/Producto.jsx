@@ -377,7 +377,7 @@ export default function Producto() {
 
         {/* ── Calificaciones ── */}
         <Section titulo="Reseñas y Calificaciones" eyebrow="Opiniones">
-          <div style={{ display:'grid', gridTemplateColumns: producto.ratings?.length > 0 ? '1fr 1fr' : '1fr', gap:40, maxWidth: producto.ratings?.length > 0 ? '100%' : 520 }}>
+          <div className="prod-reviews-grid" style={{ display:'grid', gridTemplateColumns: producto.ratings?.length > 0 ? '1fr 1fr' : '1fr', gap:40, maxWidth: producto.ratings?.length > 0 ? '100%' : 520 }}>
 
             {/* Formulario */}
             <div>

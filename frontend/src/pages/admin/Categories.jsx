@@ -37,8 +37,8 @@ export default function Categories() {
         <button onClick={abrirNuevo} style={{ background: '#C9A84C', border: 'none', borderRadius: '6px', padding: '8px 16px', color: '#0a0a08', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: '11px' }}>+ Nueva Categoría</button>
       </div>
 
-      <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.1)', borderRadius: '8px', overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 380 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
               {['ID','Nombre','Descripción','Acciones'].map(h => (

@@ -152,7 +152,6 @@ export default function Comparador() {
     <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif' }}>
 
       <Header />
-      </header>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 24px 80px' }}>
 
@@ -189,8 +188,9 @@ export default function Comparador() {
 
         {!loading && productos.length > 0 && (
           <>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {/* Cabecera de productos */}
-            <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginBottom: 2 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginBottom: 2, minWidth: `${200 + productos.length * 220}px` }}>
               <div /> {/* espacio de etiquetas */}
               {productos.map(p => (
                 <div key={p.id_producto}
@@ -218,7 +218,7 @@ export default function Comparador() {
 
             {/* Filas de comparación */}
             {filas.map((fila, fi) => (
-              <div key={fi} style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginBottom: 2 }}>
+              <div key={fi} style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginBottom: 2, minWidth: `${200 + productos.length * 220}px` }}>
                 {/* Etiqueta */}
                 <div style={{ background: '#0d0d0b', border: '1px solid rgba(201,168,76,0.08)', display: 'flex', alignItems: 'center', padding: '16px 20px' }}>
                   <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.15em', color: '#9A9180' }}>{fila.etiqueta}</span>
@@ -234,7 +234,7 @@ export default function Comparador() {
             ))}
 
             {/* Fila de acciones */}
-            <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginTop: 2 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `200px repeat(${productos.length}, 1fr)`, gap: 2, marginTop: 2, minWidth: `${200 + productos.length * 220}px` }}>
               <div style={{ background: '#0d0d0b', border: '1px solid rgba(201,168,76,0.08)', padding: '16px 20px', display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.15em', color: '#9A9180' }}>ACCIÓN</span>
               </div>
@@ -249,6 +249,8 @@ export default function Comparador() {
                 </div>
               ))}
             </div>
+
+          </div>{/* /overflow-x wrapper */}
 
             {/* Volver a comparar */}
             <div style={{ textAlign: 'center', marginTop: 40 }}>

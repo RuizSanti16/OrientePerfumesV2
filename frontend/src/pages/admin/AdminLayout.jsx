@@ -91,9 +91,13 @@ export default function AdminLayout() {
           }
           .admin-topbar {
             display: flex !important;
+            position: fixed !important;
+            top: 0; left: 0; right: 0;
+            z-index: 250;
           }
           .admin-main {
             margin-left: 0 !important;
+            padding-top: 52px !important;
           }
         }
         .admin-sidebar-overlay {
@@ -104,7 +108,6 @@ export default function AdminLayout() {
         }
         .admin-topbar {
           display: none;
-          position: sticky; top: 0; z-index: 200;
           background: #111;
           border-bottom: 1px solid rgba(201,168,76,0.1);
           padding: 12px 16px;
