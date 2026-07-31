@@ -42,7 +42,14 @@ restos de un intento anterior.
 **New → GitHub Repo →** el repositorio, y en *Settings* del servicio:
 
 - **Root Directory**: vacío (la raíz)
-- **Dockerfile Path**: `Dockerfile`
+- **Builder**: `Dockerfile` — **no dejarlo en Nixpacks**
+
+> ⚠️ Si Railway usa su autodetección (Nixpacks) en lugar del
+> Dockerfile, el contenedor arranca y muere en bucle con
+> `AH00534: apache2: Configuration error: More than one MPM loaded`.
+> Eso ocurre porque Nixpacks monta su propio Apache además del de la
+> imagen. El `railway.json` de la raíz ya fuerza el builder correcto,
+> pero conviene verificar el ajuste en el panel.
 
 ### Variables de entorno
 
@@ -78,7 +85,10 @@ Esa URL es la de tu API.
 **New → GitHub Repo →** el mismo repositorio, y en *Settings*:
 
 - **Root Directory**: `frontend`
-- **Dockerfile Path**: `frontend/Dockerfile`
+- **Builder**: `Dockerfile` — igual que el backend, no Nixpacks
+
+Con *Root Directory* en `frontend`, Railway toma `frontend/railway.json`
+y `frontend/Dockerfile`.
 
 ### Variable de compilación
 
