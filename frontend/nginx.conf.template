@@ -1,0 +1,27 @@
+# Plantilla de nginx para el frontend.
+#
+# El entrypoint de la imagen nginx procesa los archivos de
+# /etc/nginx/templates con envsubst y sustituye unicamente las
+# variables de entorno definidas. Por eso ${PORT} se resuelve al
+# arrancar y $uri se conserva tal cual.
+
+server {
+    listen       ${PORT};
+    server_name  _;
+    root         /usr/share/nginx/html;
+    index        index.html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # SPA con React Router: cualquier ruta desconocida devuelve
+    # index.html. Sin esto, recargar en /coleccion daria un 404.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+}

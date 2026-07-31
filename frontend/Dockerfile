@@ -30,28 +30,12 @@ FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# La app es una SPA con React Router: cualquier ruta desconocida debe
-# devolver index.html o al recargar en /coleccion nginx daria un 404.
-# El puerto lo inyecta Railway en $PORT, asi que la plantilla se
-# resuelve al arrancar.
-RUN printf 'server {\n\
-    listen       ${PORT};\n\
-    server_name  _;\n\
-    root         /usr/share/nginx/html;\n\
-    index        index.html;\n\
-\n\
-    gzip on;\n\
-    gzip_types text/css application/javascript image/svg+xml;\n\
-\n\
-    location / {\n\
-        try_files $uri $uri/ /index.html;\n\
-    }\n\
-\n\
-    location ~* \\.(js|css|png|jpg|jpeg|gif|svg|woff2?)$ {\n\
-        expires 30d;\n\
-        add_header Cache-Control "public, immutable";\n\
-    }\n\
-}\n' > /etc/nginx/templates/default.conf.template
+# La configuracion va en un archivo aparte en lugar de generarse con
+# printf: el escapado de $uri, \. y las comillas dentro de un RUN es
+# muy fragil y rompia el build.
+# El entrypoint de nginx resuelve ${PORT} con envsubst al arrancar,
+# que es como Railway inyecta el puerto.
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 ENV PORT=80
 EXPOSE 80
