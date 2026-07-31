@@ -8,8 +8,7 @@
    DELETE ?id=X           → eliminar (admin)
 ============================================================= */
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+require_once __DIR__ . '/../configuracion/cors.php';
 require_once '../configuracion/Conexion.php';
 require_once '../configuracion/auth.php';
 

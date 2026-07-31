@@ -3,8 +3,7 @@
    api/destacados.php — Productos destacados con badge y precios
 ============================================================= */
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
+require_once __DIR__ . '/../configuracion/cors.php';
 
 require_once '../configuracion/Conexion.php';
 require_once '../configuracion/auth.php';

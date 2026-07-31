@@ -1,4 +1,8 @@
-const API_BASE = '/api';
+/* En desarrollo se usa '/api', que el proxy de Vite redirige al backend
+   local. En produccion el frontend y la API viven en dominios distintos,
+   asi que la URL se inyecta al compilar con VITE_API_URL
+   (ej: https://api.orientperfumes.com). Ver .env.example. */
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 function getAdminToken() {
   try {

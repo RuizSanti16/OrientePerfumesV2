@@ -1,51 +1,67 @@
 <?php
-require_once "Conexion.php";
+/* =============================================================
+   crear-admin.php — crea un administrador del panel.
 
-$nombre   = 'Administrador';
-$usuario  = 'admin';
-$password = 'admin123';
-$correo   = 'admin@orientperfumes.com';
-$telefono = 0;
+   Solo se ejecuta desde la línea de comandos. La versión anterior
+   era accesible por navegador y creaba un usuario "admin" con la
+   contraseña "admin123" mostrándola en pantalla: cualquiera que
+   abriera la URL obtenía acceso total al panel.
 
-echo "<!DOCTYPE html><html><head><meta charset='UTF-8'>
-<style>body{font-family:Arial,sans-serif;max-width:520px;margin:60px auto;padding:20px;}
-.ok{color:#4caf50;font-size:22px;font-weight:bold;}
-.err{color:#f44336;font-size:18px;}
-.warn{color:#ff9800;margin-top:16px;padding:12px;background:#fff3e0;border-left:4px solid #ff9800;}
-table{width:100%;border-collapse:collapse;margin-top:16px;}
-th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;}
-th{background:#f5f5f5;}
-</style></head><body>";
+   USO:
+     php backend/configuracion/crear-admin.php <usuario> <correo> <contrasena>
+
+   Ejemplo:
+     php backend/configuracion/crear-admin.php santiago s@correo.com "MiClave.Segura1"
+============================================================= */
+
+if (php_sapi_name() !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
+require_once __DIR__ . "/Conexion.php";
+
+$usuarioNuevo = $argv[1] ?? null;
+$correo       = $argv[2] ?? null;
+$clave        = $argv[3] ?? null;
+
+if (!$usuarioNuevo || !$correo || !$clave) {
+    fwrite(STDERR, "Uso: php crear-admin.php <usuario> <correo> <contrasena>\n");
+    exit(1);
+}
+
+if (strlen($clave) < 10) {
+    fwrite(STDERR, "Error: la contrasena debe tener al menos 10 caracteres.\n");
+    exit(1);
+}
+
+if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    fwrite(STDERR, "Error: el correo no es valido.\n");
+    exit(1);
+}
 
 try {
     $check = $pdo->prepare("SELECT id_administrador FROM tbl_administrador WHERE usuario = :u LIMIT 1");
-    $check->execute([':u' => $usuario]);
+    $check->execute([':u' => $usuarioNuevo]);
 
     if ($check->fetch()) {
-        echo "<p class='err'>El usuario <strong>$usuario</strong> ya existe.</p>";
-        echo "<p>Ejecuta primero en phpMyAdmin:<br><code>DELETE FROM tbl_administrador WHERE usuario = 'admin';</code></p>";
-    } else {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO tbl_administrador (nombre, usuario, contrasena, correo, telefono) VALUES (:nombre, :usuario, :contrasena, :correo, :telefono)");
-        $stmt->execute([
-            ':nombre'     => $nombre,
-            ':usuario'    => $usuario,
-            ':contrasena' => $hash,
-            ':correo'     => $correo,
-            ':telefono'   => $telefono
-        ]);
-
-        echo "<p class='ok'>✅ Administrador creado</p>";
-        echo "<table>
-            <tr><th>Usuario</th><td><strong>$usuario</strong></td></tr>
-            <tr><th>Contraseña</th><td><strong>$password</strong></td></tr>
-            <tr><th>Correo</th><td>$correo</td></tr>
-        </table>";
-        echo "<div class='warn'>⚠️ Elimina este archivo después de usarlo.</div>";
+        fwrite(STDERR, "Error: el usuario '$usuarioNuevo' ya existe.\n");
+        exit(1);
     }
+
+    $stmt = $pdo->prepare(
+        "INSERT INTO tbl_administrador (nombre, usuario, contrasena, correo, telefono)
+         VALUES (:nombre, :usuario, :contrasena, :correo, 0)"
+    );
+    $stmt->execute([
+        ':nombre'     => $usuarioNuevo,
+        ':usuario'    => $usuarioNuevo,
+        ':contrasena' => password_hash($clave, PASSWORD_DEFAULT),
+        ':correo'     => $correo,
+    ]);
+
+    echo "Administrador '$usuarioNuevo' creado correctamente.\n";
 } catch (PDOException $e) {
-    echo "<p class='err'>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+    fwrite(STDERR, "Error de base de datos: " . $e->getMessage() . "\n");
+    exit(1);
 }
-require_once "CerrarConexion.php";
-echo "</body></html>";
-?>

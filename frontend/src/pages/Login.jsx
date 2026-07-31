@@ -206,10 +206,25 @@ export default function Login() {
         @keyframes fadeInUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         @keyframes blink       { 0%,100% { opacity:1; } 50% { opacity:0; } }
 
+        /* style.css define un .btn-primary global (el CTA del hero) que en
+           móvil lleva max-width: 280px. Como el login reutiliza esa clase,
+           el botón quedaba a 280px mientras los inputs medían el ancho
+           completo. Se anula solo dentro del panel. */
+        .panel-form .btn-primary { max-width: none; }
+
         @media (max-width: 767px) {
           .auth-wrapper { flex-direction: column; height: auto; min-height: 100vh; }
           .panel-brand  { display: none; }
-          .panel-form   { width: 100%; min-width: unset; padding: 32px 24px 40px; overflow-y: visible; }
+          /* flex: 1 hace que el panel cubra todo el alto; sin esto el
+             fondo terminaba donde acaba el formulario y debajo quedaba
+             una franja negra del body. */
+          .panel-form   {
+            width: 100%; min-width: unset;
+            padding: 32px 24px 40px;
+            overflow-y: visible;
+            flex: 1;
+            border-right: none;
+          }
         }
         @media (min-width: 768px) and (max-width: 1024px) {
           .panel-form { width: 45%; }
