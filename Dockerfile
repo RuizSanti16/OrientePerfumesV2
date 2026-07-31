@@ -9,10 +9,12 @@
 FROM php:8.2-apache
 
 # pdo_mysql para la base de datos.
-# fileinfo lo usan subir_imagen.php y subir_video.php para validar el
-# tipo real del archivo (finfo_open) en lugar de fiarse de la extension.
-RUN docker-php-ext-install pdo pdo_mysql \
-    && docker-php-ext-enable fileinfo
+#
+# fileinfo NO se instala aqui: viene compilada de serie en las imagenes
+# oficiales de PHP, asi que no existe ningun fileinfo.so que habilitar y
+# `docker-php-ext-enable fileinfo` aborta el build. La usan
+# subir_imagen.php y subir_video.php (finfo_open) y ya esta disponible.
+RUN docker-php-ext-install pdo_mysql
 
 # El .htaccess de uploads bloquea la ejecucion de scripts; sin
 # AllowOverride las reglas se ignorarian silenciosamente.

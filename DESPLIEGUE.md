@@ -54,8 +54,13 @@ restos de un intento anterior.
 | `DB_USER` | `${{MySQL.MYSQLUSER}}` |
 | `DB_PASS` | `${{MySQL.MYSQLPASSWORD}}` |
 | `CORS_ORIGINS` | la URL del frontend, p. ej. `https://web-production-xxxx.up.railway.app` |
-| `UPLOADS_BASE_URL` | `/uploads` |
+| `UPLOADS_BASE_URL` | `https://<url-del-backend>.up.railway.app/uploads` |
 | `APP_DEBUG` | `0` |
+
+`UPLOADS_BASE_URL` tiene que ser una **URL absoluta al backend**. El
+frontend pinta las imágenes con `<img src={producto.imagen}>`; si el
+valor fuese la ruta relativa `/uploads/...`, el navegador la resolvería
+contra el dominio del *frontend*, donde no hay imágenes, y daría 404.
 
 La sintaxis `${{MySQL.VARIABLE}}` es de Railway y enlaza el servicio de
 base de datos sin copiar credenciales a mano.
@@ -80,8 +85,13 @@ Esa URL es la de tu API.
 En *Settings → Build*, añade el **build arg**:
 
 ```
-VITE_API_URL = https://<url-del-backend>.up.railway.app
+VITE_API_URL = https://<url-del-backend>.up.railway.app/api
 ```
+
+⚠️ Fíjate en el **`/api` final**. El contenedor copia `backend/` a la
+raíz del servidor, así que los endpoints quedan en `/api/productos.php`.
+El código construye la URL como `${VITE_API_URL}/productos.php`: sin ese
+sufijo apuntaría a la raíz y todas las llamadas darían 404.
 
 ⚠️ Tiene que ser un **build arg**, no una variable de entorno normal.
 Vite sustituye `import.meta.env.VITE_API_URL` al compilar; si la
