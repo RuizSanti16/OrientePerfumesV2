@@ -1,0 +1,16 @@
+# El contenedor solo necesita backend/: todo lo demas engorda la imagen.
+frontend/
+database/
+.git/
+.gitignore
+.claude/
+*.md
+
+# Nunca copiar credenciales reales al contenedor: se inyectan como
+# variables de entorno en el panel del hosting.
+backend/.env
+.env
+
+# Las subidas son volatiles y se regeneran en tiempo de ejecucion.
+backend/uploads/*
+!backend/uploads/.htaccess

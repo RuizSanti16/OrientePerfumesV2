@@ -7,7 +7,6 @@
 
 header('Content-Type: application/json');
 require_once __DIR__ . '/../configuracion/cors.php';
-header('Access-Control-Allow-Headers: Authorization, Content-Type');
 
 require_once '../configuracion/Conexion.php';
 require_once '../configuracion/auth.php';

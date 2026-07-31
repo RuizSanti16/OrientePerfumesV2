@@ -6,7 +6,6 @@
 ============================================================= */
 header('Content-Type: application/json');
 require_once __DIR__ . '/../configuracion/cors.php';
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -104,5 +103,9 @@ if (!move_uploaded_file($file['tmp_name'], $destino)) {
     exit;
 }
 
-$url = '/OrientPerfumesV2/backend/uploads/' . $filename;
+/* La ruta publica depende de donde este montado el backend: en XAMPP
+   cuelga de /OrientPerfumesV2/, pero en un contenedor o subdominio la
+   raiz es otra. Se configura con UPLOADS_BASE_URL. */
+$baseUploads = getenv('UPLOADS_BASE_URL') ?: '/OrientPerfumesV2/backend/uploads';
+$url = rtrim($baseUploads, '/') . '/' . $filename;
 echo json_encode(['ok' => true, 'url' => $url, 'nombre' => $file['name']]);
