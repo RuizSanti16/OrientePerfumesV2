@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { inventarioAPI, productosAPI } from '../../services/api';
+import { exportarPDF, exportarExcel } from '../../utils/exportar';
+import ExportarBotones from '../../components/admin/ExportarBotones';
 
 /* ── SVG Icons ───────────────────────────────────────────────── */
 function Ico({ d, size = 16, color = 'currentColor', sw = 1.7 }) {
@@ -162,11 +164,30 @@ export default function Inventory() {
     <div style={{ padding: 32, color: '#E8DCC8', maxWidth: 1100, margin: '0 auto' }}>
 
       {/* Cabecera */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, gap: 12, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 22, color: '#C9A84C', margin: '0 0 4px' }}>Inventario</h1>
           <p style={{ color: '#9A9180', fontSize: 13, margin: 0 }}>{merged.length} productos en total</p>
         </div>
+        <ExportarBotones disabled={lista.length === 0}
+          onPDF={() => exportarPDF({
+            titulo: 'Reporte de Inventario',
+            subtitulo: `${lista.length} productos · En stock: ${cnt.ok} · Stock bajo: ${cnt.bajo} · Sin stock: ${cnt.sin}`,
+            archivo: 'inventario',
+            secciones: [{
+              columnas: ['Producto', 'Marca', 'Stock', 'Estado', 'Ubicación'],
+              filas: lista.map(i => [i.nombre || '—', i.marca || '—', i.stock, stockStatus(i.stock).label, i.ubicacion || '—']),
+            }],
+          })}
+          onExcel={() => exportarExcel({
+            archivo: 'inventario',
+            hojas: [{
+              nombre: 'Inventario',
+              columnas: ['Producto', 'Marca', 'Stock', 'Estado', 'Ubicación'],
+              filas: lista.map(i => [i.nombre || '—', i.marca || '—', i.stock, stockStatus(i.stock).label, i.ubicacion || '—']),
+            }],
+          })}
+        />
       </div>
 
       {/* KPI chips */}

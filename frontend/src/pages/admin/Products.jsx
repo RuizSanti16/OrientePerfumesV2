@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productosAPI, marcasAPI, categoriasAPI, subirImagen } from '../../services/api';
+import { exportarPDF, exportarExcel } from '../../utils/exportar';
+import ExportarBotones from '../../components/admin/ExportarBotones';
 
 export default function Products() {
   const [productos,   setProductos]   = useState([]);
@@ -81,14 +83,39 @@ export default function Products() {
     !busqueda || (p.nombre || '').toLowerCase().includes(busqueda.toLowerCase()) || (p.marca || '').toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  /* ── Exportar ── */
+  const fmtCop = v => '$ ' + Number(v || 0).toLocaleString('es-CO');
+  const colsExport  = ['ID', 'Nombre', 'Marca', 'Categoría', 'Precio'];
+  const filasExport = filtrados.map(p => [
+    p.id_producto, p.nombre || '—', p.marca || '—', p.nombre_categoria || 'Sin categoría', fmtCop(p.precio),
+  ]);
+
+  function productosPDF() {
+    exportarPDF({
+      titulo: 'Catálogo de Productos',
+      subtitulo: `${filtrados.length} referencias`,
+      archivo: 'productos',
+      secciones: [{ columnas: colsExport, filas: filasExport }],
+    });
+  }
+  function productosExcel() {
+    exportarExcel({
+      archivo: 'productos',
+      hojas: [{ nombre: 'Productos', columnas: colsExport, filas: filasExport }],
+    });
+  }
+
   return (
     <div style={{ padding: '32px', color: '#E8DCC8' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: '22px', color: '#C9A84C', margin: '0 0 4px', letterSpacing: '0.05em' }}>Productos</h1>
           <p style={{ color: '#9A9180', fontSize: '13px', margin: 0 }}>Gestiona el catálogo de fragancias</p>
         </div>
-        <button onClick={abrirNuevo} style={btnGold}>+ Nuevo Producto</button>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <ExportarBotones onPDF={productosPDF} onExcel={productosExcel} disabled={filtrados.length === 0}/>
+          <button onClick={abrirNuevo} style={btnGold}>+ Nuevo Producto</button>
+        </div>
       </div>
 
       {/* Alerta: productos sin categoría */}

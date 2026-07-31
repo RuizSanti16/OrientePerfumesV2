@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { pedidosAPI } from '../../services/api';
+import { exportarPDF, exportarExcel } from '../../utils/exportar';
+import ExportarBotones from '../../components/admin/ExportarBotones';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 function fmt(n) {
@@ -264,6 +266,46 @@ export default function Pedidos() {
     return acc;
   }, {});
 
+  /* ── Exportar ── */
+  const filtroLabel = filtroEstado === 'todos' ? 'Todos los estados' : (ESTADOS[filtroEstado]?.label || filtroEstado);
+  const filasExport = pedidosFiltrados.map(p => [
+    p.codigo_seguimiento || '—',
+    p.nombre || '—',
+    p.correo || '—',
+    p.telefono || '—',
+    p.ciudad || '—',
+    fmtFechaCorta(p.fecha_pedido),
+    ESTADOS[p.estado]?.label || p.estado,
+    fmt(parseFloat(p.total || 0)),
+  ]);
+  const colsExport = ['Código', 'Cliente', 'Correo', 'Teléfono', 'Ciudad', 'Fecha', 'Estado', 'Total'];
+
+  function pedidosPDF() {
+    exportarPDF({
+      titulo: 'Reporte de Pedidos',
+      subtitulo: `Filtro: ${filtroLabel} · ${pedidosFiltrados.length} pedidos`,
+      archivo: 'pedidos',
+      secciones: [
+        {
+          titulo: 'Resumen por estado',
+          columnas: ['Estado', 'Cantidad'],
+          filas: Object.entries(ESTADOS).map(([k, v]) => [v.label, counts[k] || 0]),
+        },
+        { titulo: 'Listado de pedidos', columnas: colsExport, filas: filasExport },
+      ],
+    });
+  }
+
+  function pedidosExcel() {
+    exportarExcel({
+      archivo: 'pedidos',
+      hojas: [
+        { nombre: 'Pedidos', columnas: colsExport, filas: filasExport },
+        { nombre: 'Resumen', columnas: ['Estado', 'Cantidad'], filas: Object.entries(ESTADOS).map(([k, v]) => [v.label, counts[k] || 0]) },
+      ],
+    });
+  }
+
   return (
     <div className="admin-ped-page" style={{ padding: '36px 40px', maxWidth: 1280, margin: '0 auto', color: '#E8DCC8' }}>
       <style>{`
@@ -298,6 +340,12 @@ export default function Pedidos() {
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.5)', textTransform: 'uppercase', marginBottom: 4 }}>OrientPerfumes</div>
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 13, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Administración</div>
         </div>
+      </div>
+
+      {/* ── Exportar ── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, marginTop: -16, marginBottom: 22 }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: 8.5, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Exportar</span>
+        <ExportarBotones onPDF={pedidosPDF} onExcel={pedidosExcel} disabled={loading || pedidosFiltrados.length === 0}/>
       </div>
 
       {/* ── KPIs ── */}

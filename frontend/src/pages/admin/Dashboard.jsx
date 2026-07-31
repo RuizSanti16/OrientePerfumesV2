@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productosAPI, clientesAPI, ventasAPI, inventarioAPI, estadisticasAPI } from '../../services/api';
+import { exportarPDF, exportarExcel } from '../../utils/exportar';
+import ExportarBotones from '../../components/admin/ExportarBotones';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 function fmt(n) {
@@ -251,6 +253,61 @@ export default function Dashboard() {
     { label: 'Ajustes',     to: '/admin/ajustes',     iconEl: ICONS.ajustes,    color: '#E8A94C' },
   ];
 
+  /* ── Exportar reporte general ── */
+  function datosReporte() {
+    const fmtF = f => f ? new Date(f).toLocaleDateString('es-CO') : '—';
+    return {
+      resumen: [
+        ['Productos en catálogo', productos.length],
+        ['Clientes registrados',  clientes.length],
+        ['Órdenes totales',       ventas.length],
+        ['Ingresos totales',      fmt(totalIngresos)],
+        ...(stats?.kpis_periodo ? [
+          ['Ingresos este mes', fmt(parseFloat(stats.kpis_periodo.ingresos_mes_actual || 0))],
+          ['Ventas este mes',   parseInt(stats.kpis_periodo.ventas_mes_actual || 0)],
+        ] : []),
+        ...(stats?.pedidos_pendientes !== undefined ? [['Pedidos pendientes', stats.pedidos_pendientes]] : []),
+        ...(stats?.stock_bajo_count  !== undefined ? [['Productos con stock bajo', stats.stock_bajo_count]] : []),
+      ],
+      porMes: (stats?.ventas_por_mes || []).map(m => [m.mes_label, parseInt(m.cantidad || 0), fmt(parseFloat(m.ingresos || 0))]),
+      masVendidos: (stats?.productos_mas_vendidos || []).map(p => [p.nombre, parseInt(p.total_vendido || 0)]),
+      ventasFilas: ventas.map(v => [`#${v.id_venta}`, v.nombre_cliente || '—', fmtF(v.fecha), fmt(parseFloat(v.total || 0))]),
+      inventarioFilas: inventario.map(i => [i.nombre_producto || '—', i.marca || '—', parseInt(i.stock || 0)]),
+      clientesFilas: clientes.map(c => [c.id_cliente, c.nombre || '—', c.correo || '—', c.telefono || '—']),
+    };
+  }
+
+  function reportePDF() {
+    const d = datosReporte();
+    exportarPDF({
+      titulo: 'Reporte General',
+      subtitulo: 'Resumen de ventas, inventario y clientes',
+      archivo: 'reporte_general',
+      secciones: [
+        { titulo: 'Resumen',                columnas: ['Indicador', 'Valor'],                    filas: d.resumen },
+        { titulo: 'Ventas por mes',         columnas: ['Mes', 'Pedidos', 'Ingresos'],            filas: d.porMes },
+        { titulo: 'Productos más vendidos', columnas: ['Producto', 'Unidades vendidas'],         filas: d.masVendidos },
+        { titulo: 'Historial de ventas',    columnas: ['#', 'Cliente', 'Fecha', 'Total'],        filas: d.ventasFilas },
+        { titulo: 'Inventario',             columnas: ['Producto', 'Marca', 'Stock'],            filas: d.inventarioFilas },
+      ],
+    });
+  }
+
+  function reporteExcel() {
+    const d = datosReporte();
+    exportarExcel({
+      archivo: 'reporte_general',
+      hojas: [
+        { nombre: 'Resumen',        columnas: ['Indicador', 'Valor'],             filas: d.resumen },
+        { nombre: 'Ventas por mes', columnas: ['Mes', 'Pedidos', 'Ingresos'],     filas: d.porMes },
+        { nombre: 'Más vendidos',   columnas: ['Producto', 'Unidades vendidas'],  filas: d.masVendidos },
+        { nombre: 'Ventas',         columnas: ['#', 'Cliente', 'Fecha', 'Total'], filas: d.ventasFilas },
+        { nombre: 'Inventario',     columnas: ['Producto', 'Marca', 'Stock'],     filas: d.inventarioFilas },
+        { nombre: 'Clientes',       columnas: ['ID', 'Nombre', 'Correo', 'Teléfono'], filas: d.clientesFilas },
+      ],
+    });
+  }
+
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 16 }}>
       <div style={{ width: 32, height: 32, border: '2px solid rgba(201,168,76,0.15)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
@@ -297,6 +354,12 @@ export default function Dashboard() {
           <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.5)', textTransform: 'uppercase', marginBottom: 4 }}>OrientPerfumes</div>
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 13, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Administración</div>
         </div>
+      </div>
+
+      {/* ── Exportar reporte general ── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, marginTop: -20, marginBottom: 24 }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: 8.5, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>Descargar reporte</span>
+        <ExportarBotones onPDF={reportePDF} onExcel={reporteExcel}/>
       </div>
 
       {/* ── KPIs principales ── */}

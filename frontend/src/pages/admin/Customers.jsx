@@ -1,5 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { clientesAPI } from '../../services/api';
+import { exportarPDF, exportarExcel } from '../../utils/exportar';
+import ExportarBotones from '../../components/admin/ExportarBotones';
 
 export default function Customers() {
   const [items,    setItems]    = useState([]);
@@ -38,12 +40,33 @@ export default function Customers() {
 
   return (
     <div style={{ padding:32, color:'#E8DCC8' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, gap:12, flexWrap:'wrap' }}>
         <div>
           <h1 style={{ fontFamily:'Cinzel, serif', fontSize:22, color:'#C9A84C', margin:'0 0 4px' }}>Clientes</h1>
           <p style={{ color:'#9A9180', fontSize:13, margin:0 }}>{items.length} clientes registrados</p>
         </div>
-        <button onClick={abrirNuevo} style={btnGold}>+ Nuevo Cliente</button>
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
+          <ExportarBotones disabled={filtrados.length === 0}
+            onPDF={() => exportarPDF({
+              titulo: 'Reporte de Clientes',
+              subtitulo: `${filtrados.length} clientes registrados`,
+              archivo: 'clientes',
+              secciones: [{
+                columnas: ['ID', 'Nombre', 'Usuario', 'Correo', 'Teléfono'],
+                filas: filtrados.map(c => [c.id_cliente, c.nombre || '—', c.usuario || '—', c.correo || '—', c.telefono || '—']),
+              }],
+            })}
+            onExcel={() => exportarExcel({
+              archivo: 'clientes',
+              hojas: [{
+                nombre: 'Clientes',
+                columnas: ['ID', 'Nombre', 'Usuario', 'Correo', 'Teléfono'],
+                filas: filtrados.map(c => [c.id_cliente, c.nombre || '—', c.usuario || '—', c.correo || '—', c.telefono || '—']),
+              }],
+            })}
+          />
+          <button onClick={abrirNuevo} style={btnGold}>+ Nuevo Cliente</button>
+        </div>
       </div>
 
       {msg && <Msg text={msg} />}

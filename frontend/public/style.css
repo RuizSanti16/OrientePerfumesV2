@@ -1779,6 +1779,9 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   font-family: var(--font-label);
   font-size: 15px;
   color: var(--gold);
+  /* formatCOP devuelve "$ 25.000": sin esto el salto de línea parte
+     el símbolo del número en columnas estrechas. */
+  white-space: nowrap;
 }
 
 .product-list-card__actions {
@@ -1792,7 +1795,21 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* ── 900px: tablet landscape ─────────────────────────────── */
 @media (max-width: 900px) {
-  .header            { padding: 0 20px; }
+  /* Header: sin estos ajustes el logo (338px, sin encoger), las redes
+     sociales (154px) y las acciones piden ~797px y desbordan la pantalla. */
+  .header            { padding: 0 20px; gap: 16px; }
+  .header-social     { display: none; }
+  .header__logo      { gap: 10px; min-width: 0; }
+  .logo-icon,
+  .logo-icon img     { width: 44px; height: 44px; }
+  .logo-text         { min-width: 0; }
+  .logo-text__name   { font-size: 15px; letter-spacing: 0.12em; }
+  .logo-text__tagline{ display: none; }
+  .header__search    { min-width: 0; }
+  .action-btn        { width: 40px; height: 40px; }
+  .menu-btn          { width: 40px; height: 40px; }
+  .header__actions   { gap: 6px; }
+
   .hero__content     { padding: 0 40px; }
   .categories-grid   { grid-template-columns: repeat(2, 1fr); }
   .products-grid     { grid-template-columns: repeat(2, 1fr); }
@@ -1830,6 +1847,23 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .btn-primary,
   .btn-secondary     { width: 100%; max-width: 280px; text-align: center; }
 
+  /* Las flechas laterales quedan centradas verticalmente y se montan
+     encima del subtítulo, tapándolo. En móvil se navega con los puntos,
+     a los que se les da un área de toque mayor sin engordar la barra. */
+  .hero__arrow       { display: none; }
+  .hero__dots        { bottom: 20px; gap: 14px; }
+  .hero__dot         {
+    width: 34px;
+    height: 3px;
+    padding: 12px 0;
+    box-sizing: content-box;
+    background-clip: content-box;
+  }
+  /* El shorthand `background` de la regla base resetea background-clip,
+     así que hay que volver a fijarlo o el punto activo pinta todo el
+     área de toque como un bloque. */
+  .hero__dot.active  { width: 44px; background-clip: content-box; }
+
   /* Grids */
   .categories-grid   { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .products-grid     { grid-template-columns: repeat(2, 1fr); gap: 16px; }
@@ -1844,10 +1878,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .footer__grid      { grid-template-columns: 1fr; gap: 28px; }
   .footer            { padding: 32px 20px; }
 
-  /* Product list (vista lista en Colección) */
-  .product-list-card { flex-direction: column; gap: 12px; }
-  .product-list-card__img { width: 100%; height: 200px; }
-  .product-list-card__actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  /* Product list (vista lista en Colección).
+     La tarjeta es grid, no flex: `flex-direction` no hacía nada y las
+     3 columnas (120px 1fr auto) seguían aplicándose, dejando el nombre
+     y el precio aplastados en una franja de pocos píxeles. */
+  .product-list-card { grid-template-columns: 1fr; gap: 12px; }
+  .product-list-card__img,
+  .product-list-card__placeholder { width: 100%; height: 200px; }
+  .product-list-card__actions { align-items: center; flex-direction: row; flex-wrap: wrap; }
 
   /* Drawer: ancho completo en móvil */
   .drawer            { width: 85vw; max-width: 340px; }
@@ -1892,6 +1930,29 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
   /* Quitar separador de sección en móvil */
   .section-divider   { display: none; }
+}
+
+/* ── 380px: móviles pequeños (iPhone SE, Android compactos) ──
+   A 320px el header pedía 363px (logo 176 + acciones 159 + padding)
+   y desbordaba la pantalla. Aquí se compacta lo justo para caber. */
+@media (max-width: 380px) {
+  .header            { padding: 0 10px; gap: 8px; }
+  .header__logo      { gap: 6px; }
+  .logo-icon,
+  .logo-icon img     { width: 34px; height: 34px; }
+  .logo-text__name   { font-size: 11px; letter-spacing: 0.04em; }
+  .action-btn        { width: 32px; height: 32px; }
+  .menu-btn          { width: 32px; height: 32px; }
+  .header__actions   { gap: 4px; }
+
+  .hero__content     { padding: 0 14px; }
+  .hero__title       { font-size: 32px; }
+
+  .section,
+  .products-section,
+  .brands-section    { padding: 32px 12px; }
+  .section__title    { font-size: 24px; }
+  .footer            { padding: 24px 12px; }
 }
 
 /* ── Utilidades responsive ───────────────────────────────── */
