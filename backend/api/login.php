@@ -77,6 +77,10 @@ try {
     ]);
 
 } catch (PDOException $e) {
+    /* Sin esta traza el error se perdia por completo y solo quedaba un
+       "Error del servidor" imposible de diagnosticar. El detalle va al
+       log del servidor, nunca al cliente. */
+    error_log('[OrientPerfumes] Error en login: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(['ok' => false, 'mensaje' => 'Error del servidor']);
 }

@@ -10,7 +10,14 @@ try {
     $pdo = new PDO($conexionBD, $usuario, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE,            PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES,   false);
+
+    /* NO activar PDO::ATTR_EMULATE_PREPARES = false.
+       Con preparadas nativas MySQL no admite reutilizar el mismo
+       marcador con nombre, y varias consultas del proyecto lo hacen
+       (por ejemplo login.php: "WHERE usuario = :u OR correo = :u").
+       Activarlo rompe el login con SQLSTATE[HY093] Invalid parameter
+       number. Las preparadas emuladas siguen parametrizando de forma
+       segura al declarar charset=utf8mb4 en el DSN. */
 } catch (PDOException $e) {
     /* El mensaje de PDO incluye host, usuario y nombre de la base:
        se registra en el log del servidor pero nunca se envía al
