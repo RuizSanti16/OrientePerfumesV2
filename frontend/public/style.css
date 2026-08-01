@@ -1131,9 +1131,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   opacity: 1;
 }
 
+/* Marcador para productos sin foto. Antes era un emoji y de ahi el
+   font-size; ahora contiene un SVG, asi que el tamano lo define el
+   propio icono y aqui solo queda la atenuacion. */
 .product-card__placeholder {
-  font-size: 64px;
-  opacity: 0.15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.22;
   user-select: none;
 }
 

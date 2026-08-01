@@ -7,7 +7,7 @@ const DEFAULT = {
   storePhone:      '+57 300 000 0000',
   storeAddress:    'Rionegro, Antioquia, Colombia',
   whatsappNumber:  '',
-  whatsappMessage: 'Hola! Me interesa conocer más sobre sus fragancias 🌹',
+  whatsappMessage: 'Hola! Me interesa conocer más sobre sus fragancias.',
   whatsappVisible: true,
   instagram:       '',
   facebook:        '',

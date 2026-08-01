@@ -4,6 +4,17 @@ import { productosAPI, marcasAPI, categoriasAPI, subirImagen } from '../../servi
 import { exportarPDF, exportarExcel } from '../../utils/exportar';
 import ExportarBotones from '../../components/admin/ExportarBotones';
 
+/* Marcador para las filas sin foto. Sustituye al emoji de camara que
+   habia antes, que desentonaba con los iconos SVG del resto del panel. */
+const IconSinImagen = ({ size = 18 }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.4"
+    width={size} height={size} aria-hidden="true" style={{ opacity: 0.45 }}>
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="9" cy="9" r="2"/>
+    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+  </svg>
+);
+
 export default function Products() {
   const [productos,   setProductos]   = useState([]);
   const [marcas,      setMarcas]      = useState([]);
@@ -149,7 +160,11 @@ export default function Products() {
             {filtrados.map(p => (
               <tr key={p.id_producto} style={{ borderBottom: '1px solid rgba(201,168,76,0.05)' }}>
                 <td style={{ padding: '10px 16px' }}>
-                  {p.imagen ? <img src={p.imagen} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} alt="" /> : <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📷</div>}
+                  {p.imagen
+                    ? <img src={p.imagen} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} alt="" />
+                    : <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <IconSinImagen />
+                      </div>}
                 </td>
                 <td style={{ padding: '10px 16px', color: '#9A9180', fontSize: '12px' }}>{p.id_producto}</td>
                 <td style={{ padding: '10px 16px', fontWeight: 600 }}>{p.nombre}</td>

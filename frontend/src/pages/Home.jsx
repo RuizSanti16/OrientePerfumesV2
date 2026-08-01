@@ -8,6 +8,38 @@ import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
 
+/* ── Íconos SVG ──
+   Sustituyen a los emojis que habia antes (frasco y corazones). Ademas
+   de mantener el estilo del resto del sitio, el trazo usa currentColor,
+   de modo que el corazon hereda los cambios de color que .product-card__wish
+   aplica en hover y en estado activo — algo que un emoji no permite. */
+const IconBottle = ({ size = 56 }) => (
+  <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2"
+    width={size} height={size * 1.33} aria-hidden="true">
+    <rect x="5" y="11" width="14" height="20" rx="3"/>
+    <rect x="8" y="5" width="8" height="6" rx="1.5"/>
+    <line x1="10" y1="2" x2="10" y2="5"/>
+    <line x1="14" y1="2" x2="14" y2="5"/>
+    <circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
+  </svg>
+);
+
+const CORAZON = "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z";
+
+const IconHeart = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"
+    width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d={CORAZON}/>
+  </svg>
+);
+
+const IconHeartFilled = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.2"
+    width="18" height="18" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d={CORAZON}/>
+  </svg>
+);
+
 /* ── Helpers ── */
 function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
 function parsePrecio(v) {
@@ -454,10 +486,10 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
       <div className="product-card__img-wrap">
         {p.imagen
           ? <img src={p.imagen} alt={p.nombre} className="product-card__img" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
-          : <span className="product-card__placeholder" aria-hidden="true">🫙</span>}
+          : <span className="product-card__placeholder" aria-hidden="true"><IconBottle /></span>}
         {badge.label && <span className={`product-card__badge ${badge.cls}`}>{badge.label}</span>}
         <button className="product-card__wish" onClick={onWishlist} data-active={enWishlist} aria-label="Lista de deseos">
-          {enWishlist ? '❤️' : '🤍'}
+          {enWishlist ? <IconHeartFilled /> : <IconHeart />}
         </button>
         <button className={`product-card__add`} onClick={handleCarrito}
           style={added ? {background:'#4a7c59'} : {}}>
