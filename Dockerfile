@@ -39,6 +39,14 @@ COPY backend/ /var/www/html/
 RUN mkdir -p /var/www/html/uploads \
     && chown -R www-data:www-data /var/www/html/uploads
 
+# Copia de referencia del .htaccess que protege las subidas.
+# Al montar un volumen persistente sobre /var/www/html/uploads, el
+# contenido que trae la imagen queda oculto, incluido ese .htaccess, y
+# se perderia la proteccion que impide ejecutar scripts subidos. Se
+# guarda fuera de la ruta montada para que start.sh pueda restaurarlo
+# dentro del volumen en cada arranque.
+RUN cp /var/www/html/uploads/.htaccess /usr/local/share/uploads-htaccess 2>/dev/null || true
+
 # El arranque vive en un script aparte: ajusta el puerto que inyecta la
 # plataforma en $PORT y fuerza que haya un unico MPM activo, porque con
 # dos Apache aborta con AH00534 y el contenedor entra en bucle de

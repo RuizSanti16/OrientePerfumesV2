@@ -34,6 +34,28 @@ if ! grep -q '^ServerName' /etc/apache2/apache2.conf; then
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 fi
 
+# ── Carpeta de subidas ───────────────────────────────────────
+# Si hay un volumen persistente montado en uploads, tapa el contenido
+# que venia en la imagen: la carpeta aparece vacia y sin el .htaccess
+# que impide ejecutar scripts subidos. Se restaura en cada arranque y
+# se corrigen los permisos, porque un volumen recien creado pertenece
+# a root y Apache no podria escribir en el.
+SUBIDAS=/var/www/html/uploads
+mkdir -p "$SUBIDAS"
+
+if [ ! -f "$SUBIDAS/.htaccess" ] && [ -f /usr/local/share/uploads-htaccess ]; then
+    cp /usr/local/share/uploads-htaccess "$SUBIDAS/.htaccess"
+    echo "[inicio] .htaccess restaurado en la carpeta de subidas"
+fi
+
+chown -R www-data:www-data "$SUBIDAS" 2>/dev/null || true
+
+if [ -f "$SUBIDAS/.htaccess" ]; then
+    echo "[inicio] subidas protegidas ($(ls -1 "$SUBIDAS" | wc -l) archivos)"
+else
+    echo "[inicio] AVISO: la carpeta de subidas no tiene .htaccess"
+fi
+
 # ── Comprobacion de configuracion ────────────────────────────
 # Si algo quedo mal, el mensaje aparece aqui en lugar de en un bucle
 # de reinicios sin contexto.
