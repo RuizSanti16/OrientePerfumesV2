@@ -39,6 +39,11 @@ COPY backend/ /var/www/html/
 RUN mkdir -p /var/www/html/uploads \
     && chown -R www-data:www-data /var/www/html/uploads
 
-# Render y Railway inyectan el puerto en $PORT; Apache escucha en 80
-# por defecto, asi que se ajusta al arrancar.
-CMD ["sh", "-c", "sed -i \"s/^Listen 80$/Listen ${PORT:-80}/\" /etc/apache2/ports.conf && sed -i \"s/:80>/:${PORT:-80}>/\" /etc/apache2/sites-available/000-default.conf && apache2-foreground"]
+# El arranque vive en un script aparte: ajusta el puerto que inyecta la
+# plataforma en $PORT y fuerza que haya un unico MPM activo, porque con
+# dos Apache aborta con AH00534 y el contenedor entra en bucle de
+# reinicios.
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+CMD ["/usr/local/bin/start.sh"]
