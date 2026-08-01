@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { productosAPI, destacadosAPI } from '../../services/api';
+import { MensajeEstado, IconCheck } from '../../components/Icons';
 
 const IconBottle = ({ size = 36 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -24,7 +25,7 @@ export default function Destacados() {
   const [destacados, setDestacados] = useState([]);
   const [busqueda,   setBusqueda]   = useState('');
   const [guardando,  setGuardando]  = useState(false);
-  const [msg,        setMsg]        = useState('');
+  const [msg, setMsg] = useState(null);
 
   useEffect(() => {
     productosAPI.listar().then(r => { if (r.ok) setTodos(r.data); });
@@ -39,11 +40,11 @@ export default function Destacados() {
   }, []);
 
   async function guardar() {
-    setGuardando(true); setMsg('');
+    setGuardando(true); setMsg(null);
     const res = await destacadosAPI.guardar(destacados);
-    setMsg(res.ok ? '✓ Guardado correctamente' : '✗ Error: ' + res.mensaje);
+    setMsg(res.ok ? { ok: true, texto: 'Guardado correctamente' } : { ok: false, texto: 'Error: ' + res.mensaje });
     setGuardando(false);
-    setTimeout(() => setMsg(''), 3000);
+    setTimeout(() => setMsg(null), 3000);
   }
 
   function estaSeleccionado(id) { return destacados.some(d => d.id_producto === id); }
@@ -84,11 +85,7 @@ export default function Destacados() {
         </button>
       </div>
 
-      {msg && (
-        <div style={{ marginBottom: '16px', padding: '10px 16px', background: msg.startsWith('✓') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.startsWith('✓') ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: '6px', fontSize: '13px' }}>
-          {msg}
-        </div>
-      )}
+      {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} />}
 
       <input value={busqueda} onChange={e => setBusqueda(e.target.value)}
         placeholder="Buscar productos..."
@@ -104,7 +101,7 @@ export default function Destacados() {
             <div key={p.id_producto} style={{ background: sel ? 'rgba(201,168,76,0.08)' : '#111', border: `1px solid ${sel ? '#C9A84C' : 'rgba(201,168,76,0.1)'}`, borderRadius: '8px', overflow: 'hidden', transition: 'all 0.2s', position: 'relative' }}>
 
               {sel && (
-                <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, background: '#C9A84C', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#0a0a08', fontWeight: 700 }}>✓</div>
+                <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 2, background: '#C9A84C', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#0a0a08', fontWeight: 700 }}><IconCheck size={12} sw={3}/></div>
               )}
 
               {/* Imagen */}

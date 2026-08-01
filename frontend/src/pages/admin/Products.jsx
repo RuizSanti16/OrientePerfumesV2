@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { productosAPI, marcasAPI, categoriasAPI, subirImagen } from '../../services/api';
 import { exportarPDF, exportarExcel } from '../../utils/exportar';
 import ExportarBotones from '../../components/admin/ExportarBotones';
+import { IconClose, IconArrowUp } from '../../components/Icons';
 
 /* Marcador para las filas sin foto. Sustituye al emoji de camara que
    habia antes, que desentonaba con los iconos SVG del resto del panel. */
@@ -195,7 +196,7 @@ export default function Products() {
           <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '12px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflow: 'auto', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h3 style={{ fontFamily: 'Cinzel, serif', color: '#C9A84C', margin: 0, fontSize: '16px' }}>{editando ? 'Editar Producto' : 'Nuevo Producto'}</h3>
-              <button onClick={() => setModal(false)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+              <button onClick={() => setModal(false)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px', display:'flex' }}><IconClose size={16}/></button>
             </div>
 
             {/* Imagen */}
@@ -211,7 +212,7 @@ export default function Products() {
                 <img src={imagenB64} style={{ maxHeight: '120px', borderRadius: '6px' }} alt="Preview" />
               ) : (
                 <div style={{ color: '#9A9180', fontSize: '13px' }}>
-                  <div style={{ fontSize: 22, marginBottom: 4 }}>↑</div>
+                  <div style={{ marginBottom: 6, display:'flex', justifyContent:'center' }}><IconArrowUp size={20}/></div>
                   Clic para subir imagen · JPG, PNG, WEBP, GIF, AVIF...
                 </div>
               )}
@@ -412,8 +413,8 @@ function PresentacionesEditor({ presentaciones, onChange }) {
               <button
                 type="button"
                 onClick={() => quitarCustom(pr._idx)}
-                style={{ background: 'none', border: '1px solid #e05252', color: '#e05252', borderRadius: 4, padding: '0 10px', cursor: 'pointer' }}>
-                ✕
+                style={{ background: 'none', border: '1px solid #e05252', color: '#e05252', borderRadius: 4, padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <IconClose size={13}/>
               </button>
             </div>
           ))}

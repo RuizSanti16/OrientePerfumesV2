@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productosAPI, categoriasAPI, marcasAPI } from '../services/api';
+import { IconArrowRight } from './Icons';
 
 /* ── Íconos SVG reutilizables ── */
 const IconBottle = ({ size = 18 }) => (
@@ -207,7 +208,7 @@ export default function SearchBar() {
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600 }}><Highlight text={c.nombre} query={query} /></div>
                     {c.descripcion && <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>{c.descripcion}</div>}
                   </div>
-                  <div style={{ fontSize: 10, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', flexShrink: 0 }}>VER →</div>
+                  <div style={{ fontSize: 10, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5 }}>VER <IconArrowRight size={12}/></div>
                 </button>
               ))}
             </div>
@@ -227,7 +228,7 @@ export default function SearchBar() {
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600 }}><Highlight text={m.nombre} query={query} /></div>
                     {m.pais_origen && <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>· {m.pais_origen}</div>}
                   </div>
-                  <div style={{ fontSize: 10, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', flexShrink: 0 }}>VER →</div>
+                  <div style={{ fontSize: 10, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5 }}>VER <IconArrowRight size={12}/></div>
                 </button>
               ))}
             </div>

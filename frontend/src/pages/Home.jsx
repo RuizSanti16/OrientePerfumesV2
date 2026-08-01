@@ -7,6 +7,7 @@ import Header            from '../components/Header';
 import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
 import SearchBar from '../components/SearchBar';
+import { IconClose, IconCheck, IconArrowRight } from '../components/Icons';
 
 /* ── Íconos SVG ──
    Sustituyen a los emojis que habia antes (frasco y corazones). Ademas
@@ -294,7 +295,7 @@ export default function Home() {
           }
         </div>
         <div className="home-noticias__cta">
-          <a href="/noticias" className="btn-secondary home-noticias__btn">Ver todas las noticias →</a>
+          <a href="/noticias" className="btn-secondary home-noticias__btn">Ver todas las noticias <IconArrowRight size={13}/></a>
         </div>
       </section>
 
@@ -435,7 +436,7 @@ export default function Home() {
                     {item.presentacion && <div style={{fontSize:10,color:'#9A9180'}}>{item.presentacion}</div>}
                     <div style={{fontSize:11,color:'#C9A84C',marginTop:2}}>{formatCOP(item.precio)} × {item.cantidad||1}</div>
                   </div>
-                  <button onClick={() => quitarCarrito(i)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16}}>✕</button>
+                  <button onClick={() => quitarCarrito(i)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16, display:'flex'}}><IconClose size={14}/></button>
                 </div>
               ))}
               <div style={{marginTop:12,textAlign:'right'}}>
@@ -456,7 +457,7 @@ export default function Home() {
                 <div style={{fontSize:11,color:'#9A9180'}}>{item.marca}</div>
                 <div style={{fontSize:11,color:'#C9A84C',marginTop:2}}>{formatCOP(item.precio)}</div>
               </div>
-              <button onClick={() => quitarWish(item.id)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16}}>✕</button>
+              <button onClick={() => quitarWish(item.id)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16, display:'flex'}}><IconClose size={14}/></button>
             </div>
           ))
         }
@@ -493,7 +494,7 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         </button>
         <button className={`product-card__add`} onClick={handleCarrito}
           style={added ? {background:'#4a7c59'} : {}}>
-          {added ? '✓ Añadido' : 'Añadir al Carrito'}
+          {added ? <><IconCheck size={12} sw={2.6}/> Añadido</> : 'Añadir al Carrito'}
         </button>
       </div>
       <div className="product-card__info">
@@ -521,7 +522,7 @@ function SidePanel({ abierto, titulo, onCerrar, children }) {
     <div style={{position:'fixed',top:0,right:0,bottom:0,width:340,maxWidth:'100vw',background:'#111',borderLeft:'1px solid rgba(201,168,76,0.2)',zIndex:1000,transform:abierto?'translateX(0)':'translateX(100%)',transition:'transform 0.3s',display:'flex',flexDirection:'column'}}>
       <div style={{padding:20,borderBottom:'1px solid rgba(201,168,76,0.15)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <span style={{fontFamily:'Cinzel,serif',fontSize:13,letterSpacing:'0.15em',color:'#C9A84C'}}>{titulo}</span>
-        <button onClick={onCerrar} style={{background:'none',border:'none',color:'#888',cursor:'pointer',fontSize:20}}>✕</button>
+        <button onClick={onCerrar} style={{background:'none',border:'none',color:'#888',cursor:'pointer',fontSize:20, display:'flex'}}><IconClose size={16}/></button>
       </div>
       <div style={{flex:1,overflowY:'auto',padding:16}}>{children}</div>
     </div>

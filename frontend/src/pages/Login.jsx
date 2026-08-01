@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+import { IconArrowLeft } from '../components/Icons';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -342,7 +343,7 @@ export default function Login() {
               <button className="btn-primary" type="submit">Enviar Instrucciones</button>
               <div className="auth-links auth-links--center">
                 <button className="link-btn" type="button" onClick={() => cambiarVista('login')}>
-                  ← Volver al inicio de sesión
+                    Volver al inicio de sesión
                 </button>
               </div>
             </form>

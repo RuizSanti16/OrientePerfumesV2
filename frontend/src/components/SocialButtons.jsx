@@ -74,7 +74,7 @@ export default function SocialButtons() {
   if (!buttons.length) {
     return (
       <div style={{ display: 'flex', gap: 6, alignItems: 'center', opacity: 0.2 }}
-           title="Configura tus redes en Admin → Ajustes">
+           title="Configura tus redes en Ajustes del panel">
         {[<IconWA />, <IconIG />, <IconFB />, <IconTK />].map((icon, i) => (
           <span key={i} style={{ ...BASE_STYLE, cursor: 'default' }}>{icon}</span>
         ))}

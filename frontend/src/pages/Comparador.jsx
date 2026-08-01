@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import { productoDetalleAPI } from '../services/api';
 import { useCarrito }  from '../hooks/useCarrito';
 import Header from '../components/Header';
+import { IconArrowRight } from '../components/Icons';
 
 function formatCOP(v) { return '$ ' + Number(v || 0).toLocaleString('es-CO'); }
 
@@ -207,10 +208,10 @@ export default function Comparador() {
                   <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 16, color: '#E8DCC8', lineHeight: 1.3, marginBottom: 12 }}>{p.nombre}</div>
                   {/* Ver producto */}
                   <a href={`/producto/${p.id_producto}`}
-                    style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.12em', color: '#C9A84C', textDecoration: 'none', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '5px 14px', display: 'inline-block', transition: 'background 0.2s' }}
+                    style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.12em', color: '#C9A84C', textDecoration: 'none', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, padding: '5px 14px', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'background 0.2s' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.08)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                    VER DETALLE →
+                    VER DETALLE <IconArrowRight size={11}/>
                   </a>
                 </div>
               ))}

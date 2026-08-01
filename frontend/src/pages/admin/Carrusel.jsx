@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { subirImagen } from '../../services/api';
+import { MensajeEstado } from '../../components/Icons';
 
 /* ── Icono subir ── */
 const IconUpload = () => (
@@ -28,7 +29,7 @@ function getSlides() {
 
 export default function Carrusel() {
   const [slides,    setSlides]    = useState(getSlides);
-  const [msg,       setMsg]       = useState('');
+  const [msg, setMsg] = useState(null);
   const [uploading, setUploading] = useState({});   // { [slideId]: true|false }
   const [drag,      setDrag]      = useState({});   // { [slideId]: true|false }
 
@@ -40,7 +41,7 @@ export default function Carrusel() {
   async function subirSlide(id, file) {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      mostrarMsg('✗ El archivo no es una imagen válida');
+      mostrarMsg(false, 'El archivo no es una imagen válida');
       return;
     }
     setUploading(p => ({ ...p, [id]: true }));
@@ -49,10 +50,10 @@ export default function Carrusel() {
       if (res.ok) {
         update(id, 'imagen', res.url);
       } else {
-        mostrarMsg('✗ ' + (res.mensaje || 'Error al subir'));
+        mostrarMsg(false, (res.mensaje || 'Error al subir'));
       }
     } catch {
-      mostrarMsg('✗ Error de conexión. Verifica que XAMPP esté activo.');
+      mostrarMsg(false, 'Error de conexión. Verifica que XAMPP esté activo.');
     }
     setUploading(p => ({ ...p, [id]: false }));
   }
@@ -73,9 +74,9 @@ export default function Carrusel() {
         imagen: s.imagen?.startsWith('data:') ? '' : (s.imagen || ''),
       }));
       localStorage.setItem('op_carrusel', JSON.stringify(toSave));
-      mostrarMsg('✓ Guardado. Recarga el inicio para verlo.');
+      mostrarMsg(true, 'Guardado. Recarga el inicio para verlo.');
     } catch {
-      mostrarMsg('✗ Error al guardar.');
+      mostrarMsg(false, 'Error al guardar.');
     }
   }
 
@@ -83,12 +84,12 @@ export default function Carrusel() {
     if (!confirm('¿Restaurar el carrusel a los valores originales?')) return;
     localStorage.removeItem('op_carrusel');
     setSlides(DEFAULTS);
-    mostrarMsg('✓ Carrusel restaurado');
+    mostrarMsg(true, 'Carrusel restaurado');
   }
 
-  function mostrarMsg(texto) {
-    setMsg(texto);
-    setTimeout(() => setMsg(''), 4000);
+  function mostrarMsg(ok, texto) {
+    setMsg({ ok, texto });
+    setTimeout(() => setMsg(null), 4000);
   }
 
   const inp = {
@@ -123,13 +124,7 @@ export default function Carrusel() {
       </div>
 
       {/* ── Mensaje ── */}
-      {msg && (
-        <div style={{ marginBottom: 20, padding: '10px 16px', borderRadius: 6, fontSize: 13,
-          background: msg.startsWith('✓') ? 'rgba(76,175,80,0.1)'  : 'rgba(224,82,82,0.1)',
-          border:     msg.startsWith('✓') ? '1px solid rgba(76,175,80,0.3)' : '1px solid rgba(224,82,82,0.3)' }}>
-          {msg}
-        </div>
-      )}
+      {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} style={{ marginBottom: 20 }} />}
 
       {/* ── Slides ── */}
       {slides.map(s => (

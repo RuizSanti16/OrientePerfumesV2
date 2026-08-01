@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import SocialButtons from './SocialButtons';
+import { IconArrowUp } from './Icons';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -104,9 +105,9 @@ export default function Footer() {
           <p style={{ fontSize: 12, color: '#9A9180', margin: 0 }}>
             © {new Date().getFullYear()} OrientPerfumes · Todos los derechos reservados
           </p>
-          <a href="#" style={{ fontSize: 12, color: '#9A9180', textDecoration: 'none', transition: 'color 0.2s' }}
+          <a href="#" style={{ fontSize: 12, color: '#9A9180', textDecoration: 'none', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             onMouseEnter={over} onMouseLeave={out}>
-            ↑ Volver Arriba
+            <IconArrowUp size={13}/> Volver Arriba
           </a>
         </div>
       </div>

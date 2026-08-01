@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productoDetalleAPI, productosAPI, subirImagen } from '../../services/api';
+import { MensajeEstado, IconClose, IconCheck, IconArrowLeft, IconArrowRight, IconStar, IconStarFilled } from '../../components/Icons';
 
 const IconBottle = ({ size = 24 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -19,7 +20,7 @@ export default function ProductoDetalle() {
   const [producto, setProducto] = useState(null);
   const [loading,  setLoading]  = useState(true);
   const [guardando,  setGuardando]   = useState(false);
-  const [msg,        setMsg]         = useState('');
+  const [msg,        setMsg]         = useState(null);
   const [subiendo,     setSubiendo]     = useState(false);
   const [subiendoDupe, setSubiendoDupe] = useState({});
   const [todosProductos, setTodosProductos] = useState([]);
@@ -58,9 +59,9 @@ export default function ProductoDetalle() {
   async function guardar() {
     setGuardando(true);
     const res = await productoDetalleAPI.guardar({ id_producto: id, descripcion, imagenes, notas, dupes });
-    setMsg(res.ok ? '✓ Guardado correctamente' : '✗ Error: ' + res.mensaje);
+    setMsg(res.ok ? { ok: true, texto: 'Guardado correctamente' } : { ok: false, texto: 'Error: ' + res.mensaje });
     setGuardando(false);
-    setTimeout(() => setMsg(''), 3000);
+    setTimeout(() => setMsg(null), 3000);
   }
 
   async function eliminarRating(ratingId) {
@@ -80,10 +81,10 @@ export default function ProductoDetalle() {
         if (res.ok) {
           setImagenes(prev => [...prev, res.url]);
         } else {
-          setMsg('✗ Error al subir ' + file.name + ': ' + (res.mensaje || 'Error desconocido'));
+          setMsg({ ok: false, texto: 'Error al subir ' + file.name + ': ' + (res.mensaje || 'Error desconocido') });
         }
       } catch {
-        setMsg('✗ Error de conexión al subir imagen.');
+        setMsg({ ok: false, texto: 'Error de conexión al subir imagen.' });
       }
     }
     setSubiendo(false);
@@ -116,7 +117,7 @@ export default function ProductoDetalle() {
       if (res.ok) {
         updateDupe(idx, 'imagen', res.url);
       } else {
-        setMsg('✗ Error al subir imagen: ' + (res.mensaje || 'Error desconocido'));
+        setMsg({ ok: false, texto: 'Error al subir imagen: ' + (res.mensaje || 'Error desconocido') });
       }
     } catch {
       setMsg('✗ Error de conexión al subir imagen.');
@@ -135,14 +136,14 @@ export default function ProductoDetalle() {
       {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
         <div>
-          <button onClick={() => navigate('/admin/products')} style={{ background:'none', border:'none', color:'#9A9180', cursor:'pointer', fontSize:12, marginBottom:8, fontFamily:'Cinzel,serif', letterSpacing:'0.1em' }}>← VOLVER</button>
+          <button onClick={() => navigate('/admin/products')} style={{ background:'none', border:'none', color:'#9A9180', cursor:'pointer', fontSize:12, marginBottom:8, fontFamily:'Cinzel,serif', letterSpacing:'0.1em', display:'flex', alignItems:'center', gap:6, padding:0 }}><IconArrowLeft size={13}/> VOLVER</button>
           <h1 style={{ fontFamily:'Cinzel,serif', fontSize:20, color:'#C9A84C', margin:'0 0 4px' }}>Detalle del Producto</h1>
           <p style={{ color:'#9A9180', fontSize:13, margin:0 }}>{producto.nombre}</p>
         </div>
         <div style={{ display:'flex', gap:10 }}>
           <button onClick={() => window.open(`/producto/${id}`, '_blank')}
             style={{ background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'8px 16px', color:'#C9A84C', cursor:'pointer', fontFamily:'Cinzel,serif', fontSize:11 }}>
-            Ver página →
+            Ver página <IconArrowRight size={13}/>
           </button>
           <button onClick={guardar} disabled={guardando}
             style={{ background:'#C9A84C', border:'none', borderRadius:6, padding:'8px 20px', color:'#0a0a08', cursor:guardando?'not-allowed':'pointer', fontFamily:'Cinzel,serif', fontSize:11, letterSpacing:'0.1em', opacity:guardando?0.7:1 }}>
@@ -151,7 +152,7 @@ export default function ProductoDetalle() {
         </div>
       </div>
 
-      {msg && <div style={{ marginBottom:16, padding:'10px 16px', background:msg.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${msg.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{msg}</div>}
+      {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} />}
 
       {/* ── Descripción ── */}
       <Card titulo="Descripción del Producto">
@@ -166,7 +167,7 @@ export default function ProductoDetalle() {
             <div key={i} style={{ position:'relative', border:'1px solid rgba(201,168,76,0.15)', borderRadius:8, overflow:'hidden', aspectRatio:'1' }}>
               <img src={img} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
               <button onClick={() => setImagenes(prev => prev.filter((_,idx) => idx!==i))}
-                style={{ position:'absolute', top:4, right:4, background:'rgba(0,0,0,0.7)', border:'none', borderRadius:'50%', width:22, height:22, color:'#e05252', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+                style={{ position:'absolute', top:4, right:4, background:'rgba(0,0,0,0.7)', border:'none', borderRadius:'50%', width:22, height:22, color:'#e05252', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}><IconClose size={12}/></button>
             </div>
           ))}
           {/* Botón agregar / spinner */}
@@ -206,7 +207,7 @@ export default function ProductoDetalle() {
                 {notas[tipo].map((n,i) => (
                   <span key={i} style={{ background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:20, padding:'3px 10px', fontSize:12, color:'#E8DCC8', display:'flex', alignItems:'center', gap:5 }}>
                     {n}
-                    <button onClick={() => quitarNota(tipo,i)} style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:12, padding:0, lineHeight:1 }}>✕</button>
+                    <button onClick={() => quitarNota(tipo,i)} style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:12, padding:0, lineHeight:1, display:'flex' }}><IconClose size={12}/></button>
                   </span>
                 ))}
               </div>
@@ -259,7 +260,9 @@ export default function ProductoDetalle() {
                   transition:'background 0.2s, border-color 0.2s',
                 }}>
                   <div style={{ fontFamily:'Cinzel,serif', fontSize:9, letterSpacing:'0.14em', color: d.id_referencia ? 'rgba(76,175,80,0.9)' : '#9A9180', marginBottom:8 }}>
-                    {d.id_referencia ? '✓ VINCULADO AL CATÁLOGO' : 'VINCULAR A PRODUCTO DEL CATÁLOGO'}
+                    {d.id_referencia
+                  ? <><IconCheck size={11} sw={2.6}/> VINCULADO AL CATÁLOGO</>
+                  : 'VINCULAR A PRODUCTO DEL CATÁLOGO'}
                   </div>
 
                   {d.id_referencia ? (
@@ -302,7 +305,7 @@ export default function ProductoDetalle() {
                 </div>
               </div>
               <button onClick={() => setDupes(prev => prev.filter((_,idx)=>idx!==i))}
-                style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:18, flexShrink:0 }}>✕</button>
+                style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:18, flexShrink:0, display:'flex' }}><IconClose size={14}/></button>
             </div>
           ))}
         </div>
@@ -321,7 +324,11 @@ export default function ProductoDetalle() {
               <div>
                 <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
                   <span style={{ fontSize:13, fontWeight:600, color:'#E8DCC8' }}>{r.nombre_usuario}</span>
-                  <span style={{ color:'#C9A84C', fontSize:13 }}>{'★'.repeat(r.estrellas)}{'☆'.repeat(5-r.estrellas)}</span>
+                  <span style={{ color:'#C9A84C', display:'flex', gap:2 }}>
+                    {[1,2,3,4,5].map(n => n <= r.estrellas
+                      ? <IconStarFilled key={n} size={13}/>
+                      : <IconStar key={n} size={13}/>)}
+                  </span>
                   <span style={{ fontSize:11, color:'#9A9180' }}>{new Date(r.fecha).toLocaleDateString('es-CO')}</span>
                 </div>
                 {r.comentario && <p style={{ fontSize:12, color:'#9A9180', margin:0 }}>{r.comentario}</p>}

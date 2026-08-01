@@ -7,6 +7,7 @@ import { useWishlist }   from '../hooks/useWishlist';
 import { useInView }     from '../hooks/useInView';
 import { useComparador } from '../hooks/useComparador';
 import Header            from '../components/Header';
+import { IconClose, IconCheck } from '../components/Icons';
 
 /* ── Íconos de vista ── */
 const IconGrid = () => (
@@ -278,7 +279,7 @@ export default function Coleccion() {
                   ? <img src={p.imagen} alt="" style={{ width: 28, height: 28, objectFit: 'cover', borderRadius: 3, flexShrink: 0 }} />
                   : <div style={{ width: 28, height: 28, background: 'rgba(201,168,76,0.1)', borderRadius: 3, flexShrink: 0 }} />}
                 <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, color: '#E8DCC8', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.nombre}</span>
-                <button onClick={() => quitarComparar(p.id)} style={{ background: 'none', border: 'none', color: 'rgba(201,168,76,0.5)', cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1, flexShrink: 0 }}>✕</button>
+                <button onClick={() => quitarComparar(p.id)} style={{ background: 'none', border: 'none', color: 'rgba(201,168,76,0.5)', cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1, flexShrink: 0, display: 'flex' }}><IconClose size={13}/></button>
               </div>
             ))}
             {/* Slots vacíos */}
@@ -316,7 +317,7 @@ export default function Coleccion() {
           <span style={{ fontFamily: 'Cinzel, serif', fontSize: 13, letterSpacing: '0.15em', color: '#C9A84C' }}>
             {panelAbierto === 'carrito' ? 'CARRITO DE COMPRAS' : 'LISTA DE DESEOS'}
           </span>
-          <button onClick={() => setPanelAbierto(null)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 20 }}>✕</button>
+          <button onClick={() => setPanelAbierto(null)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 20, display:'flex' }}><IconClose size={16}/></button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
 
@@ -335,7 +336,7 @@ export default function Coleccion() {
                         {item.presentacion && <div style={{ fontSize: 10, color: '#9A9180' }}>{item.presentacion}</div>}
                         <div style={{ fontSize: 11, color: '#C9A84C', marginTop: 2 }}>{formatCOP(item.precio)} × {item.cantidad || 1}</div>
                       </div>
-                      <button onClick={() => quitarCarrito(i)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0 }}>✕</button>
+                      <button onClick={() => quitarCarrito(i)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0, display: 'flex' }}><IconClose size={14}/></button>
                     </div>
                   ))}
 
@@ -347,7 +348,7 @@ export default function Coleccion() {
                           {cuponAplicado.codigo}
                           {cuponAplicado.tipo === 'porcentaje' ? ` (-${cuponAplicado.valor}%)` : ''}
                         </div>
-                        <button onClick={() => { setCuponAplicado(null); setCuponError(''); }} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 14 }}>✕</button>
+                        <button onClick={() => { setCuponAplicado(null); setCuponError(''); }} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 14, display:'flex' }}><IconClose size={13}/></button>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', gap: 6 }}>
@@ -407,7 +408,7 @@ export default function Coleccion() {
                     <div style={{ fontSize: 11, color: '#9A9180' }}>{item.marca}</div>
                     <div style={{ fontSize: 11, color: '#C9A84C', marginTop: 2 }}>{formatCOP(item.precio)}</div>
                   </div>
-                  <button onClick={() => quitarWish(item.id)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0 }}>✕</button>
+                  <button onClick={() => quitarWish(item.id)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0, display: 'flex' }}><IconClose size={14}/></button>
                 </div>
               ))
           )}
@@ -478,7 +479,7 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
 
         <button className="product-card__add" onClick={handleCarrito}
           style={added ? { background: '#4a7c59', color: '#fff' } : {}}>
-          {added ? '✓ Añadido' : 'Añadir al Carrito'}
+          {added ? <><IconCheck size={12} sw={2.6}/> Añadido</> : 'Añadir al Carrito'}
         </button>
       </div>
 

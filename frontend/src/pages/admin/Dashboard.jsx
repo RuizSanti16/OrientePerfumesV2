@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { productosAPI, clientesAPI, ventasAPI, inventarioAPI, estadisticasAPI } from '../../services/api';
 import { exportarPDF, exportarExcel } from '../../utils/exportar';
 import ExportarBotones from '../../components/admin/ExportarBotones';
+import { IconSparkle } from '../../components/Icons';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 function fmt(n) {
@@ -178,7 +179,7 @@ function ProgressList({ items, nameKey = 'nombre', valueKey = 'total_vendido', c
           <div key={i}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '75%' }}>
-                {i === 0 && <span style={{ color, marginRight: 6, fontSize: 10 }}>✦</span>}
+                {i === 0 && <span style={{ color, marginRight: 6, fontSize: 10 }}><IconSparkle size={9}/></span>}
                 {item[nameKey]}
               </div>
               <div style={{ fontSize: 11, color, fontFamily: 'Cinzel, serif', flexShrink: 0 }}>{val} {suffix}</div>
@@ -388,13 +389,13 @@ export default function Dashboard() {
           {stats.pedidos_pendientes !== undefined && (
             <KpiCard iconEl={ICONS.alerta} label="Pedidos pendientes"
               value={stats.pedidos_pendientes}
-              sub={stats.pedidos_pendientes === 0 ? 'Todo al día ✓' : 'Requieren atención'}
+              sub={stats.pedidos_pendientes === 0 ? 'Todo al día' : 'Requieren atención'}
               color={stats.pedidos_pendientes > 0 ? '#E8A94C' : '#6BC48C'} />
           )}
           {stats.stock_bajo_count !== undefined && (
             <KpiCard iconEl={ICONS.inventario} label="Stock bajo"
               value={stats.stock_bajo_count}
-              sub={stats.stock_bajo_count === 0 ? 'Inventario al día ✓' : 'Stock ≤ 5 unidades'}
+              sub={stats.stock_bajo_count === 0 ? 'Inventario al día' : 'Stock ≤ 5 unidades'}
               color={stats.stock_bajo_count > 0 ? '#e74c3c' : '#6BC48C'} />
           )}
         </div>

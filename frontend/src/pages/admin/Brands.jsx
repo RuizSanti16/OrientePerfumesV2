@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { marcasAPI } from '../../services/api';
+import { MensajeEstado, IconClose } from '../../components/Icons';
 
 export default function Brands() {
   const [items,    setItems]    = useState([]);
@@ -7,7 +8,7 @@ export default function Brands() {
   const [editando, setEditando] = useState(null);
   const [form,     setForm]     = useState({ nombre:'', descripcion:'', pais_origen:'' });
   const [busqueda, setBusqueda] = useState('');
-  const [msg,      setMsg]      = useState('');
+  const [msg, setMsg] = useState(null);
 
   useEffect(() => { cargar(); }, []);
   async function cargar() { const r = await marcasAPI.listar(); if (r.ok) setItems(r.data); }
@@ -19,17 +20,17 @@ export default function Brands() {
     const res = editando
       ? await marcasAPI.actualizar({ ...form, id_marca: editando })
       : await marcasAPI.crear(form);
-    if (res.ok) { setModal(false); cargar(); showMsg('✓ ' + res.mensaje); }
-    else showMsg('✗ ' + res.mensaje);
+    if (res.ok) { setModal(false); cargar(); showMsg(true, res.mensaje); }
+    else showMsg(false, res.mensaje);
   }
 
   async function eliminar(id) {
     if (!confirm('¿Eliminar esta marca?')) return;
     const res = await marcasAPI.eliminar(id);
-    if (res.ok) { cargar(); showMsg('✓ Marca eliminada'); }
+    if (res.ok) { cargar(); showMsg(true, 'Marca eliminada'); }
   }
 
-  function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 3000); }
+  function showMsg(ok, texto) { setMsg({ ok, texto }); setTimeout(() => setMsg(null), 3000); }
   const filtrados = items.filter(i => !busqueda || (i.nombre||'').toLowerCase().includes(busqueda.toLowerCase()));
   const inp = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'8px 12px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box', marginBottom:12 };
 
@@ -43,7 +44,7 @@ export default function Brands() {
         <button onClick={abrirNuevo} style={btnGold}>+ Nueva Marca</button>
       </div>
 
-      {msg && <Msg text={msg} />}
+      {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} />}
 
       <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar marcas..."
         style={{ ...inp, maxWidth:280, marginBottom:16 }} />
@@ -97,9 +98,6 @@ const thStyle = { padding:'12px 16px', textAlign:'left', fontFamily:'Cinzel, ser
 const td      = { padding:'12px 16px', fontWeight:600, color:'#E8DCC8' };
 const tdMuted = { padding:'12px 16px', color:'#9A9180', fontSize:13 };
 
-function Msg({ text }) {
-  return <div style={{ marginBottom:16, padding:'10px 16px', background:text.startsWith('✓')?'rgba(76,175,80,0.1)':'rgba(224,82,82,0.1)', border:`1px solid ${text.startsWith('✓')?'rgba(76,175,80,0.3)':'rgba(224,82,82,0.3)'}`, borderRadius:6, fontSize:13 }}>{text}</div>;
-}
 function Label({ children }) {
   return <div style={{ fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180', marginBottom:6 }}>{children}</div>;
 }
@@ -109,7 +107,7 @@ function Modal({ titulo, onCerrar, onGuardar, children }) {
       <div style={{ background:'#111', border:'1px solid rgba(201,168,76,0.2)', borderRadius:12, width:'100%', maxWidth:460, padding:24 }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
           <h3 style={{ fontFamily:'Cinzel, serif', color:'#C9A84C', margin:0, fontSize:16 }}>{titulo}</h3>
-          <button onClick={onCerrar} style={{ background:'none', border:'none', color:'#888', cursor:'pointer', fontSize:20 }}>✕</button>
+          <button onClick={onCerrar} style={{ background:'none', border:'none', color:'#888', cursor:'pointer', fontSize:20, display:'flex' }}><IconClose size={16}/></button>
         </div>
         {children}
         <div style={{ display:'flex', gap:12, justifyContent:'flex-end', marginTop:16 }}>

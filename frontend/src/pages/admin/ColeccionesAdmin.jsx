@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { subirImagen } from '../../services/api';
+import { MensajeEstado } from '../../components/Icons';
 
 const COLECCIONES = ['Nicho', 'Oriental', 'Diseñador', 'Exclusivos'];
 const KEY         = 'op_colecciones_logos';
@@ -25,18 +26,18 @@ const IconUpload = () => (
 export default function ColeccionesAdmin() {
   const [logos,     setLogos]     = useState(getLogos);
   const [activa,    setActiva]    = useState('Nicho');
-  const [msg,       setMsg]       = useState('');
+  const [msg, setMsg] = useState(null);
   const [subiendo,  setSubiendo]  = useState(false);
 
   function guardar() {
     localStorage.setItem(KEY, JSON.stringify(logos));
-    setMsg('✓ Cambios guardados');
-    setTimeout(() => setMsg(''), 3000);
+    setMsg({ ok: true, texto: 'Cambios guardados' });
+    setTimeout(() => setMsg(null), 3000);
   }
 
-  function mostrarMsg(texto) {
-    setMsg(texto);
-    setTimeout(() => setMsg(''), 4000);
+  function mostrarMsg(ok, texto) {
+    setMsg({ ok, texto });
+    setTimeout(() => setMsg(null), 4000);
   }
 
   /* ── Subir uno o varios archivos ── */
@@ -59,10 +60,10 @@ export default function ColeccionesAdmin() {
             ],
           }));
         } else {
-          mostrarMsg('✗ Error al subir ' + file.name + ': ' + (res.mensaje || 'error desconocido'));
+          mostrarMsg(false, 'Error al subir ' + file.name + ': ' + (res.mensaje || 'error desconocido'));
         }
       } catch {
-        mostrarMsg('✗ Error de conexión al subir ' + file.name);
+        mostrarMsg(false, 'Error de conexión al subir ' + file.name);
       }
     }
 
@@ -118,13 +119,7 @@ export default function ColeccionesAdmin() {
       </div>
 
       {/* Mensaje */}
-      {msg && (
-        <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 6, fontSize: 13,
-          background: msg.startsWith('✓') ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)',
-          border: msg.startsWith('✓') ? '1px solid rgba(76,175,80,0.3)' : '1px solid rgba(224,82,82,0.3)' }}>
-          {msg}
-        </div>
-      )}
+      {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} />}
 
       {/* Tabs por colección */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '1px solid rgba(201,168,76,0.1)', paddingBottom: 0, flexWrap: 'wrap' }}>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { categoriasAPI } from '../../services/api';
+import { IconClose } from '../../components/Icons';
 
 export default function Categories() {
   const [items, setItems] = useState([]);
@@ -67,7 +68,7 @@ export default function Categories() {
           <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '12px', width: '100%', maxWidth: '440px', padding: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h3 style={{ fontFamily: 'Cinzel, serif', color: '#C9A84C', margin: 0, fontSize: '16px' }}>{editando ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
-              <button onClick={() => setModal(false)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+              <button onClick={() => setModal(false)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '20px', display:'flex' }}><IconClose size={16}/></button>
             </div>
             <input placeholder="Nombre *" value={form.nombre} onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} style={inputStyle} />
             <input placeholder="Descripción" value={form.descripcion} onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))} style={inputStyle} />

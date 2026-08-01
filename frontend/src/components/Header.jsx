@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SocialButtons from './SocialButtons';
 import SearchBar from './SearchBar';
+import { IconClose } from './Icons';
 
 const NAV_LINKS = [
   { href: '/',            label: 'Inicio'           },
@@ -171,7 +172,7 @@ export default function Header({
 
       {/* Drawer */}
       <nav className={`drawer${drawerOpen ? ' open' : ''}`} aria-hidden={!drawerOpen} aria-label="Menú principal">
-        <button className="drawer__close" onClick={closeDrawer} aria-label="Cerrar menú">✕</button>
+        <button className="drawer__close" onClick={closeDrawer} aria-label="Cerrar menú"><IconClose size={16}/></button>
         <div className="drawer__logo" aria-hidden="true">OrientPerfumes</div>
 
         {/* Sesión */}

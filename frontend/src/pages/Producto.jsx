@@ -5,6 +5,7 @@ import { productoDetalleAPI } from '../services/api';
 import { useCarrito }  from '../hooks/useCarrito';
 import { useWishlist } from '../hooks/useWishlist';
 import Header from '../components/Header';
+import { IconArrowRight } from '../components/Icons';
 
 /* ── Íconos SVG ── */
 const IconBottle = ({ size = 60 }) => (
@@ -345,8 +346,9 @@ export default function Producto() {
                         borderRadius:4, padding:'2px 7px',
                         fontFamily:'Cinzel,serif', fontSize:8,
                         letterSpacing:'0.12em', color:'#C9A84C',
+                        display:'flex', alignItems:'center', gap:4,
                       }}>
-                        VER →
+                        VER <IconArrowRight size={9}/>
                       </div>
                     )}
 
