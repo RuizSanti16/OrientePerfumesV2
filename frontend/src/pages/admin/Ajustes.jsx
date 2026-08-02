@@ -92,10 +92,32 @@ export default function Ajustes() {
   const inpIcon = { ...inp, paddingLeft: 38 };
 
   return (
-    <div style={{ padding: '28px 32px', color: '#E8DCC8', minHeight: '100vh' }}>
+    <div className="adm-ajustes" style={{ padding: '28px 32px', color: '#E8DCC8', minHeight: '100vh' }}>
+      <style>{`
+        /* La pagina se maquetaba con rejillas fijas y sin ningun punto de
+           corte: en movil quedaban dos columnas de 380px comprimidas y los
+           campos se cortaban. Aqui se colapsan de forma progresiva. */
+        @media (max-width: 900px) {
+          .adm-ajustes            { padding: 22px 18px !important; }
+          .adm-ajustes-grid       { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .adm-ajustes            { padding: 18px 14px !important; }
+          .adm-ajustes-head       { flex-direction: column !important;
+                                    align-items: stretch !important;
+                                    gap: 14px !important; }
+          .adm-ajustes-head-acc   { flex-wrap: wrap !important; }
+          .adm-ajustes-head-acc button { flex: 1 !important; justify-content: center !important; }
+          .adm-ajustes-2col       { grid-template-columns: 1fr !important; }
+          .adm-ajustes-3col       { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .adm-ajustes            { padding: 16px 12px !important; }
+        }
+      `}</style>
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
+      <div className="adm-ajustes-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
         <div>
           <h1 style={{ fontFamily: 'Cinzel, serif', fontSize: 20, color: '#C9A84C', margin: 0, letterSpacing: '0.08em' }}>
             AJUSTES
@@ -104,7 +126,7 @@ export default function Ajustes() {
             Configuración general del panel de administración
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div className="adm-ajustes-head-acc" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {msg === 'ok' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
               background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)',
@@ -134,14 +156,14 @@ export default function Ajustes() {
       </div>
 
       {/* ── Grid principal ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, alignItems: 'start' }}>
+      <div className="adm-ajustes-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, alignItems: 'start' }}>
 
         {/* ── Columna izquierda ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* Información de la tienda */}
           <Card icon={IC.store} titulo="Información de la Tienda">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="adm-ajustes-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <Label>Nombre de la Tienda</Label>
                 <FieldIcon icon={IC.store} size={13}>
@@ -196,7 +218,7 @@ export default function Ajustes() {
               </div>
               <Toggle value={settings.whatsappVisible} onChange={v => set('whatsappVisible', v)} accentColor="#25D366" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="adm-ajustes-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <Label>Número de WhatsApp</Label>
                 <FieldIcon icon={IC.phone} size={13}>
@@ -232,7 +254,7 @@ export default function Ajustes() {
 
           {/* Redes sociales */}
           <Card icon={IC.insta} titulo="Redes Sociales">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div className="adm-ajustes-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               <div>
                 <Label>Instagram</Label>
                 <FieldIcon icon={IC.insta} size={13} color="#E1306C">
