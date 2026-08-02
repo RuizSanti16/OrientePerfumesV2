@@ -205,10 +205,12 @@ export default function Header({
               <a href={href} onClick={closeDrawer}>{label}</a>
             </li>
           ))}
-          {(session || adminSession) && (
-            <li><a href={adminSession ? '/admin' : '/mi-cuenta'} onClick={closeDrawer}>
-              {adminSession ? 'Panel Admin' : 'Mi Cuenta'}
-            </a></li>
+          {/* Solo se ofrece el panel de administracion. La entrada
+              "Mi Cuenta" apuntaba a /mi-cuenta, que no existe como ruta
+              y llevaba a la pagina de error: no hay pagina de perfil
+              en el proyecto. */}
+          {adminSession && (
+            <li><a href="/admin" onClick={closeDrawer}>Panel Admin</a></li>
           )}
         </ul>
       </nav>

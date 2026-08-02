@@ -74,20 +74,22 @@ export default function Footer() {
               <a onClick={() => navigate('/contacto')} style={link} onMouseEnter={over} onMouseLeave={out}>
                 Contáctanos
               </a>
-              {session ? (
-                <a onClick={() => navigate('/perfil')} style={link} onMouseEnter={over} onMouseLeave={out}>
-                  Mi Cuenta
-                </a>
-              ) : (
+              {/* Con sesion iniciada no se ofrece ningun enlace de cuenta:
+                  "Mi Cuenta" apuntaba a /perfil, que no existe como ruta
+                  y llevaba a la pagina de error. */}
+              {!session && (
                 <>
                   <a onClick={() => navigate('/login')} style={link} onMouseEnter={over} onMouseLeave={out}>
                     Iniciar Sesión
                   </a>
-                  <a onClick={() => navigate('/registro')} style={link} onMouseEnter={over} onMouseLeave={out}>
+                  {/* El registro no es una pagina aparte: es una vista
+                      dentro de /login, junto al inicio de sesion. */}
+                  <a onClick={() => navigate('/login')} style={link} onMouseEnter={over} onMouseLeave={out}>
                     Crear Cuenta
                   </a>
                 </>
               )}
+
               {adminSession && (
                 <a onClick={() => navigate('/admin')}
                   style={{ ...link, color: '#C9A84C', opacity: 0.7 }}

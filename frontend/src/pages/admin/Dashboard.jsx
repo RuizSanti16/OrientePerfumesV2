@@ -492,8 +492,10 @@ export default function Dashboard() {
             </table>
             </div>
           )}
+          {/* No existe una pantalla /admin/ventas: las ventas se
+              consultan desde la gestion de pedidos. */}
           {ventas.length > 8 && (
-            <button onClick={() => navigate('/admin/ventas')}
+            <button onClick={() => navigate('/admin/pedidos')}
               style={{ marginTop: 14, background: 'none', border: 'none', color: PALETA.oro, fontSize: 10, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6 }}>
               Ver todas <Icon d={ICONS.arrow} size={13} color={PALETA.oro}/>
             </button>
