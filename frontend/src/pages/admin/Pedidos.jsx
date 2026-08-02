@@ -42,11 +42,11 @@ const IC = {
 
 /* ── Estado config ───────────────────────────────────────────── */
 const ESTADOS = {
-  pendiente:   { label: 'Pendiente',      color: '#E8A94C', icon: IC.clock  },
-  preparacion: { label: 'En preparación', color: '#7EB8C4', icon: IC.gear   },
-  enviado:     { label: 'Enviado',        color: '#9B8DC8', icon: IC.truck  },
-  entregado:   { label: 'Entregado',      color: '#6BC48C', icon: IC.check  },
-  cancelado:   { label: 'Cancelado',      color: '#e74c3c', icon: IC.x      },
+  pendiente:   { label: 'Pendiente',      color: '#E0A458', icon: IC.clock  },
+  preparacion: { label: 'En preparación', color: '#DCC68B', icon: IC.gear   },
+  enviado:     { label: 'Enviado',        color: '#B98D55', icon: IC.truck  },
+  entregado:   { label: 'Entregado',      color: '#9AAB80', icon: IC.check  },
+  cancelado:   { label: 'Cancelado',      color: '#C4664C', icon: IC.x      },
 };
 
 function EstadoBadge({ estado }) {
@@ -181,7 +181,7 @@ function ModalDetalle({ pedido, onClose, onEstadoChange }) {
           {parseFloat(pedido.descuento) > 0 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>
               <span>Descuento {pedido.cupon ? `(${pedido.cupon})` : ''}</span>
-              <span style={{ color: '#6BC48C' }}>−{fmt(pedido.descuento)}</span>
+              <span style={{ color: '#9AAB80' }}>−{fmt(pedido.descuento)}</span>
             </div>
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -462,7 +462,7 @@ export default function Pedidos() {
                     {fmtFechaCorta(p.fecha_pedido)}
                   </td>
                   <td style={{ padding: '14px 18px' }}>
-                    <span style={{ fontFamily: 'Cinzel, serif', fontSize: 12, color: '#6BC48C' }}>{fmt(p.total)}</span>
+                    <span style={{ fontFamily: 'Cinzel, serif', fontSize: 12, color: '#9AAB80' }}>{fmt(p.total)}</span>
                   </td>
                   <td style={{ padding: '14px 18px' }}>
                     <EstadoBadge estado={p.estado}/>
@@ -476,9 +476,9 @@ export default function Pedidos() {
                         <Icon d={IC.eye} size={14}/>
                       </button>
                       <button onClick={() => eliminar(p.id)} title="Eliminar"
-                        style={{ background: 'rgba(231,76,60,0.07)', border: '1px solid rgba(231,76,60,0.18)', borderRadius: 6, padding: '7px 8px', cursor: 'pointer', color: '#e74c3c', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.15)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.4)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(231,76,60,0.07)'; e.currentTarget.style.borderColor = 'rgba(231,76,60,0.18)'; }}>
+                        style={{ background: 'rgba(196,102,76,0.07)', border: '1px solid rgba(196,102,76,0.18)', borderRadius: 6, padding: '7px 8px', cursor: 'pointer', color: '#C4664C', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(196,102,76,0.15)'; e.currentTarget.style.borderColor = 'rgba(196,102,76,0.4)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(196,102,76,0.07)'; e.currentTarget.style.borderColor = 'rgba(196,102,76,0.18)'; }}>
                         <Icon d={IC.trash} size={14}/>
                       </button>
                     </div>

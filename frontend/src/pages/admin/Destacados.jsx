@@ -14,8 +14,8 @@ const IconBottle = ({ size = 36 }) => (
 
 const BADGES = [
   { value: 'none', label: 'Sin badge',  color: '#9A9180' },
-  { value: 'new',  label: 'Nuevo',      color: '#4caf50' },
-  { value: 'sale', label: 'Oferta',     color: '#e05252' },
+  { value: 'new',  label: 'Nuevo',      color: '#9AAB80' },
+  { value: 'sale', label: 'Oferta',     color: '#C4664C' },
   { value: 'excl', label: 'Exclusivo',  color: '#C9A84C' },
 ];
 
@@ -136,7 +136,7 @@ export default function Destacados() {
 
                   {/* Precios oferta: inputs lado a lado */}
                   {badge === 'sale' && (
-                    <div style={{ background: 'rgba(224,82,82,0.06)', border: '1px solid rgba(224,82,82,0.2)', borderRadius: '6px', padding: '8px' }}>
+                    <div style={{ background: 'rgba(196,102,76,0.06)', border: '1px solid rgba(196,102,76,0.2)', borderRadius: '6px', padding: '8px' }}>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <div style={{ flex: 1 }}>
                           <label style={{ fontFamily: 'Cinzel, serif', fontSize: '8px', color: '#9A9180', letterSpacing: '0.08em', display: 'block', marginBottom: '3px' }}>OFERTA</label>
@@ -159,7 +159,7 @@ export default function Destacados() {
                         <div style={{ fontSize: '10px', color: '#9A9180', marginTop: '5px' }}>
                           {item.precioAnterior && <s style={{ color: '#9A9180' }}>$ {Number(item.precioAnterior).toLocaleString('es-CO')}</s>}
                           {' '}
-                          {item.precioOferta && <span style={{ color: '#e05252', fontWeight: 600 }}>$ {Number(item.precioOferta).toLocaleString('es-CO')}</span>}
+                          {item.precioOferta && <span style={{ color: '#C4664C', fontWeight: 600 }}>$ {Number(item.precioOferta).toLocaleString('es-CO')}</span>}
                         </div>
                       )}
                     </div>

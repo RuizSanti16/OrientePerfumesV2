@@ -227,7 +227,7 @@ function LogoCard({ logo, inp, onNombre, onEliminar }) {
       {/* Preview del logo */}
       <div style={{ background: '#0f0f0d', height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
         {imgError ? (
-          <div style={{ color: '#e05252', fontSize: 10, fontFamily: 'Cinzel, serif', textAlign: 'center', letterSpacing: '0.1em' }}>ERROR<br/>DE IMAGEN</div>
+          <div style={{ color: '#C4664C', fontSize: 10, fontFamily: 'Cinzel, serif', textAlign: 'center', letterSpacing: '0.1em' }}>ERROR<br/>DE IMAGEN</div>
         ) : (
           <img
             src={logo.imagen} alt={logo.nombre}
@@ -246,9 +246,9 @@ function LogoCard({ logo, inp, onNombre, onEliminar }) {
           placeholder="Nombre de la marca"
         />
         <button onClick={onEliminar}
-          style={{ width: '100%', background: 'transparent', border: '1px solid rgba(224,82,82,0.35)', borderRadius: 4, padding: '5px', color: '#e05252', cursor: 'pointer', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.08em', transition: 'border-color 0.2s, background 0.2s' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(224,82,82,0.07)'; e.currentTarget.style.borderColor = '#e05252'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(224,82,82,0.35)'; }}>
+          style={{ width: '100%', background: 'transparent', border: '1px solid rgba(196,102,76,0.35)', borderRadius: 4, padding: '5px', color: '#C4664C', cursor: 'pointer', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.08em', transition: 'border-color 0.2s, background 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(196,102,76,0.07)'; e.currentTarget.style.borderColor = '#C4664C'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,102,76,0.35)'; }}>
           QUITAR
         </button>
       </div>

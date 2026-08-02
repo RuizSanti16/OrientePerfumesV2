@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productoDetalleAPI, productosAPI, subirImagen } from '../../services/api';
 import { MensajeEstado, IconClose, IconCheck, IconArrowLeft, IconArrowRight, IconStar, IconStarFilled } from '../../components/Icons';
@@ -120,13 +120,13 @@ export default function ProductoDetalle() {
         setMsg({ ok: false, texto: 'Error al subir imagen: ' + (res.mensaje || 'Error desconocido') });
       }
     } catch {
-      setMsg('✗ Error de conexión al subir imagen.');
+      setMsg({ ok: false, texto: 'Error de conexión al subir imagen.' });
     }
     setSubiendoDupe(p => ({ ...p, [idx]: false }));
   }
 
   if (loading) return <div style={{ padding:32, color:'#9A9180', fontFamily:'Cinzel,serif', fontSize:11 }}>CARGANDO...</div>;
-  if (!producto) return <div style={{ padding:32, color:'#e05252' }}>Producto no encontrado</div>;
+  if (!producto) return <div style={{ padding:32, color:'#C4664C' }}>Producto no encontrado</div>;
 
   const inp = { width:'100%', background:'#1a1a18', border:'1px solid rgba(201,168,76,0.2)', borderRadius:6, padding:'8px 12px', color:'#E8DCC8', fontSize:13, outline:'none', boxSizing:'border-box' };
   const NOTA_LABELS = { salida:'◈ Notas de Salida', corazon:'◆ Notas de Corazón', fondo:'◇ Notas de Fondo' };
@@ -167,7 +167,7 @@ export default function ProductoDetalle() {
             <div key={i} style={{ position:'relative', border:'1px solid rgba(201,168,76,0.15)', borderRadius:8, overflow:'hidden', aspectRatio:'1' }}>
               <img src={img} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
               <button onClick={() => setImagenes(prev => prev.filter((_,idx) => idx!==i))}
-                style={{ position:'absolute', top:4, right:4, background:'rgba(0,0,0,0.7)', border:'none', borderRadius:'50%', width:22, height:22, color:'#e05252', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}><IconClose size={12}/></button>
+                style={{ position:'absolute', top:4, right:4, background:'rgba(0,0,0,0.7)', border:'none', borderRadius:'50%', width:22, height:22, color:'#C4664C', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}><IconClose size={12}/></button>
             </div>
           ))}
           {/* Botón agregar / spinner */}
@@ -207,7 +207,7 @@ export default function ProductoDetalle() {
                 {notas[tipo].map((n,i) => (
                   <span key={i} style={{ background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:20, padding:'3px 10px', fontSize:12, color:'#E8DCC8', display:'flex', alignItems:'center', gap:5 }}>
                     {n}
-                    <button onClick={() => quitarNota(tipo,i)} style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:12, padding:0, lineHeight:1, display:'flex' }}><IconClose size={12}/></button>
+                    <button onClick={() => quitarNota(tipo,i)} style={{ background:'none', border:'none', color:'#C4664C', cursor:'pointer', fontSize:12, padding:0, lineHeight:1, display:'flex' }}><IconClose size={12}/></button>
                   </span>
                 ))}
               </div>
@@ -254,12 +254,12 @@ export default function ProductoDetalle() {
                 {/* Selector de vinculación al catálogo */}
                 <div style={{
                   gridColumn:'1/-1',
-                  background: d.id_referencia ? 'rgba(76,175,80,0.07)' : 'rgba(201,168,76,0.03)',
-                  border: `1px solid ${d.id_referencia ? 'rgba(76,175,80,0.3)' : 'rgba(201,168,76,0.12)'}`,
+                  background: d.id_referencia ? 'rgba(154,171,128,0.07)' : 'rgba(201,168,76,0.03)',
+                  border: `1px solid ${d.id_referencia ? 'rgba(154,171,128,0.3)' : 'rgba(201,168,76,0.12)'}`,
                   borderRadius:6, padding:'10px 12px',
                   transition:'background 0.2s, border-color 0.2s',
                 }}>
-                  <div style={{ fontFamily:'Cinzel,serif', fontSize:9, letterSpacing:'0.14em', color: d.id_referencia ? 'rgba(76,175,80,0.9)' : '#9A9180', marginBottom:8 }}>
+                  <div style={{ fontFamily:'Cinzel,serif', fontSize:9, letterSpacing:'0.14em', color: d.id_referencia ? 'rgba(154,171,128,0.9)' : '#9A9180', marginBottom:8 }}>
                     {d.id_referencia
                   ? <><IconCheck size={11} sw={2.6}/> VINCULADO AL CATÁLOGO</>
                   : 'VINCULAR A PRODUCTO DEL CATÁLOGO'}
@@ -269,7 +269,7 @@ export default function ProductoDetalle() {
                     /* Estado vinculado: muestra el nombre del producto + botón quitar */
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
                       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                        <div style={{ width:6, height:6, borderRadius:'50%', background:'rgba(76,175,80,0.8)', flexShrink:0 }} />
+                        <div style={{ width:6, height:6, borderRadius:'50%', background:'rgba(154,171,128,0.8)', flexShrink:0 }} />
                         <span style={{ fontSize:13, color:'#C9A84C', fontWeight:600 }}>
                           {todosProductos.find(p => String(p.id_producto) === String(d.id_referencia))?.nombre || `Producto #${d.id_referencia}`}
                         </span>
@@ -281,7 +281,7 @@ export default function ProductoDetalle() {
                       </div>
                       <button
                         onClick={() => updateDupe(i, 'id_referencia', null)}
-                        style={{ background:'transparent', border:'1px solid rgba(224,82,82,0.4)', borderRadius:4, padding:'3px 10px', color:'#e05252', cursor:'pointer', fontSize:10, fontFamily:'Cinzel,serif', letterSpacing:'0.08em', whiteSpace:'nowrap', flexShrink:0 }}>
+                        style={{ background:'transparent', border:'1px solid rgba(196,102,76,0.4)', borderRadius:4, padding:'3px 10px', color:'#C4664C', cursor:'pointer', fontSize:10, fontFamily:'Cinzel,serif', letterSpacing:'0.08em', whiteSpace:'nowrap', flexShrink:0 }}>
                         Quitar
                       </button>
                     </div>
@@ -305,7 +305,7 @@ export default function ProductoDetalle() {
                 </div>
               </div>
               <button onClick={() => setDupes(prev => prev.filter((_,idx)=>idx!==i))}
-                style={{ background:'none', border:'none', color:'#e05252', cursor:'pointer', fontSize:18, flexShrink:0, display:'flex' }}><IconClose size={14}/></button>
+                style={{ background:'none', border:'none', color:'#C4664C', cursor:'pointer', fontSize:18, flexShrink:0, display:'flex' }}><IconClose size={14}/></button>
             </div>
           ))}
         </div>
@@ -334,7 +334,7 @@ export default function ProductoDetalle() {
                 {r.comentario && <p style={{ fontSize:12, color:'#9A9180', margin:0 }}>{r.comentario}</p>}
               </div>
               <button onClick={() => eliminarRating(r.id)}
-                style={{ background:'none', border:'1px solid rgba(224,82,82,0.3)', borderRadius:4, padding:'3px 8px', color:'#e05252', cursor:'pointer', fontSize:10, flexShrink:0 }}>
+                style={{ background:'none', border:'1px solid rgba(196,102,76,0.3)', borderRadius:4, padding:'3px 8px', color:'#C4664C', cursor:'pointer', fontSize:10, flexShrink:0 }}>
                 Eliminar
               </button>
             </div>

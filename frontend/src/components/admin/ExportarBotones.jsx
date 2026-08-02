@@ -35,7 +35,7 @@ export default function ExportarBotones({ onPDF, onExcel, disabled = false }) {
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
       <Btn label="PDF"   color="#e07a5f" onClick={onPDF}   disabled={disabled}/>
-      <Btn label="EXCEL" color="#6BC48C" onClick={onExcel} disabled={disabled}/>
+      <Btn label="EXCEL" color="#9AAB80" onClick={onExcel} disabled={disabled}/>
     </div>
   );
 }

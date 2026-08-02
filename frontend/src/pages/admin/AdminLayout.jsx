@@ -139,7 +139,7 @@ export default function AdminLayout() {
                 <span style={{
                   position: 'absolute', top: 0, right: 0,
                   width: 16, height: 16, borderRadius: '50%',
-                  background: '#e74c3c', color: '#fff',
+                  background: '#C4664C', color: '#fff',
                   fontSize: 9, fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   border: '2px solid #111',
@@ -161,9 +161,9 @@ export default function AdminLayout() {
                 {notifs && (
                   <div style={{ padding: '8px 0' }}>
                     {[
-                      { label: 'Pedidos pendientes',     value: notifs.pedidos_pendientes,     color: '#E8A94C', to: '/admin/pedidos' },
-                      { label: 'Comentarios pendientes', value: notifs.comentarios_pendientes, color: '#7EB8C4', to: '/admin/noticias' },
-                      { label: 'Productos stock bajo',   value: notifs.stock_bajo,             color: '#e74c3c', to: '/admin/inventory' },
+                      { label: 'Pedidos pendientes',     value: notifs.pedidos_pendientes,     color: '#E0A458', to: '/admin/pedidos' },
+                      { label: 'Comentarios pendientes', value: notifs.comentarios_pendientes, color: '#DCC68B', to: '/admin/noticias' },
+                      { label: 'Productos stock bajo',   value: notifs.stock_bajo,             color: '#C4664C', to: '/admin/inventory' },
                     ].map(n => (
                       <button key={n.label}
                         onClick={() => { setBellOpen(false); navigate(n.to); }}
@@ -206,12 +206,12 @@ export default function AdminLayout() {
               })}>
               <span>{item.label}</span>
               {item.to === '/admin/pedidos' && notifs && notifs.pedidos_pendientes > 0 && (
-                <span style={{ background: '#E8A94C', color: '#0a0a08', borderRadius: '50%', width: 18, height: 18, fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ background: '#E0A458', color: '#0a0a08', borderRadius: '50%', width: 18, height: 18, fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {notifs.pedidos_pendientes > 9 ? '9+' : notifs.pedidos_pendientes}
                 </span>
               )}
               {item.to === '/admin/noticias' && notifs && notifs.comentarios_pendientes > 0 && (
-                <span style={{ background: '#7EB8C4', color: '#0a0a08', borderRadius: '50%', width: 18, height: 18, fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <span style={{ background: '#DCC68B', color: '#0a0a08', borderRadius: '50%', width: 18, height: 18, fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {notifs.comentarios_pendientes > 9 ? '9+' : notifs.comentarios_pendientes}
                 </span>
               )}

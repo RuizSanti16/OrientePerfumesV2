@@ -5,6 +5,8 @@ import { exportarPDF, exportarExcel } from '../../utils/exportar';
 import ExportarBotones from '../../components/admin/ExportarBotones';
 import { IconSparkle } from '../../components/Icons';
 
+import { PALETA } from '../../theme';
+
 /* ── Helpers ─────────────────────────────────────────────────── */
 function fmt(n) {
   return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n);
@@ -50,7 +52,7 @@ const ICONS = {
 };
 
 /* ── KPI Card ────────────────────────────────────────────────── */
-function KpiCard({ iconEl, label, value, sub, color = '#C9A84C', trend }) {
+function KpiCard({ iconEl, label, value, sub, color = PALETA.oro, trend }) {
   return (
     <div style={{
       background: 'linear-gradient(145deg, #161614, #111110)',
@@ -84,10 +86,10 @@ function KpiCard({ iconEl, label, value, sub, color = '#C9A84C', trend }) {
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4 }}>{sub}</div>
       {trend !== undefined && (
         <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 16, height: 16, borderRadius: '50%', background: trend >= 0 ? 'rgba(107,196,140,0.15)' : 'rgba(231,76,60,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon d={ICONS.trending} size={9} color={trend >= 0 ? '#6BC48C' : '#e74c3c'} strokeWidth={2.5}/>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: trend >= 0 ? 'rgba(154,171,128,0.15)' : 'rgba(196,102,76,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon d={ICONS.trending} size={9} color={trend >= 0 ? PALETA.salvia : PALETA.terracota} strokeWidth={2.5}/>
           </div>
-          <span style={{ fontSize: 11, color: trend >= 0 ? '#6BC48C' : '#e74c3c', fontWeight: 600 }}>
+          <span style={{ fontSize: 11, color: trend >= 0 ? PALETA.salvia : PALETA.terracota, fontWeight: 600 }}>
             {trend >= 0 ? '+' : ''}{trend}% vs mes anterior
           </span>
         </div>
@@ -112,7 +114,7 @@ function Panel({ children, style }) {
 }
 
 /* ── Section Title ───────────────────────────────────────────── */
-function SectionTitle({ children, color = '#C9A84C' }) {
+function SectionTitle({ children, color = PALETA.oro }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
       <div style={{ width: 3, height: 16, borderRadius: 2, background: color, flexShrink: 0 }}/>
@@ -124,7 +126,7 @@ function SectionTitle({ children, color = '#C9A84C' }) {
 }
 
 /* ── Bar Chart ───────────────────────────────────────────────── */
-function BarChart({ data, valueKey = 'ingresos', labelKey = 'mes_label', color = '#C9A84C', height = 100 }) {
+function BarChart({ data, valueKey = 'ingresos', labelKey = 'mes_label', color = PALETA.oro, height = 100 }) {
   if (!data || data.length === 0) return (
     <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.2)', fontSize: 12 }}>Sin datos</div>
   );
@@ -165,7 +167,7 @@ function BarChart({ data, valueKey = 'ingresos', labelKey = 'mes_label', color =
 }
 
 /* ── Progress List ───────────────────────────────────────────── */
-function ProgressList({ items, nameKey = 'nombre', valueKey = 'total_vendido', color = '#C9A84C', suffix = 'uds' }) {
+function ProgressList({ items, nameKey = 'nombre', valueKey = 'total_vendido', color = PALETA.oro, suffix = 'uds' }) {
   if (!items || items.length === 0) return (
     <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: 12, padding: '12px 0' }}>Sin datos disponibles</div>
   );
@@ -242,16 +244,16 @@ export default function Dashboard() {
   })();
 
   const ACCESOS = [
-    { label: 'Productos',   to: '/admin/products',    iconEl: ICONS.producto,   color: '#C9A84C' },
-    { label: 'Destacados',  to: '/admin/destacados',  iconEl: ICONS.estrella,   color: '#C9A84C' },
-    { label: 'Pedidos',     to: '/admin/pedidos',     iconEl: ICONS.pedidos,    color: '#7EB8C4' },
-    { label: 'Clientes',    to: '/admin/customers',   iconEl: ICONS.cliente,    color: '#7EB8C4' },
-    { label: 'Inventario',  to: '/admin/inventory',   iconEl: ICONS.inventario, color: '#9B8DC8' },
-    { label: 'Cupones',     to: '/admin/cupones',     iconEl: ICONS.cupones,    color: '#9B8DC8' },
-    { label: 'Carrusel',    to: '/admin/carrusel',    iconEl: ICONS.carrusel,   color: '#6BC48C' },
-    { label: 'Noticias',    to: '/admin/noticias',    iconEl: ICONS.noticias,   color: '#6BC48C' },
-    { label: 'Colecciones', to: '/admin/colecciones', iconEl: ICONS.coleccion,  color: '#E8A94C' },
-    { label: 'Ajustes',     to: '/admin/ajustes',     iconEl: ICONS.ajustes,    color: '#E8A94C' },
+    { label: 'Productos',   to: '/admin/products',    iconEl: ICONS.producto,   color: PALETA.oro },
+    { label: 'Destacados',  to: '/admin/destacados',  iconEl: ICONS.estrella,   color: PALETA.oro },
+    { label: 'Pedidos',     to: '/admin/pedidos',     iconEl: ICONS.pedidos,    color: PALETA.champan },
+    { label: 'Clientes',    to: '/admin/customers',   iconEl: ICONS.cliente,    color: PALETA.champan },
+    { label: 'Inventario',  to: '/admin/inventory',   iconEl: ICONS.inventario, color: PALETA.bronce },
+    { label: 'Cupones',     to: '/admin/cupones',     iconEl: ICONS.cupones,    color: PALETA.bronce },
+    { label: 'Carrusel',    to: '/admin/carrusel',    iconEl: ICONS.carrusel,   color: PALETA.salvia },
+    { label: 'Noticias',    to: '/admin/noticias',    iconEl: ICONS.noticias,   color: PALETA.salvia },
+    { label: 'Colecciones', to: '/admin/colecciones', iconEl: ICONS.coleccion,  color: PALETA.ambar },
+    { label: 'Ajustes',     to: '/admin/ajustes',     iconEl: ICONS.ajustes,    color: PALETA.ambar },
   ];
 
   /* ── Exportar reporte general ── */
@@ -311,7 +313,7 @@ export default function Dashboard() {
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: 16 }}>
-      <div style={{ width: 32, height: 32, border: '2px solid rgba(201,168,76,0.15)', borderTopColor: '#C9A84C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
+      <div style={{ width: 32, height: 32, border: '2px solid rgba(201,168,76,0.15)', borderTopColor: PALETA.oro, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}/>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <span style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.5)', textTransform: 'uppercase' }}>Cargando</span>
     </div>
@@ -345,7 +347,7 @@ export default function Dashboard() {
           </div>
           <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 38, fontWeight: 400, margin: 0, lineHeight: 1.1 }}>
             {saludo},&nbsp;
-            <span style={{ color: '#C9A84C', fontStyle: 'italic' }}>{session.nombre || 'Admin'}</span>
+            <span style={{ color: PALETA.oro, fontStyle: 'italic' }}>{session.nombre || 'Admin'}</span>
           </h1>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 15, color: 'rgba(255,255,255,0.3)', marginTop: 6, fontStyle: 'italic' }}>
             {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -366,13 +368,13 @@ export default function Dashboard() {
       {/* ── KPIs principales ── */}
       <div className="admin-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
         <KpiCard iconEl={ICONS.producto} label="Productos en catálogo" value={productos.length}
-          sub={`${productos.length} referencias disponibles`} color="#C9A84C" />
+          sub={`${productos.length} referencias disponibles`} color={PALETA.oro} />
         <KpiCard iconEl={ICONS.cliente} label="Clientes registrados" value={clientes.length}
-          sub="Total de cuentas activas" color="#7EB8C4" />
+          sub="Total de cuentas activas" color={PALETA.champan} />
         <KpiCard iconEl={ICONS.venta} label="Órdenes totales" value={ventas.length}
-          sub="Historial completo" color="#9B8DC8" />
+          sub="Historial completo" color={PALETA.bronce} />
         <KpiCard iconEl={ICONS.ingreso} label="Ingresos totales" value={fmtCompact(totalIngresos)}
-          sub={fmt(totalIngresos)} color="#6BC48C" trend={trend} />
+          sub={fmt(totalIngresos)} color={PALETA.salvia} trend={trend} />
       </div>
 
       {/* ── KPIs período ── */}
@@ -381,22 +383,22 @@ export default function Dashboard() {
           <KpiCard iconEl={ICONS.ingreso} label="Ingresos este mes"
             value={fmtCompact(parseFloat(stats.kpis_periodo.ingresos_mes_actual || 0))}
             sub={fmt(parseFloat(stats.kpis_periodo.ingresos_mes_actual || 0))}
-            color="#C9A84C" trend={trend} />
+            color={PALETA.oro} trend={trend} />
           <KpiCard iconEl={ICONS.venta} label="Ventas este mes"
             value={parseInt(stats.kpis_periodo.ventas_mes_actual || 0)}
             sub={`${parseInt(stats.kpis_periodo.ventas_mes_anterior || 0)} el mes anterior`}
-            color="#7EB8C4" />
+            color={PALETA.champan} />
           {stats.pedidos_pendientes !== undefined && (
             <KpiCard iconEl={ICONS.alerta} label="Pedidos pendientes"
               value={stats.pedidos_pendientes}
               sub={stats.pedidos_pendientes === 0 ? 'Todo al día' : 'Requieren atención'}
-              color={stats.pedidos_pendientes > 0 ? '#E8A94C' : '#6BC48C'} />
+              color={stats.pedidos_pendientes > 0 ? PALETA.ambar : PALETA.salvia} />
           )}
           {stats.stock_bajo_count !== undefined && (
             <KpiCard iconEl={ICONS.inventario} label="Stock bajo"
               value={stats.stock_bajo_count}
               sub={stats.stock_bajo_count === 0 ? 'Inventario al día' : 'Stock ≤ 5 unidades'}
-              color={stats.stock_bajo_count > 0 ? '#e74c3c' : '#6BC48C'} />
+              color={stats.stock_bajo_count > 0 ? PALETA.terracota : PALETA.salvia} />
           )}
         </div>
       )}
@@ -441,20 +443,20 @@ export default function Dashboard() {
       {stats && (
         <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
           <Panel>
-            <SectionTitle color="#C9A84C">Ingresos por mes</SectionTitle>
-            <BarChart data={stats.ventas_por_mes || []} valueKey="ingresos" labelKey="mes_label" color="#C9A84C" height={100}/>
+            <SectionTitle color={PALETA.oro}>Ingresos por mes</SectionTitle>
+            <BarChart data={stats.ventas_por_mes || []} valueKey="ingresos" labelKey="mes_label" color={PALETA.oro} height={100}/>
           </Panel>
           <Panel>
-            <SectionTitle color="#7EB8C4">Pedidos por mes</SectionTitle>
-            <BarChart data={stats.ventas_por_mes || []} valueKey="cantidad" labelKey="mes_label" color="#7EB8C4" height={100}/>
+            <SectionTitle color={PALETA.champan}>Pedidos por mes</SectionTitle>
+            <BarChart data={stats.ventas_por_mes || []} valueKey="cantidad" labelKey="mes_label" color={PALETA.champan} height={100}/>
           </Panel>
           <Panel>
-            <SectionTitle color="#9B8DC8">Productos más vendidos</SectionTitle>
-            <ProgressList items={stats.productos_mas_vendidos || []} nameKey="nombre" valueKey="total_vendido" color="#9B8DC8" suffix="uds"/>
+            <SectionTitle color={PALETA.bronce}>Productos más vendidos</SectionTitle>
+            <ProgressList items={stats.productos_mas_vendidos || []} nameKey="nombre" valueKey="total_vendido" color={PALETA.bronce} suffix="uds"/>
           </Panel>
           <Panel>
-            <SectionTitle color="#E8A94C">Movimiento por categoría</SectionTitle>
-            <ProgressList items={(stats.por_categoria || []).map(c => ({ ...c, nombre: c.categoria }))} nameKey="nombre" valueKey="total_vendido" color="#E8A94C" suffix="uds"/>
+            <SectionTitle color={PALETA.ambar}>Movimiento por categoría</SectionTitle>
+            <ProgressList items={(stats.por_categoria || []).map(c => ({ ...c, nombre: c.categoria }))} nameKey="nombre" valueKey="total_vendido" color={PALETA.ambar} suffix="uds"/>
           </Panel>
         </div>
       )}
@@ -483,7 +485,7 @@ export default function Dashboard() {
                     <td style={{ padding: '10px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: 'Cinzel, serif' }}>#{v.id_venta}</td>
                     <td style={{ padding: '10px 12px 10px 0', fontSize: 13, color: i === 0 ? '#E8DCC8' : 'rgba(255,255,255,0.55)' }}>{v.nombre_cliente || '—'}</td>
                     <td style={{ padding: '10px 12px 10px 0', fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{fmtFecha(v.fecha)}</td>
-                    <td style={{ padding: '10px 0', fontSize: 13, color: '#6BC48C', fontFamily: 'Cinzel, serif', fontWeight: 600 }}>{fmt(v.total)}</td>
+                    <td style={{ padding: '10px 0', fontSize: 13, color: PALETA.salvia, fontFamily: 'Cinzel, serif', fontWeight: 600 }}>{fmt(v.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -492,8 +494,8 @@ export default function Dashboard() {
           )}
           {ventas.length > 8 && (
             <button onClick={() => navigate('/admin/ventas')}
-              style={{ marginTop: 14, background: 'none', border: 'none', color: '#C9A84C', fontSize: 10, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6 }}>
-              Ver todas <Icon d={ICONS.arrow} size={13} color="#C9A84C"/>
+              style={{ marginTop: 14, background: 'none', border: 'none', color: PALETA.oro, fontSize: 10, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6 }}>
+              Ver todas <Icon d={ICONS.arrow} size={13} color={PALETA.oro}/>
             </button>
           )}
         </Panel>
@@ -503,21 +505,21 @@ export default function Dashboard() {
 
           {/* Stock bajo */}
           <Panel>
-            <SectionTitle color="#e74c3c">Stock bajo</SectionTitle>
+            <SectionTitle color={PALETA.terracota}>Stock bajo</SectionTitle>
             {stockBajo.length === 0 ? (
-              <div style={{ color: '#6BC48C', fontSize: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Icon d={ICONS.check} size={14} color="#6BC48C" strokeWidth={2.5}/>
+              <div style={{ color: PALETA.salvia, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Icon d={ICONS.check} size={14} color={PALETA.salvia} strokeWidth={2.5}/>
                 Inventario al día
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {stockBajo.map(item => (
-                  <div key={item.id_inventario} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 10px', background: 'rgba(231,76,60,0.04)', borderRadius: 6, border: '1px solid rgba(231,76,60,0.1)' }}>
+                  <div key={item.id_inventario} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 10px', background: 'rgba(196,102,76,0.04)', borderRadius: 6, border: '1px solid rgba(196,102,76,0.1)' }}>
                     <div>
                       <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{item.nombre_producto}</div>
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{item.marca}</div>
                     </div>
-                    <span style={{ fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', padding: '3px 8px', borderRadius: 4, background: parseInt(item.stock) === 0 ? 'rgba(231,76,60,0.15)' : 'rgba(232,169,76,0.12)', color: parseInt(item.stock) === 0 ? '#e74c3c' : '#E8A94C', border: `1px solid ${parseInt(item.stock) === 0 ? 'rgba(231,76,60,0.3)' : 'rgba(232,169,76,0.25)'}` }}>
+                    <span style={{ fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', padding: '3px 8px', borderRadius: 4, background: parseInt(item.stock) === 0 ? 'rgba(196,102,76,0.15)' : 'rgba(224,164,88,0.12)', color: parseInt(item.stock) === 0 ? PALETA.terracota : PALETA.ambar, border: `1px solid ${parseInt(item.stock) === 0 ? 'rgba(196,102,76,0.3)' : 'rgba(224,164,88,0.25)'}` }}>
                       {parseInt(item.stock) === 0 ? 'Sin stock' : `${item.stock} uds`}
                     </span>
                   </div>
@@ -545,15 +547,15 @@ export default function Dashboard() {
                     <div style={{ fontSize: 12, color: i === 0 ? '#E8DCC8' : 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.nombre}</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{p.marca || '—'}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: '#C9A84C', fontFamily: 'Cinzel, serif', flexShrink: 0 }}>
+                  <div style={{ fontSize: 12, color: PALETA.oro, fontFamily: 'Cinzel, serif', flexShrink: 0 }}>
                     {p.precio ? fmtCompact(p.precio) : '—'}
                   </div>
                 </div>
               ))}
             </div>
             <button onClick={() => navigate('/admin/products')}
-              style={{ marginTop: 12, background: 'none', border: 'none', color: '#C9A84C', fontSize: 10, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6 }}>
-              Ver todos <Icon d={ICONS.arrow} size={13} color="#C9A84C"/>
+              style={{ marginTop: 12, background: 'none', border: 'none', color: PALETA.oro, fontSize: 10, cursor: 'pointer', padding: 0, fontFamily: 'Cinzel, serif', letterSpacing: '0.14em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6 }}>
+              Ver todos <Icon d={ICONS.arrow} size={13} color={PALETA.oro}/>
             </button>
           </Panel>
         </div>

@@ -111,14 +111,14 @@ function VideoUploader({ videoData, onChange }) {
               <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 12, color: '#C9A84C', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Ico d={ICO.check} size={13} color="#4caf50" sw={2.5} />
+                    <Ico d={ICO.check} size={13} color="#9AAB80" sw={2.5} />
                     Video subido correctamente
                   </div>
                   {videoData.nombreArchivo && <div style={{ fontSize: 11, color: '#6B6355', marginTop: 2 }}>{videoData.nombreArchivo}</div>}
                 </div>
                 <button onClick={quitarVideo}
-                  style={{ background: 'rgba(224,82,82,0.1)', border: '1px solid rgba(224,82,82,0.2)', borderRadius: 6, padding: '5px 10px', color: '#e05252', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <Ico d={ICO.trash} size={12} color="#e05252" />
+                  style={{ background: 'rgba(196,102,76,0.1)', border: '1px solid rgba(196,102,76,0.2)', borderRadius: 6, padding: '5px 10px', color: '#C4664C', cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Ico d={ICO.trash} size={12} color="#C4664C" />
                   Quitar
                 </button>
               </div>
@@ -151,7 +151,7 @@ function VideoUploader({ videoData, onChange }) {
                 style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
             </div>
           )}
-          {error && <div style={{ marginTop: 8, fontSize: 12, color: '#e05252' }}>{error}</div>}
+          {error && <div style={{ marginTop: 8, fontSize: 12, color: '#C4664C' }}>{error}</div>}
         </>
       )}
 
@@ -266,8 +266,8 @@ export default function NoticiasAdmin() {
 
       {/* Mensaje */}
       {msg && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, padding: '10px 16px', background: msg.ok ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: 6, fontSize: 13 }}>
-          <Ico d={msg.ok ? ICO.check : ICO.close} size={15} color={msg.ok ? '#4caf50' : '#e05252'} sw={2.5} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, padding: '10px 16px', background: msg.ok ? 'rgba(154,171,128,0.1)' : 'rgba(196,102,76,0.1)', border: `1px solid ${msg.ok ? 'rgba(154,171,128,0.3)' : 'rgba(196,102,76,0.3)'}`, borderRadius: 6, fontSize: 13 }}>
+          <Ico d={msg.ok ? ICO.check : ICO.close} size={15} color={msg.ok ? '#9AAB80' : '#C4664C'} sw={2.5} />
           {msg.texto}
         </div>
       )}
@@ -353,7 +353,7 @@ export default function NoticiasAdmin() {
                 {/* Eliminar */}
                 <button onClick={() => eliminarLanz(l.id)}
                   style={{ background: 'none', border: 'none', color: '#6B6355', cursor: 'pointer', padding: 4, flexShrink: 0, transition: 'color 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#e05252'}
+                  onMouseEnter={e => e.currentTarget.style.color = '#C4664C'}
                   onMouseLeave={e => e.currentTarget.style.color = '#6B6355'}>
                   <Ico d={ICO.trash} size={16} />
                 </button>
@@ -369,7 +369,7 @@ export default function NoticiasAdmin() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={sectionTitle}>MODERACIÓN DE COMENTARIOS</span>
             {comentarios.filter(c => c.estado === 'pendiente').length > 0 && (
-              <span style={{ background: '#e05252', color: '#fff', fontSize: 10, fontFamily: 'Cinzel, serif', borderRadius: 20, padding: '2px 8px', letterSpacing: '0.08em' }}>
+              <span style={{ background: '#C4664C', color: '#fff', fontSize: 10, fontFamily: 'Cinzel, serif', borderRadius: 20, padding: '2px 8px', letterSpacing: '0.08em' }}>
                 {comentarios.filter(c => c.estado === 'pendiente').length} pendientes
               </span>
             )}
@@ -382,9 +382,9 @@ export default function NoticiasAdmin() {
         {/* Tabs de filtro */}
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
           {[
-            { key: 'pendiente',  label: 'Pendientes',  color: '#E8A94C' },
-            { key: 'aprobado',   label: 'Aprobados',   color: '#4caf50' },
-            { key: 'rechazado',  label: 'Rechazados',  color: '#e05252' },
+            { key: 'pendiente',  label: 'Pendientes',  color: '#E0A458' },
+            { key: 'aprobado',   label: 'Aprobados',   color: '#9AAB80' },
+            { key: 'rechazado',  label: 'Rechazados',  color: '#C4664C' },
           ].map(t => {
             const cnt = comentarios.filter(c => c.estado === t.key).length;
             const active = filtroComent === t.key;
@@ -430,21 +430,21 @@ export default function NoticiasAdmin() {
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                 {c.estado !== 'aprobado' && (
                   <button onClick={() => moderarComentario(c.id, 'aprobado')} title="Aprobar"
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.25)', color: '#4caf50', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
-                    <Ico d={ICO.check} size={12} color="#4caf50" sw={2.5} />
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(154,171,128,0.1)', border: '1px solid rgba(154,171,128,0.25)', color: '#9AAB80', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
+                    <Ico d={ICO.check} size={12} color="#9AAB80" sw={2.5} />
                     Aprobar
                   </button>
                 )}
                 {c.estado !== 'rechazado' && (
                   <button onClick={() => moderarComentario(c.id, 'rechazado')} title="Rechazar"
-                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(224,82,82,0.1)', border: '1px solid rgba(224,82,82,0.25)', color: '#e05252', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
-                    <Ico d={ICO.ban} size={12} color="#e05252" />
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 6, background: 'rgba(196,102,76,0.1)', border: '1px solid rgba(196,102,76,0.25)', color: '#C4664C', cursor: 'pointer', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em' }}>
+                    <Ico d={ICO.ban} size={12} color="#C4664C" />
                     Rechazar
                   </button>
                 )}
                 <button onClick={() => eliminarComentario(c.id)} title="Eliminar"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 6, background: 'none', border: '1px solid rgba(255,255,255,0.07)', color: '#6B6355', cursor: 'pointer', transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#e05252'; e.currentTarget.style.borderColor = 'rgba(224,82,82,0.3)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#C4664C'; e.currentTarget.style.borderColor = 'rgba(196,102,76,0.3)'; }}
                   onMouseLeave={e => { e.currentTarget.style.color = '#6B6355'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}>
                   <Ico d={ICO.trash} size={13} />
                 </button>

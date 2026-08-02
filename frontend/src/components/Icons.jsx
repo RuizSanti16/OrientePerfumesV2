@@ -83,9 +83,9 @@ export const IconSparkle = ({ size = 10, ...resto }) => (
    que no podia cambiarse sin romper la logica del color. Este
    componente recibe el estado como dato aparte y dibuja el icono. */
 export function MensajeEstado({ ok, texto, style }) {
-  const color  = ok ? '#4caf50' : '#e05252';
-  const fondo  = ok ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)';
-  const borde  = ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)';
+  const color  = ok ? '#9AAB80' : '#C4664C';
+  const fondo  = ok ? 'rgba(154,171,128,0.1)' : 'rgba(196,102,76,0.1)';
+  const borde  = ok ? 'rgba(154,171,128,0.3)' : 'rgba(196,102,76,0.3)';
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 9,

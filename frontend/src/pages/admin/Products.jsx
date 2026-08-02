@@ -179,7 +179,7 @@ export default function Products() {
               <td style={{ padding: '10px 16px' }}>
                 <button onClick={() => abrirEditar(p)} style={btnOutline}>Editar</button>
                 <button onClick={() => navigate(`/admin/producto/${p.id_producto}`)} style={{ ...btnOutline, color: '#9A9180', borderColor: 'rgba(201,168,76,0.2)', marginLeft: 8 }}>Detalle</button>
-                <button onClick={() => eliminar(p.id_producto)} style={{ ...btnOutline, color: '#e05252', borderColor: '#e05252', marginLeft: 8 }}>Eliminar</button>
+                <button onClick={() => eliminar(p.id_producto)} style={{ ...btnOutline, color: '#C4664C', borderColor: '#C4664C', marginLeft: 8 }}>Eliminar</button>
               </td>
               </tr>
             ))}
@@ -221,7 +221,7 @@ export default function Products() {
             {imagenB64 && !imagenB64.startsWith('data:') && (
               <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
                 <input readOnly value={imagenB64} style={{ ...inputStyle, fontSize: 11, color: '#9A9180' }} />
-                <button onClick={() => setImagenB64('')} style={{ background: 'none', border: '1px solid rgba(224,82,82,0.4)', borderRadius: 4, padding: '0 10px', color: '#e05252', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: 11 }}>Quitar</button>
+                <button onClick={() => setImagenB64('')} style={{ background: 'none', border: '1px solid rgba(196,102,76,0.4)', borderRadius: 4, padding: '0 10px', color: '#C4664C', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: 11 }}>Quitar</button>
               </div>
             )}
             <input placeholder="O pega una URL de imagen" value={imagenB64.startsWith('data:') || imagenB64.startsWith('/OrientPerfumes') ? '' : imagenB64}
@@ -413,7 +413,7 @@ function PresentacionesEditor({ presentaciones, onChange }) {
               <button
                 type="button"
                 onClick={() => quitarCustom(pr._idx)}
-                style={{ background: 'none', border: '1px solid #e05252', color: '#e05252', borderRadius: 4, padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                style={{ background: 'none', border: '1px solid #C4664C', color: '#C4664C', borderRadius: 4, padding: '0 10px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                 <IconClose size={13}/>
               </button>
             </div>

@@ -95,7 +95,7 @@ export default function Suppliers() {
 
 const btnGold = { background:'#C9A84C', border:'none', borderRadius:6, padding:'8px 16px', color:'#0a0a08', cursor:'pointer', fontFamily:'Cinzel, serif', fontSize:11, letterSpacing:'0.1em' };
 const btnEdit = { background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:4, padding:'4px 10px', color:'#C9A84C', cursor:'pointer', fontSize:11, marginRight:8 };
-const btnDel  = { background:'transparent', border:'1px solid #e05252', borderRadius:4, padding:'4px 10px', color:'#e05252', cursor:'pointer', fontSize:11 };
+const btnDel  = { background:'transparent', border:'1px solid #C4664C', borderRadius:4, padding:'4px 10px', color:'#C4664C', cursor:'pointer', fontSize:11 };
 const thStyle = { padding:'12px 16px', textAlign:'left', fontFamily:'Cinzel, serif', fontSize:10, letterSpacing:'0.15em', color:'#9A9180' };
 const td      = { padding:'12px 16px', fontWeight:600, color:'#E8DCC8' };
 const tdMuted = { padding:'12px 16px', color:'#9A9180', fontSize:13 };

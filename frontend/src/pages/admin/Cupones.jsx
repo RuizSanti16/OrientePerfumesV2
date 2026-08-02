@@ -208,7 +208,7 @@ export default function Cupones() {
             </div>
 
             {msg && (
-              <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(224,82,82,0.1)', border: '1px solid rgba(224,82,82,0.3)', borderRadius: 6, fontSize: 13, color: '#e05252' }}>
+              <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(196,102,76,0.1)', border: '1px solid rgba(196,102,76,0.3)', borderRadius: 6, fontSize: 13, color: '#C4664C' }}>
                 {msg}
               </div>
             )}
@@ -288,13 +288,13 @@ export default function Cupones() {
 
                   {/* Estado */}
                   <td style={{ padding: '13px 16px' }}>
-                    <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.12em', padding: '3px 10px', borderRadius: 20, background: cup.activo ? 'rgba(76,175,80,0.12)' : 'rgba(224,82,82,0.1)', color: cup.activo ? '#4caf50' : '#e05252', border: `1px solid ${cup.activo ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.25)'}` }}>
+                    <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.12em', padding: '3px 10px', borderRadius: 20, background: cup.activo ? 'rgba(154,171,128,0.12)' : 'rgba(196,102,76,0.1)', color: cup.activo ? '#9AAB80' : '#C4664C', border: `1px solid ${cup.activo ? 'rgba(154,171,128,0.3)' : 'rgba(196,102,76,0.25)'}` }}>
                       {cup.activo ? 'ACTIVO' : 'INACTIVO'}
                     </span>
                   </td>
 
                   {/* Vencimiento */}
-                  <td style={{ padding: '13px 16px', fontSize: 12, color: cup.fecha_vencimiento && cup.fecha_vencimiento < new Date().toISOString().split('T')[0] ? '#e05252' : '#C8C0B0' }}>
+                  <td style={{ padding: '13px 16px', fontSize: 12, color: cup.fecha_vencimiento && cup.fecha_vencimiento < new Date().toISOString().split('T')[0] ? '#C4664C' : '#C8C0B0' }}>
                     {fmtFecha(cup.fecha_vencimiento)}
                   </td>
 
@@ -306,7 +306,7 @@ export default function Cupones() {
                         EDITAR
                       </button>
                       <button onClick={() => eliminar(cup.id, cup.codigo)}
-                        style={{ background: 'none', border: '1px solid rgba(224,82,82,0.3)', borderRadius: 4, padding: '5px 12px', color: '#e05252', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.1em' }}>
+                        style={{ background: 'none', border: '1px solid rgba(196,102,76,0.3)', borderRadius: 4, padding: '5px 12px', color: '#C4664C', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.1em' }}>
                         ELIMINAR
                       </button>
                     </div>

@@ -183,7 +183,7 @@ export default function Carrusel() {
               {/* Quitar imagen */}
               {s.imagen && !uploading[s.id] && (
                 <button onClick={() => update(s.id, 'imagen', '')}
-                  style={{ marginTop: 8, width: '100%', background: 'transparent', border: '1px solid rgba(224,82,82,0.4)', borderRadius: 4, padding: '5px 0', color: '#e05252', cursor: 'pointer', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
+                  style={{ marginTop: 8, width: '100%', background: 'transparent', border: '1px solid rgba(196,102,76,0.4)', borderRadius: 4, padding: '5px 0', color: '#C4664C', cursor: 'pointer', fontSize: 10, fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
                   QUITAR IMAGEN
                 </button>
               )}

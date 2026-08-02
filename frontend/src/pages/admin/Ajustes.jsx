@@ -129,17 +129,17 @@ export default function Ajustes() {
         <div className="adm-ajustes-head-acc" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {msg === 'ok' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
-              background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.3)',
-              borderRadius: 6, fontSize: 12, color: '#81C784' }}>
-              <Ic d={IC.check} size={13} color="#81C784" stroke={2.5} />
+              background: 'rgba(154,171,128,0.1)', border: '1px solid rgba(154,171,128,0.3)',
+              borderRadius: 6, fontSize: 12, color: '#9AAB80' }}>
+              <Ic d={IC.check} size={13} color="#9AAB80" stroke={2.5} />
               Cambios guardados
             </div>
           )}
           {msg === 'reset' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
-              background: 'rgba(255,152,0,0.1)', border: '1px solid rgba(255,152,0,0.3)',
-              borderRadius: 6, fontSize: 12, color: '#FFB74D' }}>
-              <Ic d={IC.check} size={13} color="#FFB74D" stroke={2.5} />
+              background: 'rgba(224,164,88,0.1)', border: '1px solid rgba(224,164,88,0.3)',
+              borderRadius: 6, fontSize: 12, color: '#E0A458' }}>
+              <Ic d={IC.check} size={13} color="#E0A458" stroke={2.5} />
               Datos restablecidos
             </div>
           )}
@@ -209,14 +209,14 @@ export default function Ajustes() {
           </Card>
 
           {/* WhatsApp */}
-          <Card icon={IC.whatsapp} titulo="WhatsApp" accentColor="#25D366">
+          <Card icon={IC.whatsapp} titulo="WhatsApp" accentColor="#9AAB80">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16,
-              padding: '10px 14px', background: 'rgba(37,211,102,0.05)', border: '1px solid rgba(37,211,102,0.12)', borderRadius: 6 }}>
+              padding: '10px 14px', background: 'rgba(154,171,128,0.05)', border: '1px solid rgba(154,171,128,0.12)', borderRadius: 6 }}>
               <div>
                 <div style={{ fontSize: 13, color: '#E8DCC8' }}>Mostrar botón de WhatsApp</div>
                 <div style={{ fontSize: 11, color: '#9A9180', marginTop: 2 }}>Visible en el header del sitio</div>
               </div>
-              <Toggle value={settings.whatsappVisible} onChange={v => set('whatsappVisible', v)} accentColor="#25D366" />
+              <Toggle value={settings.whatsappVisible} onChange={v => set('whatsappVisible', v)} accentColor="#9AAB80" />
             </div>
             <div className="adm-ajustes-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
@@ -230,9 +230,9 @@ export default function Ajustes() {
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                 {waUrl ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 12px',
-                    background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.25)',
-                    borderRadius: 6, fontSize: 11, color: '#25D366' }}>
-                    <Ic d={IC.check} size={12} color="#25D366" stroke={2.5} />
+                    background: 'rgba(154,171,128,0.08)', border: '1px solid rgba(154,171,128,0.25)',
+                    borderRadius: 6, fontSize: 11, color: '#9AAB80' }}>
+                    <Ic d={IC.check} size={12} color="#9AAB80" stroke={2.5} />
                     Número válido
                   </div>
                 ) : (
@@ -336,8 +336,8 @@ export default function Ajustes() {
               <div style={{ fontSize: 11, color: '#9A9180', marginBottom: 6 }}>Estado actual del inventario</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#E8DCC8' }}>Alertar si stock &lt; {settings.stockThreshold}</span>
-                <span style={{ fontSize: 10, padding: '3px 8px', background: 'rgba(255,152,0,0.15)',
-                  border: '1px solid rgba(255,152,0,0.3)', borderRadius: 4, color: '#FFB74D' }}>
+                <span style={{ fontSize: 10, padding: '3px 8px', background: 'rgba(224,164,88,0.15)',
+                  border: '1px solid rgba(224,164,88,0.3)', borderRadius: 4, color: '#E0A458' }}>
                   ACTIVO
                 </span>
               </div>
@@ -345,22 +345,22 @@ export default function Ajustes() {
           </Card>
 
           {/* Zona de peligro */}
-          <Card icon={IC.warn} titulo="Zona de Peligro" accentColor="#e05252">
-            <div style={{ padding: '12px 14px', background: 'rgba(224,82,82,0.05)',
-              border: '1px solid rgba(224,82,82,0.15)', borderRadius: 6 }}>
+          <Card icon={IC.warn} titulo="Zona de Peligro" accentColor="#C4664C">
+            <div style={{ padding: '12px 14px', background: 'rgba(196,102,76,0.05)',
+              border: '1px solid rgba(196,102,76,0.15)', borderRadius: 6 }}>
               <div style={{ fontSize: 12, color: '#E8DCC8', marginBottom: 4 }}>Restablecer Datos</div>
               <div style={{ fontSize: 11, color: '#9A9180', marginBottom: 12, lineHeight: 1.5 }}>
                 Elimina toda la configuración guardada en localStorage y restaura los valores predeterminados. Esta acción no se puede deshacer.
               </div>
               <button onClick={resetData} style={{
-                background: 'transparent', border: '1px solid #e05252', borderRadius: 6,
-                padding: '7px 16px', color: '#e05252', cursor: 'pointer', fontSize: 12,
+                background: 'transparent', border: '1px solid #C4664C', borderRadius: 6,
+                padding: '7px 16px', color: '#C4664C', cursor: 'pointer', fontSize: 12,
                 display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Raleway, sans-serif',
                 transition: 'background 0.2s',
               }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(224,82,82,0.1)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(196,102,76,0.1)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                <Ic d={IC.warn} size={13} color="#e05252" />
+                <Ic d={IC.warn} size={13} color="#C4664C" />
                 Restablecer todo
               </button>
             </div>

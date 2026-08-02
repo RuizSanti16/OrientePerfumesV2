@@ -55,7 +55,7 @@ export default function Categories() {
                 <td style={{ padding: '12px 16px', color: '#9A9180' }}>{c.descripcion || '—'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <button onClick={() => abrirEditar(c)} style={{ background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '4px', padding: '4px 10px', color: '#C9A84C', cursor: 'pointer', fontSize: '11px', marginRight: 8 }}>Editar</button>
-                  <button onClick={() => eliminar(c.id_categoria)} style={{ background: 'transparent', border: '1px solid #e05252', borderRadius: '4px', padding: '4px 10px', color: '#e05252', cursor: 'pointer', fontSize: '11px' }}>Eliminar</button>
+                  <button onClick={() => eliminar(c.id_categoria)} style={{ background: 'transparent', border: '1px solid #C4664C', borderRadius: '4px', padding: '4px 10px', color: '#C4664C', cursor: 'pointer', fontSize: '11px' }}>Eliminar</button>
                 </td>
               </tr>
             ))}

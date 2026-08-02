@@ -28,9 +28,9 @@ const UMBRAL = 10;
 
 function stockStatus(n) {
   const v = parseInt(n) || 0;
-  if (v === 0)       return { label: 'Sin stock',  color: '#e05252', bg: 'rgba(224,82,82,0.12)' };
-  if (v < UMBRAL)    return { label: 'Stock bajo',  color: '#E8A94C', bg: 'rgba(232,169,76,0.12)' };
-  return               { label: 'En stock',    color: '#4caf50', bg: 'rgba(76,175,80,0.12)' };
+  if (v === 0)       return { label: 'Sin stock',  color: '#C4664C', bg: 'rgba(196,102,76,0.12)' };
+  if (v < UMBRAL)    return { label: 'Stock bajo',  color: '#E0A458', bg: 'rgba(224,164,88,0.12)' };
+  return               { label: 'En stock',    color: '#9AAB80', bg: 'rgba(154,171,128,0.12)' };
 }
 
 /* ── Styles ──────────────────────────────────────────────────── */
@@ -193,9 +193,9 @@ export default function Inventory() {
       {/* KPI chips */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { key: 'ok',   label: 'En Stock',   value: cnt.ok,   color: '#4caf50' },
-          { key: 'bajo', label: 'Stock Bajo',  value: cnt.bajo, color: '#E8A94C' },
-          { key: 'sin',  label: 'Sin Stock',   value: cnt.sin,  color: '#e05252' },
+          { key: 'ok',   label: 'En Stock',   value: cnt.ok,   color: '#9AAB80' },
+          { key: 'bajo', label: 'Stock Bajo',  value: cnt.bajo, color: '#E0A458' },
+          { key: 'sin',  label: 'Sin Stock',   value: cnt.sin,  color: '#C4664C' },
         ].map(k => (
           <div key={k.key} onClick={() => setFiltro(filtro === k.key ? 'todos' : k.key)}
             style={{ background: filtro === k.key ? `${k.color}15` : '#111', border: `1px solid ${filtro === k.key ? k.color : 'rgba(201,168,76,0.1)'}`, borderRadius: 8, padding: '14px 20px', cursor: 'pointer', transition: 'all 0.2s' }}>
@@ -207,8 +207,8 @@ export default function Inventory() {
 
       {/* Mensaje */}
       {msg && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', background: msg.ok ? 'rgba(76,175,80,0.1)' : 'rgba(224,82,82,0.1)', border: `1px solid ${msg.ok ? 'rgba(76,175,80,0.3)' : 'rgba(224,82,82,0.3)'}`, borderRadius: 6, fontSize: 13 }}>
-          <Ico d={msg.ok ? ICO.check : ICO.warning} size={15} color={msg.ok ? '#4caf50' : '#e05252'} sw={2.5} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, padding: '10px 16px', background: msg.ok ? 'rgba(154,171,128,0.1)' : 'rgba(196,102,76,0.1)', border: `1px solid ${msg.ok ? 'rgba(154,171,128,0.3)' : 'rgba(196,102,76,0.3)'}`, borderRadius: 6, fontSize: 13 }}>
+          <Ico d={msg.ok ? ICO.check : ICO.warning} size={15} color={msg.ok ? '#9AAB80' : '#C4664C'} sw={2.5} />
           {msg.texto}
         </div>
       )}
@@ -275,12 +275,12 @@ export default function Inventory() {
                   <td style={{ padding: '10px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <button onClick={() => ajusteRapido(item, -1)} title="Quitar 1"
-                        style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(224,82,82,0.1)', border: '1px solid rgba(224,82,82,0.2)', color: '#e05252', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Ico d={ICO.minus} size={13} color="#e05252" sw={2.5} />
+                        style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(196,102,76,0.1)', border: '1px solid rgba(196,102,76,0.2)', color: '#C4664C', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Ico d={ICO.minus} size={13} color="#C4664C" sw={2.5} />
                       </button>
                       <button onClick={() => ajusteRapido(item, +1)} title="Agregar 1"
-                        style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(76,175,80,0.1)', border: '1px solid rgba(76,175,80,0.2)', color: '#4caf50', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Ico d={ICO.plus} size={13} color="#4caf50" sw={2.5} />
+                        style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(154,171,128,0.1)', border: '1px solid rgba(154,171,128,0.2)', color: '#9AAB80', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Ico d={ICO.plus} size={13} color="#9AAB80" sw={2.5} />
                       </button>
                     </div>
                   </td>
