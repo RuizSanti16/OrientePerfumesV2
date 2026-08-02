@@ -59,6 +59,10 @@ export default function App() {
         <Route path="/contacto"  element={<Contacto />} />
         <Route path="/producto/:id" element={<Producto />} />
         <Route path="/nosotros"     element={<SobreNosotros />} />
+        {/* El menu enlazaba a /sobre-nosotros, que no existia como ruta y
+            llevaba a la pagina de error. Se mantiene como redireccion para
+            que los enlaces antiguos y los marcadores sigan funcionando. */}
+        <Route path="/sobre-nosotros" element={<Navigate to="/nosotros" replace />} />
         <Route path="/faq"          element={<FAQ />} />
         <Route path="/comparador"   element={<Comparador />} />
         <Route path="/quiz"         element={<Quiz />} />

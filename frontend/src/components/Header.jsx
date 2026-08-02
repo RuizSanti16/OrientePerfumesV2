@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: '/coleccion',   label: 'Colección'        },
   { href: '/noticias',    label: 'Noticias'         },
   { href: '/contacto',    label: 'Contacto'         },
-  { href: '/sobre-nosotros', label: 'Sobre Nosotros' },
+  { href: '/nosotros',    label: 'Sobre Nosotros'   },
   { href: '/faq',         label: 'Preguntas frecuentes' },
   { href: '/quiz',        label: 'Quiz de Fragancia' },
   { href: '/comparador',  label: 'Comparador'       },
