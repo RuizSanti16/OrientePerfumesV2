@@ -79,7 +79,7 @@ export default function Customers() {
         <table style={{ width:'100%', borderCollapse:'collapse', minWidth: 520 }}>
           <thead>
             <tr style={{ borderBottom:'1px solid rgba(201,168,76,0.1)' }}>
-              {['ID','Nombre','Usuario','Correo','Teléfono','Acciones'].map(h => (
+              {['Nombre','Usuario','Correo','Teléfono','Acciones'].map(h => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
@@ -87,7 +87,6 @@ export default function Customers() {
           <tbody>
             {filtrados.map(c => (
               <tr key={c.id_cliente} style={{ borderBottom:'1px solid rgba(201,168,76,0.05)' }}>
-                <td style={tdMuted}>{c.id_cliente}</td>
                 <td style={td}>{c.nombre}</td>
                 <td style={tdMuted}>{c.usuario||'—'}</td>
                 <td style={tdMuted}>{c.correo||'—'}</td>
@@ -98,7 +97,7 @@ export default function Customers() {
                 </td>
               </tr>
             ))}
-            {!filtrados.length && <tr><td colSpan={6} style={{ padding:32, textAlign:'center', color:'#9A9180' }}>No hay clientes registrados</td></tr>}
+            {!filtrados.length && <tr><td colSpan={5} style={{ padding:32, textAlign:'center', color:'#9A9180' }}>No hay clientes registrados</td></tr>}
           </tbody>
         </table>
       </div>

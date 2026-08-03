@@ -53,7 +53,7 @@ export default function Suppliers() {
         <table style={{ width:'100%', borderCollapse:'collapse', minWidth: 480 }}>
           <thead>
             <tr style={{ borderBottom:'1px solid rgba(201,168,76,0.1)' }}>
-              {['ID','Nombre','Contacto','Correo','Teléfono','Acciones'].map(h => (
+              {['Nombre','Contacto','Correo','Teléfono','Acciones'].map(h => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
@@ -61,7 +61,6 @@ export default function Suppliers() {
           <tbody>
             {filtrados.map(p => (
               <tr key={p.id_proovedor} style={{ borderBottom:'1px solid rgba(201,168,76,0.05)' }}>
-                <td style={tdMuted}>{p.id_proovedor}</td>
                 <td style={td}>{p.nombre}</td>
                 <td style={tdMuted}>{p.contacto||'—'}</td>
                 <td style={tdMuted}>{p.correo||'—'}</td>
@@ -72,7 +71,7 @@ export default function Suppliers() {
                 </td>
               </tr>
             ))}
-            {!filtrados.length && <tr><td colSpan={6} style={{ padding:32, textAlign:'center', color:'#9A9180' }}>No hay proveedores registrados</td></tr>}
+            {!filtrados.length && <tr><td colSpan={5} style={{ padding:32, textAlign:'center', color:'#9A9180' }}>No hay proveedores registrados</td></tr>}
           </tbody>
         </table>
       </div>
