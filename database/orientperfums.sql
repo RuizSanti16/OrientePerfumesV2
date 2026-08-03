@@ -41,7 +41,7 @@ CREATE TABLE `tbl_administrador` (
 
 LOCK TABLES `tbl_administrador` WRITE;
 /*!40000 ALTER TABLE `tbl_administrador` DISABLE KEYS */;
-INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','8d906d3abac164674431715d227e17804b1dc14a37477e2ecd0c57d69f7cd2eb','2026-08-02 07:19:09');
+INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','2026-08-03 17:44:01');
 /*!40000 ALTER TABLE `tbl_administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,7 +87,7 @@ CREATE TABLE `tbl_clientes` (
   `password` varchar(255) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +96,7 @@ CREATE TABLE `tbl_clientes` (
 
 LOCK TABLES `tbl_clientes` WRITE;
 /*!40000 ALTER TABLE `tbl_clientes` DISABLE KEYS */;
-INSERT INTO `tbl_clientes` VALUES (5,'santi1','ruiz.santiago1622@gmail.com',NULL,0,'santi1','$2y$10$0KwdaZx1iT3qLuSRn0jDAeigEQ5M2slD4UNqQxlHkClGXHx78F9DK','+573136633209'),(6,'Santiago16','ruiz.santiago12@gmail.com',NULL,0,'Santiago16','$2y$10$QbL33uObzlryYUpbi5UbveknLuCiiZYWeIjEcNpiGUeBNdP6wJttG','3136655555');
+INSERT INTO `tbl_clientes` VALUES (5,'santi1','ruiz.santiago1622@gmail.com',NULL,0,'santi1','$2y$10$0KwdaZx1iT3qLuSRn0jDAeigEQ5M2slD4UNqQxlHkClGXHx78F9DK','+573136633209'),(6,'Santiago16','ruiz.santiago12@gmail.com',NULL,0,'Santiago16','$2y$10$QbL33uObzlryYUpbi5UbveknLuCiiZYWeIjEcNpiGUeBNdP6wJttG','3136655555'),(9,'Luis Perez','luis@correo.com','M',NULL,'luisp',NULL,'3009876543');
 /*!40000 ALTER TABLE `tbl_clientes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -527,14 +527,14 @@ CREATE TABLE `tbl_productos` (
   `nombre` varchar(120) DEFAULT NULL,
   `marca` varchar(120) DEFAULT NULL,
   `precio` bigint(20) DEFAULT 0,
-  `id_inventario` int(10) NOT NULL,
+  `id_inventario` int(10) DEFAULT NULL,
   `id_categoria` int(11) DEFAULT NULL,
   `descripcion` varchar(500) DEFAULT NULL,
   `imagen` longtext DEFAULT NULL,
   `presentaciones` text DEFAULT NULL,
   PRIMARY KEY (`id_producto`),
   KEY `id_inventario` (`id_inventario`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -640,4 +640,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-03 15:44:03
+-- Dump completed on 2026-08-03 17:12:34

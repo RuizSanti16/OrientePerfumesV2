@@ -1,7 +1,7 @@
 <?php
 /* =============================================================
    api/productos.php — CRUD para tbl_productos
-   Columnas: id_producto, id_inventario, marca, nombre, precio,
+   Columnas: id_producto, marca, nombre, precio,
              id_categoria, descripcion, imagen, presentaciones
 ============================================================= */
 header('Content-Type: application/json');
