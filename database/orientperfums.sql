@@ -41,7 +41,7 @@ CREATE TABLE `tbl_administrador` (
 
 LOCK TABLES `tbl_administrador` WRITE;
 /*!40000 ALTER TABLE `tbl_administrador` DISABLE KEYS */;
-INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','a9679f54b6e79f3d71dd285dc7e0a19b025c83a96ccca9d4f057632b31757e05','2026-07-29 00:34:50');
+INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','8d906d3abac164674431715d227e17804b1dc14a37477e2ecd0c57d69f7cd2eb','2026-08-02 07:19:09');
 /*!40000 ALTER TABLE `tbl_administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -82,12 +82,12 @@ CREATE TABLE `tbl_clientes` (
   `nombre` varchar(200) DEFAULT NULL,
   `correo` varchar(120) DEFAULT NULL,
   `genero` varchar(40) DEFAULT NULL,
-  `edad` int(3) NOT NULL,
+  `edad` int(3) DEFAULT NULL,
   `usuario` varchar(100) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id_cliente`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -543,7 +543,7 @@ CREATE TABLE `tbl_productos` (
 
 LOCK TABLES `tbl_productos` WRITE;
 /*!40000 ALTER TABLE `tbl_productos` DISABLE KEYS */;
-INSERT INTO `tbl_productos` VALUES (10,'Odyssay Artisto','Armaf',250000,0,8,'','','[{\"etiqueta\":\"100ml\",\"precio\":\"250000\"},{\"etiqueta\":\"10ml\",\"precio\":\"50000\"},{\"etiqueta\":\"5ml\",\"precio\":\"25000\"}]'),(11,'Odyssay Aqua ','Armaf',280000,0,8,'nuevo de ody','','[{\"etiqueta\":\"100ml\",\"precio\":\"280000\"},{\"etiqueta\":\"10ml\",\"precio\":\"50000\"},{\"etiqueta\":\"5ml\",\"precio\":\"25000\"}]'),(12,'Atlas ','Lataffa',350000,0,8,'Dupe de megamare de  ortoparisi','','[{\"etiqueta\":\"100ml\",\"precio\":\"350000\"},{\"etiqueta\":\"10ml\",\"precio\":\"70000\"},{\"etiqueta\":\"5ml\",\"precio\":\"40000\"}]'),(13,'Megamare ','Orto Parisi',700000,0,7,'','','[{\"etiqueta\":\"100ml\",\"precio\":\"700000\"},{\"etiqueta\":\"10ml\",\"precio\":\"110000\"},{\"etiqueta\":\"5ml\",\"precio\":\"80000\"}]'),(14,'¡Que chimba!','Lorenzo Pazzaglia',870000,0,9,'Que Chimba! de Lorenzo Pazzaglia es una fragancia de la familia olfativa Oriental Floral para Hombres y Mujeres. Esta fragrancia es nueva. Que Chimba! se lanzó en 2025. La Nariz detrás de esta fragrancia es Lorenzo Pazzaglia. Las Notas de Salida son guayaba, anís estrellado, clavos de olor, maracuyá (fruta de la pasión), durazno (melocotón), jengibre y canela; las Notas de Corazón son haba tonka, tabaco, heliotropo, rosa de Damasco y orquídea; las Notas de Fondo son cedro, sándalo, pachulí, vain','','[{\"etiqueta\":\"50ml\",\"precio\":\"870000\"},{\"etiqueta\":\"10ml\",\"precio\":\"190000\"},{\"etiqueta\":\"5ml\",\"precio\":\"100000\"}]'),(15,'Vulcan Feu','French Avenue',280000,0,8,'','','[{\"etiqueta\":\"100ml\",\"precio\":\"280000\"},{\"etiqueta\":\"10ml\",\"precio\":\"55000\"},{\"etiqueta\":\"5ml\",\"precio\":\"30000\"}]');
+INSERT INTO `tbl_productos` VALUES (10,'Odyssay Artisto','Armaf',250000,0,8,'','','[{\"etiqueta\":\"100ml\",\"precio\":\"250000\"},{\"etiqueta\":\"10ml\",\"precio\":\"50000\"},{\"etiqueta\":\"5ml\",\"precio\":\"25000\"}]'),(11,'Odyssay Aqua ','Armaf',280000,0,8,'nuevo de ody','','[{\"etiqueta\":\"100ml\",\"precio\":\"280000\"},{\"etiqueta\":\"10ml\",\"precio\":\"50000\"},{\"etiqueta\":\"5ml\",\"precio\":\"25000\"}]'),(12,'Atlas ','Lataffa',350000,0,8,'Dupe de megamare de  ortoparisi','','[{\"etiqueta\":\"100ml\",\"precio\":\"350000\"},{\"etiqueta\":\"10ml\",\"precio\":\"70000\"},{\"etiqueta\":\"5ml\",\"precio\":\"40000\"}]'),(13,'Megamare ','Orto Parisi',700000,0,7,'','','[{\"etiqueta\":\"100ml\",\"precio\":\"700000\"},{\"etiqueta\":\"10ml\",\"precio\":\"110000\"},{\"etiqueta\":\"5ml\",\"precio\":\"80000\"}]'),(14,'¡Que chimba!','Lorenzo Pazzaglia',870000,0,9,'Que Chimba! de Lorenzo Pazzaglia es una fragancia de la familia olfativa Oriental Floral para Hombres y Mujeres. Esta fragrancia es nueva. Que Chimba! se lanzó en 2025. La Nariz detrás de esta fragrancia es Lorenzo Pazzaglia. Las Notas de Salida son guayaba, anís estrellado, clavos de olor, maracuyá (fruta de la pasión), durazno (melocotón), jengibre y canela; las Notas de Corazón son haba tonka, tabaco, heliotropo, rosa de Damasco y orquídea; las Notas de Fondo son cedro, sándalo, pachulí, vain','/OrientPerfumesV2/backend/uploads/img_6a6d86a1579a76.80319632.jpg','[{\"etiqueta\":\"50ml\",\"precio\":\"870000\"},{\"etiqueta\":\"10ml\",\"precio\":\"190000\"},{\"etiqueta\":\"5ml\",\"precio\":\"100000\"}]'),(15,'Vulcan Feu','French Avenue',280000,0,8,'','/OrientPerfumesV2/backend/uploads/img_6a6d823b1ab115.70727112.jpg','[{\"etiqueta\":\"100ml\",\"precio\":\"280000\"},{\"etiqueta\":\"10ml\",\"precio\":\"55000\"},{\"etiqueta\":\"5ml\",\"precio\":\"30000\"}]');
 /*!40000 ALTER TABLE `tbl_productos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -640,4 +640,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-31 18:13:14
+-- Dump completed on 2026-08-03 15:44:03
