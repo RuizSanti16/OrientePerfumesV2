@@ -19,9 +19,21 @@
 -- limpia ese valor porque no es recuperable; hay que volver a
 -- ingresarlo desde el panel una vez aplicado el cambio.
 --
--- tbl_compras.id_proovedor referencia esta tabla por clave foranea,
--- pero esta vacia, asi que renumerar el id existente es seguro.
+-- tbl_compras.id_proovedor referencia esta tabla por clave foranea.
+-- La tabla esta vacia, asi que renumerar el id existente es seguro,
+-- pero MySQL 8 rechaza modificar una columna con una FK apuntandola
+-- aunque no haya filas (MariaDB, con la que se probo primero en
+-- local, si lo permite). Hay que quitar la FK, hacer el cambio y
+-- volver a crearla igual.
 -- =============================================================
+
+-- 0) Nombre real de la restriccion, por si difiere del que trae este
+--    volcado (tbl_compras_ibfk_1). Ejecutar antes si el paso 1 falla
+--    con "foreign key constraint fails" o "unknown constraint":
+--      SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS
+--      WHERE TABLE_NAME = 'tbl_compras' AND CONSTRAINT_TYPE = 'FOREIGN KEY';
+
+ALTER TABLE tbl_compras DROP FOREIGN KEY tbl_compras_ibfk_1;
 
 -- 1) El id 0 es legal en MySQL pero inusual como valor real de fila,
 --    y en JavaScript `if (!id)` lo trata como vacio. Se pasa a 1 antes
@@ -33,6 +45,12 @@ UPDATE tbl_proovedores SET id_proovedor = 1 WHERE id_proovedor = 0;
 --    esto, asi que no hace falta indicarlo aparte.
 ALTER TABLE tbl_proovedores
   MODIFY id_proovedor INT(11) NOT NULL AUTO_INCREMENT;
+
+-- 2b) Restaurar la clave foranea, identica a como estaba.
+ALTER TABLE tbl_compras
+  ADD CONSTRAINT tbl_compras_ibfk_1
+  FOREIGN KEY (id_proovedor) REFERENCES tbl_proovedores (id_proovedor)
+  ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- 3) El telefono pasa a texto, como ya esta en tbl_clientes y
 --    tbl_pedidos. Primero se hace la columna nullable y despues se
