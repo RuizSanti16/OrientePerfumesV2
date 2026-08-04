@@ -41,7 +41,7 @@ CREATE TABLE `tbl_administrador` (
 
 LOCK TABLES `tbl_administrador` WRITE;
 /*!40000 ALTER TABLE `tbl_administrador` DISABLE KEYS */;
-INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','2026-08-04 16:07:31');
+INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','2026-08-04 16:25:26');
 /*!40000 ALTER TABLE `tbl_administrador` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -612,13 +612,13 @@ DROP TABLE IF EXISTS `tbl_proovedores`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tbl_proovedores` (
-  `id_proovedor` int(11) NOT NULL,
+  `id_proovedor` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(80) DEFAULT NULL,
   `contacto` varchar(60) DEFAULT NULL,
-  `telefono` int(15) NOT NULL,
+  `telefono` varchar(20) DEFAULT NULL,
   `correo` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`id_proovedor`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -627,7 +627,7 @@ CREATE TABLE `tbl_proovedores` (
 
 LOCK TABLES `tbl_proovedores` WRITE;
 /*!40000 ALTER TABLE `tbl_proovedores` DISABLE KEYS */;
-INSERT INTO `tbl_proovedores` VALUES (0,'Fragancia1','Fragancia1',2147483647,'fragancia1@gmail.com');
+INSERT INTO `tbl_proovedores` VALUES (1,'Fragancia1','Fragancia1',NULL,'fragancia1@gmail.com');
 /*!40000 ALTER TABLE `tbl_proovedores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -724,4 +724,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-04 14:12:46
+-- Dump completed on 2026-08-04 14:25:42
