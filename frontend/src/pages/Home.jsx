@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
-import { destacadosAPI, noticiasAPI } from '../services/api';
+import { destacadosAPI, noticiasAPI, carruselAPI, lanzamientosAPI } from '../services/api';
 import Header            from '../components/Header';
 import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
@@ -93,10 +93,19 @@ export default function Home() {
     setTestimonioEnviando(false);
   }
 
-  /* ── Cargar datos del localStorage y BD ── */
+  /* ── Cargar datos de la BD ── */
   useEffect(() => {
-    try { const r = localStorage.getItem('op_carrusel');      if (r) setCarruselData(JSON.parse(r)); } catch {}
-    try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
+    /* El carrusel y las novedades se leen del servidor. Antes salian de
+       localStorage, asi que solo los veia el navegador del
+       administrador: cualquier visitante encontraba el carrusel con los
+       textos por defecto y la seccion de novedades vacia. */
+    carruselAPI.listar()
+      .then(r => { if (r.ok && r.data?.length) setCarruselData(r.data); })
+      .catch(() => {});
+
+    lanzamientosAPI.listar()
+      .then(r => { if (r.ok && r.data) setLanzamientos(r.data); })
+      .catch(() => {});
 
     /* Testimonios aprobados */
     noticiasAPI.listarAprobados().then(res => {

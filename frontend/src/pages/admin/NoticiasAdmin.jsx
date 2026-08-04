@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { subirImagen, subirVideo, noticiasAPI } from '../../services/api';
+import { subirImagen, subirVideo, noticiasAPI, lanzamientosAPI, videoNoticiasAPI } from '../../services/api';
 
 /* ── SVG Icons ───────────────────────────────────────────────── */
 function Ico({ d, size = 16, color = 'currentColor', sw = 1.7 }) {
@@ -180,11 +180,30 @@ export default function NoticiasAdmin() {
   const [filtroComent, setFiltroComent] = useState('pendiente'); // 'pendiente'|'aprobado'|'rechazado'
   const [cargandoCom,  setCargandoCom]  = useState(false);
   const [msg,          setMsg]          = useState(null);
+  const [guardando,    setGuardando]    = useState(false);
   const [subiendo,     setSubiendo]     = useState({});  // { [id]: true }
 
+  /* El video y las novedades se guardan en la base. Antes iban a
+     localStorage, de modo que solo existian en este navegador y los
+     visitantes veian la seccion vacia. */
   useEffect(() => {
-    try { const r = localStorage.getItem('op_video');        if (r) setVideo(JSON.parse(r)); } catch {}
-    try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
+    videoNoticiasAPI.obtener()
+      .then(r => {
+        if (r.ok && r.data) {
+          setVideo({
+            url:           r.data.url            || '',
+            titulo:        r.data.titulo         || '',
+            descripcion:   r.data.descripcion    || '',
+            nombreArchivo: r.data.nombre_archivo || '',
+          });
+        }
+      })
+      .catch(() => {});
+
+    lanzamientosAPI.listar()
+      .then(r => { if (r.ok && r.data) setLanzamientos(r.data); })
+      .catch(() => {});
+
     cargarComentarios();
   }, []);
 
@@ -209,11 +228,32 @@ export default function NoticiasAdmin() {
     else showMsg(false, res.mensaje);
   }
 
-  function guardar() {
-    localStorage.setItem('op_video',        JSON.stringify(video));
-    localStorage.setItem('op_lanzamientos', JSON.stringify(lanzamientos));
-    localStorage.setItem('op_comentarios',  JSON.stringify(comentarios));
-    showMsg(true, 'Cambios guardados correctamente');
+  async function guardar() {
+    setGuardando(true);
+    try {
+      /* Los comentarios no se envian: ya viven en la base y se
+         gestionan uno a uno desde los botones de moderacion. */
+      const [rv, rl] = await Promise.all([
+        videoNoticiasAPI.guardar({
+          url:            video.url            || '',
+          titulo:         video.titulo         || '',
+          descripcion:    video.descripcion    || '',
+          nombre_archivo: video.nombreArchivo  || '',
+        }),
+        lanzamientosAPI.guardar(lanzamientos.map(l => ({
+          nombre:      l.nombre      || '',
+          descripcion: l.descripcion || '',
+          badge:       l.badge       || '',
+          imagen:      l.imagen      || '',
+        }))),
+      ]);
+
+      if (rv.ok && rl.ok) showMsg(true, 'Cambios guardados. Ya son visibles en la web.');
+      else showMsg(false, rv.mensaje || rl.mensaje || 'Error al guardar');
+    } catch {
+      showMsg(false, 'Error de conexión al guardar');
+    }
+    setGuardando(false);
   }
 
   function showMsg(ok, texto) {
@@ -241,12 +281,10 @@ export default function NoticiasAdmin() {
     else showMsg(false, res.mensaje || 'Error al subir imagen');
   }
 
-  /* ── Comentarios ── */
-  function eliminarComentario(idx) {
-    const nuevos = comentarios.filter((_, i) => i !== idx);
-    setComentarios(nuevos);
-    localStorage.setItem('op_comentarios', JSON.stringify(nuevos));
-  }
+  /* Aqui habia una segunda definicion de eliminarComentario que solo
+     tocaba localStorage. Al declararse despues, anulaba a la que si
+     llama a la API, de modo que borrar un comentario no lo eliminaba
+     de la base: reaparecia al recargar. Se retira. */
 
   return (
     <div style={{ padding: 32, color: '#E8DCC8', maxWidth: 900, margin: '0 auto' }}>

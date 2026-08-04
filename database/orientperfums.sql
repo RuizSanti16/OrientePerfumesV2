@@ -41,8 +41,38 @@ CREATE TABLE `tbl_administrador` (
 
 LOCK TABLES `tbl_administrador` WRITE;
 /*!40000 ALTER TABLE `tbl_administrador` DISABLE KEYS */;
-INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','2026-08-03 17:44:01');
+INSERT INTO `tbl_administrador` VALUES (7,'Administrador','admin','$2y$10$l720pilBC/u5evqn35vQYeQ0wrK47tPoGRxhluYTV3TupIp02KcW.',0,'admin@orientperfumes.com','cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc','2026-08-04 16:07:31');
 /*!40000 ALTER TABLE `tbl_administrador` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_carrusel`
+--
+
+DROP TABLE IF EXISTS `tbl_carrusel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tbl_carrusel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `orden` int(3) NOT NULL DEFAULT 0,
+  `label` varchar(120) DEFAULT NULL,
+  `titulo` varchar(200) DEFAULT NULL,
+  `subtitulo` varchar(300) DEFAULT NULL,
+  `btn1` varchar(80) DEFAULT NULL,
+  `btn2` varchar(80) DEFAULT NULL,
+  `imagen` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_carrusel`
+--
+
+LOCK TABLES `tbl_carrusel` WRITE;
+/*!40000 ALTER TABLE `tbl_carrusel` DISABLE KEYS */;
+INSERT INTO `tbl_carrusel` VALUES (6,1,'Perfumería Nicho','Tesoros\nOlfativos','Las más exclusivas casas de nicho en un solo lugar','Descubrir Nicho','Ver Catálogo',''),(7,2,'Colección Oriental','Aromas\ndel Oriente','Oud, Ambar, Sándalo y Musk en su máxima expresión','Explorar Colección','Ver Novedades',''),(8,3,'Alta Perfumería','Firmas\nde Autor','Chanel, Dior, Tom Ford, Creed y las grandes maisons','Ver Diseñadores','Nuestras Marcas','');
+/*!40000 ALTER TABLE `tbl_carrusel` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -306,6 +336,33 @@ LOCK TABLES `tbl_inventario` WRITE;
 /*!40000 ALTER TABLE `tbl_inventario` DISABLE KEYS */;
 INSERT INTO `tbl_inventario` VALUES (1,2,'',14),(2,1,'Bodega 1 ',15);
 /*!40000 ALTER TABLE `tbl_inventario` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_lanzamientos`
+--
+
+DROP TABLE IF EXISTS `tbl_lanzamientos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tbl_lanzamientos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `orden` int(3) NOT NULL DEFAULT 0,
+  `nombre` varchar(200) DEFAULT NULL,
+  `descripcion` varchar(500) DEFAULT NULL,
+  `badge` varchar(60) DEFAULT NULL,
+  `imagen` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_lanzamientos`
+--
+
+LOCK TABLES `tbl_lanzamientos` WRITE;
+/*!40000 ALTER TABLE `tbl_lanzamientos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tbl_lanzamientos` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -630,6 +687,33 @@ LOCK TABLES `tbl_ventas_clientes` WRITE;
 /*!40000 ALTER TABLE `tbl_ventas_clientes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `tbl_ventas_clientes` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_video_noticias`
+--
+
+DROP TABLE IF EXISTS `tbl_video_noticias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tbl_video_noticias` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `url` text DEFAULT NULL,
+  `titulo` varchar(200) DEFAULT NULL,
+  `descripcion` varchar(500) DEFAULT NULL,
+  `nombre_archivo` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_video_noticias`
+--
+
+LOCK TABLES `tbl_video_noticias` WRITE;
+/*!40000 ALTER TABLE `tbl_video_noticias` DISABLE KEYS */;
+INSERT INTO `tbl_video_noticias` VALUES (1,'','','','');
+/*!40000 ALTER TABLE `tbl_video_noticias` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -640,4 +724,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-03 17:12:34
+-- Dump completed on 2026-08-04 14:12:46

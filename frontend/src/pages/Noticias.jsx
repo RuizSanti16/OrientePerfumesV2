@@ -6,7 +6,7 @@ import { useWishlist } from '../hooks/useWishlist';
 import Header from '../components/Header';
 import SocialButtons   from '../components/SocialButtons';
 import WhatsAppButton  from '../components/WhatsAppButton';
-import { noticiasAPI } from '../services/api';
+import { noticiasAPI, lanzamientosAPI, videoNoticiasAPI } from '../services/api';
 
 /* ── Detecta tipo de video y devuelve {type, src} ─────────────── */
 function parseVideoUrl(url) {
@@ -73,8 +73,27 @@ export default function Noticias() {
   ];
 
   useEffect(() => {
-    try { const r = localStorage.getItem('op_video');        if (r) setVideo(JSON.parse(r)); }        catch {}
-    try { const r = localStorage.getItem('op_lanzamientos'); if (r) setLanzamientos(JSON.parse(r)); } catch {}
+    /* El video y las novedades se leen del servidor. Antes salian de
+       localStorage y por eso esta pagina aparecia vacia para cualquiera
+       que no fuese el administrador que los habia configurado. */
+    videoNoticiasAPI.obtener()
+      .then(r => {
+        if (r.ok && r.data) {
+          setVideo({
+            url:           r.data.url            || '',
+            titulo:        r.data.titulo         || '',
+            descripcion:   r.data.descripcion    || '',
+            nombreArchivo: r.data.nombre_archivo || '',
+          });
+        }
+      })
+      .catch(() => {});
+
+    lanzamientosAPI.listar()
+      .then(r => { if (r.ok && r.data) setLanzamientos(r.data); })
+      .catch(() => {});
+
+    /* Las reacciones si son preferencia local de cada visitante. */
     try { const r = localStorage.getItem('op_reactions');    if (r) setReactions(JSON.parse(r)); }    catch {}
     /* Cargar comentarios aprobados desde la API */
     noticiasAPI.listarAprobados().then(r => { if (r.ok) setComentarios(r.data); });

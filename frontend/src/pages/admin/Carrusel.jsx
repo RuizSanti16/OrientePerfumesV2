@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { subirImagen } from '../../services/api';
+import { useState, useEffect } from 'react';
+import { subirImagen, carruselAPI } from '../../services/api';
 import { MensajeEstado } from '../../components/Icons';
 
 /* ── Icono subir ── */
@@ -15,23 +15,30 @@ const DEFAULTS = [
   { id: 3, label: 'Alta Perfumería',    titulo: 'Firmas\nde Autor',    subtitulo: 'Chanel, Dior, Tom Ford, Creed y las grandes maisons',  btn1: 'Ver Diseñadores',   btn2: 'Nuestras Marcas', imagen: '' },
 ];
 
-function getSlides() {
-  try {
-    const r = localStorage.getItem('op_carrusel');
-    if (!r) return DEFAULTS;
-    /* Migrar datos viejos con BASE64 → mantener imagen vacía */
-    return JSON.parse(r).map(s => ({
-      ...s,
-      imagen: s.imagen?.startsWith('data:') ? '' : (s.imagen || ''),
-    }));
-  } catch { return DEFAULTS; }
-}
-
 export default function Carrusel() {
-  const [slides,    setSlides]    = useState(getSlides);
+  const [slides,    setSlides]    = useState(DEFAULTS);
+  const [cargando,  setCargando]  = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const [msg, setMsg] = useState(null);
   const [uploading, setUploading] = useState({});   // { [slideId]: true|false }
   const [drag,      setDrag]      = useState({});   // { [slideId]: true|false }
+
+  /* El carrusel vive en la base de datos: antes se guardaba en
+     localStorage y solo lo veia este navegador, de modo que los
+     visitantes seguian viendo los textos por defecto del codigo. */
+  useEffect(() => {
+    carruselAPI.listar()
+      .then(r => {
+        if (r.ok && r.data?.length) {
+          setSlides(r.data.map(s => ({
+            ...s,
+            imagen: s.imagen?.startsWith('data:') ? '' : (s.imagen || ''),
+          })));
+        }
+      })
+      .catch(() => mostrarMsg(false, 'No se pudo cargar el carrusel'))
+      .finally(() => setCargando(false));
+  }, []);
 
   function update(id, key, val) {
     setSlides(prev => prev.map(s => s.id === id ? { ...s, [key]: val } : s));
@@ -65,26 +72,31 @@ export default function Carrusel() {
     if (file) subirSlide(id, file);
   }
 
-  function guardar() {
+  async function guardar() {
+    setGuardando(true);
     try {
-      /* Solo guardar campos de texto + URL (nunca BASE64) */
-      const toSave = slides.map(s => ({
-        id: s.id, label: s.label, titulo: s.titulo, subtitulo: s.subtitulo,
+      /* Solo texto y la URL de la imagen; nunca base64. */
+      const aGuardar = slides.map(s => ({
+        label: s.label, titulo: s.titulo, subtitulo: s.subtitulo,
         btn1: s.btn1, btn2: s.btn2,
         imagen: s.imagen?.startsWith('data:') ? '' : (s.imagen || ''),
       }));
-      localStorage.setItem('op_carrusel', JSON.stringify(toSave));
-      mostrarMsg(true, 'Guardado. Recarga el inicio para verlo.');
+      const r = await carruselAPI.guardar(aGuardar);
+      if (r.ok) mostrarMsg(true, 'Carrusel guardado. Ya es visible para los visitantes.');
+      else      mostrarMsg(false, r.mensaje || 'Error al guardar');
     } catch {
-      mostrarMsg(false, 'Error al guardar.');
+      mostrarMsg(false, 'Error de conexión al guardar');
     }
+    setGuardando(false);
   }
 
-  function restaurar() {
+  async function restaurar() {
     if (!confirm('¿Restaurar el carrusel a los valores originales?')) return;
-    localStorage.removeItem('op_carrusel');
-    setSlides(DEFAULTS);
-    mostrarMsg(true, 'Carrusel restaurado');
+    setGuardando(true);
+    const r = await carruselAPI.guardar(DEFAULTS);
+    if (r.ok) { setSlides(DEFAULTS); mostrarMsg(true, 'Carrusel restaurado'); }
+    else      mostrarMsg(false, r.mensaje || 'No se pudo restaurar');
+    setGuardando(false);
   }
 
   function mostrarMsg(ok, texto) {
@@ -112,13 +124,13 @@ export default function Carrusel() {
           <p style={{ color: '#9A9180', fontSize: 13, margin: 0 }}>Gestiona las imágenes y textos de los 3 slides del carrusel principal</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={restaurar}
-            style={{ background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '8px 16px', color: '#9A9180', cursor: 'pointer', fontSize: 13 }}>
+          <button onClick={restaurar} disabled={guardando || cargando}
+            style={{ background: 'transparent', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 6, padding: '8px 16px', color: '#9A9180', cursor: (guardando || cargando) ? 'not-allowed' : 'pointer', fontSize: 13, opacity: (guardando || cargando) ? 0.5 : 1 }}>
             Restaurar
           </button>
-          <button onClick={guardar}
-            style={{ background: '#C9A84C', border: 'none', borderRadius: 6, padding: '8px 20px', color: '#0a0a08', cursor: 'pointer', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.1em' }}>
-            Guardar Cambios
+          <button onClick={guardar} disabled={guardando || cargando}
+            style={{ background: '#C9A84C', border: 'none', borderRadius: 6, padding: '8px 20px', color: '#0a0a08', cursor: (guardando || cargando) ? 'not-allowed' : 'pointer', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.1em', opacity: (guardando || cargando) ? 0.7 : 1 }}>
+            {cargando ? 'Cargando...' : guardando ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>
       </div>

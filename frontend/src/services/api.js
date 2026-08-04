@@ -130,6 +130,26 @@ export const noticiasAPI = {
   eliminar:        (id)   => apiFetch(`noticias.php?id=${id}`, 'DELETE'),
 };
 
+/* Contenido editable de la portada y de noticias.
+   Antes vivia en localStorage, de modo que solo lo veia el navegador
+   del administrador; ahora es contenido del sitio. En los tres casos
+   el guardado reemplaza el conjunto completo, que es como los edita
+   el panel. */
+export const carruselAPI = {
+  listar:  ()       => apiFetch('carrusel.php'),
+  guardar: (slides) => apiFetch('carrusel.php', 'PUT', { slides }),
+};
+
+export const lanzamientosAPI = {
+  listar:  ()             => apiFetch('lanzamientos.php'),
+  guardar: (lanzamientos) => apiFetch('lanzamientos.php', 'PUT', { lanzamientos }),
+};
+
+export const videoNoticiasAPI = {
+  obtener: ()     => apiFetch('video_noticias.php'),
+  guardar: (data) => apiFetch('video_noticias.php', 'PUT', data),
+};
+
 export const cuponesAPI = {
   validar:    (codigo, total = 0) => apiFetch(`cupones.php?codigo=${encodeURIComponent(codigo)}&total=${total}`),
   listar:     ()     => apiFetch('cupones.php'),
