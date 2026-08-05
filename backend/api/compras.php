@@ -70,31 +70,34 @@ try {
 
             // Insertar detalle si viene (actualiza stock del inventario)
             if (!empty($b['detalle']) && is_array($b['detalle'])) {
-                try {
-                    $stmtDet = $pdo->prepare("
-                        INSERT INTO tbl_detalle_compra (id_compra, id_producto, cantidad, precio_unitario)
-                        VALUES (:id_compra, :id_producto, :cantidad, :precio)
-                    ");
-                    foreach ($b['detalle'] as $linea) {
-                        $stmtDet->execute([
-                            ':id_compra'   => $idCompra,
-                            ':id_producto' => $linea['id_producto']     ?? null,
-                            ':cantidad'    => $linea['cantidad']        ?? 1,
-                            ':precio'      => $linea['precio_unitario'] ?? 0
-                        ]);
+                /* La columna se llama `costo`, no `precio_unitario`. El
+                   nombre equivocado hacía fallar el INSERT siempre, y el
+                   catch que lo envolvía se tragaba el error: la compra se
+                   confirmaba sin líneas y sin sumar stock. Sin catch, el
+                   error sube al manejador de abajo, que deshace la
+                   transacción y avisa. */
+                $stmtDet = $pdo->prepare("
+                    INSERT INTO tbl_detalle_compra (id_compra, id_producto, cantidad, costo)
+                    VALUES (:id_compra, :id_producto, :cantidad, :costo)
+                ");
+                $stmtStock = $pdo->prepare("
+                    UPDATE tbl_inventario
+                    SET stock = stock + :cant
+                    WHERE id_producto = :id_prod
+                ");
+                foreach ($b['detalle'] as $linea) {
+                    $stmtDet->execute([
+                        ':id_compra'   => $idCompra,
+                        ':id_producto' => $linea['id_producto']     ?? null,
+                        ':cantidad'    => $linea['cantidad']        ?? 1,
+                        ':costo'       => $linea['precio_unitario'] ?? 0
+                    ]);
 
-                        // Sumar stock al inventario
-                        $pdo->prepare("
-                            UPDATE tbl_inventario
-                            SET stock = stock + :cant
-                            WHERE id_producto = :id_prod
-                        ")->execute([
-                            ':cant'    => $linea['cantidad']    ?? 1,
-                            ':id_prod' => $linea['id_producto'] ?? null
-                        ]);
-                    }
-                } catch (PDOException $ignored) {
-                    // Si tbl_detalle_compra aún no tiene esas columnas, continuar
+                    // Sumar stock al inventario
+                    $stmtStock->execute([
+                        ':cant'    => $linea['cantidad']    ?? 1,
+                        ':id_prod' => $linea['id_producto'] ?? null
+                    ]);
                 }
             }
 
