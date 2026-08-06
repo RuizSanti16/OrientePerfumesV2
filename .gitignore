@@ -48,3 +48,7 @@ Thumbs.db
 # Carpeta de trabajo con el proyecto listo para subir al hosting.
 para-subir/
 orientperfumes-web.zip
+
+# Volcados de la base: llevan datos de clientes y el hash del admin.
+respaldo.sql
+importar-hostinger.sql
