@@ -93,11 +93,28 @@ if (!password_verify($clave, $hash)) {
     exit(1);
 }
 
+/* Se pide el usuario para imprimir la sentencia ya completa. La version
+   anterior dejaba un marcador TU_USUARIO a sustituir a mano, y es un
+   paso facil de pasar por alto: basta con ejecutarla tal cual para
+   guardar el marcador como si fuera la contrasena. */
+$usuario = $argv[2] ?? null;
+if ($usuario === null) {
+    fwrite(STDOUT, "Usuario del administrador: ");
+    $usuario = trim((string) fgets(STDIN));
+}
+
+if ($usuario === '' || strpos($usuario, "'") !== false) {
+    fwrite(STDERR, "Error: usuario vacio o con comillas simples.\n");
+    exit(1);
+}
+
 echo "\nHash generado (" . strlen($hash) . " caracteres):\n";
 echo $hash . "\n";
-echo "\nSentencia para actualizar un administrador existente.\n";
-echo "Cambia TU_USUARIO por el usuario con el que quieras entrar:\n\n";
-echo "UPDATE tbl_administrador SET usuario = 'TU_USUARIO', contrasena = '"
-     . $hash . "' WHERE id_administrador = 1;\n\n";
+echo "\n--- Copia esta sentencia entera y pegala en Railway ---\n";
+echo "--- Ya esta completa: no hay que sustituir nada ---\n\n";
+echo "UPDATE tbl_administrador SET contrasena = '" . $hash
+     . "' WHERE usuario = '" . $usuario . "';\n\n";
+echo "Railway debe indicar que afecto a 1 fila. Si dice 0, el usuario\n";
+echo "'" . $usuario . "' no existe con ese nombre exacto.\n\n";
 echo "El hash no es la contrasena y no se puede revertir, pero si permite\n";
 echo "probar claves por fuerza bruta: no lo publiques ni lo subas al repo.\n";
