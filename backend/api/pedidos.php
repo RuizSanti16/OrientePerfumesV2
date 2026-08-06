@@ -22,6 +22,7 @@ require_once __DIR__ . '/../configuracion/cors.php';
 
 require_once '../configuracion/Conexion.php';
 require_once '../configuracion/auth.php';
+require_once '../configuracion/precios.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
@@ -130,6 +131,17 @@ try {
                 }
             }
 
+            /* El importe se calcula aquí, con los precios de la base.
+               Antes se guardaba el total que enviaba el navegador, lo
+               que permitiría pagar 1 peso por un pedido de 500.000 en
+               cuanto haya una pasarela cobrando de verdad. Del cliente
+               solo se acepta qué producto y cuántas unidades. */
+            $calculo = calcularTotalesPedido($pdo, $b['items'], $b['cupon'] ?? null);
+            if (!$calculo['ok']) {
+                echo json_encode(['ok' => false, 'mensaje' => $calculo['mensaje']]);
+                exit;
+            }
+
             /* Generar código único */
             $codigo = '';
             do {
@@ -157,9 +169,9 @@ try {
                 ':dir'     => trim($b['direccion']),
                 ':ciudad'  => trim($b['ciudad']    ?? ''),
                 ':notas'   => trim($b['notas']     ?? ''),
-                ':total'   => floatval($b['total']    ?? 0),
-                ':desc'    => floatval($b['descuento'] ?? 0),
-                ':cupon'   => $b['cupon']     ?? null,
+                ':total'   => $calculo['total'],
+                ':desc'    => $calculo['descuento'],
+                ':cupon'   => $calculo['cupon'],
                 ':metodo'  => $b['metodo_pago'] ?? 'contraentrega',
             ]);
             $idPedido = $pdo->lastInsertId();
@@ -170,33 +182,44 @@ try {
                     (id_pedido, id_producto, nombre_producto, cantidad, precio_unitario, presentacion)
                 VALUES (:pid, :iprod, :nombre, :cant, :precio, :pres)
             ");
-            foreach ($b['items'] as $item) {
+            /* Las líneas también salen del cálculo: nombre y precio se
+               toman de tbl_productos, no de lo que llegó. */
+            foreach ($calculo['items'] as $item) {
                 $insItem->execute([
                     ':pid'    => $idPedido,
-                    ':iprod'  => $item['id_producto']   ?? null,
-                    ':nombre' => $item['nombre']         ?? 'Producto',
-                    ':cant'   => intval($item['cantidad']       ?? 1),
-                    ':precio' => floatval($item['precio_unitario'] ?? 0),
-                    ':pres'   => $item['presentacion']   ?? null,
+                    ':iprod'  => $item['id_producto'],
+                    ':nombre' => $item['nombre'],
+                    ':cant'   => $item['cantidad'],
+                    ':precio' => $item['precio_unitario'],
+                    ':pres'   => $item['presentacion'],
                 ]);
             }
 
             $pdo->commit();
 
-            /* Enviar confirmación por email (no-fatal) */
-            try {
-                $asunto   = "Pedido Orient Perfumes #{$codigo}";
-                $cuerpo   = "Hola {$b['nombre']},\n\nTu pedido ha sido recibido correctamente.\n\n";
-                $cuerpo  .= "Código de seguimiento: {$codigo}\n";
-                $cuerpo  .= "Puedes consultar el estado en: " . ($_SERVER['HTTP_ORIGIN'] ?? 'https://orientperfumes.com') . "/seguimiento/{$codigo}\n\n";
-                $cuerpo  .= "Total: $" . number_format(floatval($b['total'] ?? 0), 0, ',', '.') . "\n";
-                $cuerpo  .= "\nGracias por tu compra.\nOrient Perfumes";
+            /* Enviar confirmación por email (no-fatal).
 
-                $headers  = "From: no-reply@orientperfumes.com\r\n";
-                $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+               El try/catch no bastaba: mail() no lanza una excepción
+               cuando no puede conectar con el servidor de correo, sino
+               que emite un warning de PHP. Ese warning se imprimía
+               antes del JSON y dejaba la respuesta ilegible, de modo
+               que el cliente veía un error pese a que el pedido sí se
+               había creado, y era probable que volviera a comprar. Con
+               @ se silencia la salida y se mira el valor devuelto; el
+               fallo queda en el log del servidor. */
+            $asunto   = "Pedido Orient Perfumes #{$codigo}";
+            $cuerpo   = "Hola {$b['nombre']},\n\nTu pedido ha sido recibido correctamente.\n\n";
+            $cuerpo  .= "Código de seguimiento: {$codigo}\n";
+            $cuerpo  .= "Puedes consultar el estado en: " . ($_SERVER['HTTP_ORIGIN'] ?? 'https://orientperfumes.com') . "/seguimiento/{$codigo}\n\n";
+            $cuerpo  .= "Total: $" . number_format($calculo['total'], 0, ',', '.') . "\n";
+            $cuerpo  .= "\nGracias por tu compra.\nOrient Perfumes";
 
-                mail(trim($b['correo']), $asunto, $cuerpo, $headers);
-            } catch (Exception $ignored) {}
+            $headers  = "From: no-reply@orientperfumes.com\r\n";
+            $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+            if (!@mail(trim($b['correo']), $asunto, $cuerpo, $headers)) {
+                error_log("[OrientPerfumes] No se pudo enviar el correo del pedido {$codigo}");
+            }
 
             echo json_encode([
                 'ok'     => true,
