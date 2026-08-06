@@ -28,6 +28,11 @@ backend/uploads/*.tiff
 # contrasena de la base de datos. La plantilla si se versiona.
 backend/configuracion/entorno.php
 
+# Paquete armado para subir al hosting. Es el resultado de combinar
+# frontend/dist con backend, asi que se regenera cuando haga falta.
+public_html.zip
+despliegue/
+
 # Logs
 *.log
 npm-debug.log*
