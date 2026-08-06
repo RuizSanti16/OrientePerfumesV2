@@ -1,13 +1,13 @@
-# Claude Code
+﻿# Claude Code
 .claude/
 
 # Dependencias Node
 frontend/node_modules/
 
-# Build de producción
+# Build de producciÃ³n
 frontend/dist/
 
-# Imágenes subidas por el usuario (no son código)
+# ImÃ¡genes subidas por el usuario (no son cÃ³digo)
 backend/uploads/*.jpg
 backend/uploads/*.jpeg
 backend/uploads/*.png
@@ -52,6 +52,7 @@ orientperfumes-web.zip
 # Volcados de la base: llevan datos de clientes y el hash del admin.
 respaldo.sql
 importar-hostinger.sql
+restaurar-productos.sql
 
 # Credenciales de la cuenta FTP de despliegue. La plantilla si se versiona.
 scripts/ftp.json
