@@ -25,11 +25,19 @@ try {
        diagnosticar. */
     error_log('[OrientPerfumes] Error de conexion: ' . $e->getMessage());
 
+    /* Con envOr, no con getenv: en hosting compartido la configuracion
+       llega por entorno.php y getenv() no la ve, de modo que APP_DEBUG
+       quedaba siempre desactivado y no habia manera de averiguar por
+       que fallaba la conexion. envOr consulta tambien ese archivo.
+       Configuracion.php ya esta incluido arriba, asi que la funcion
+       existe. */
+    $depurar = function_exists('envOr') && envOr('APP_DEBUG', '0') === '1';
+
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode([
         "error"   => true,
-        "mensaje" => getenv('APP_DEBUG') === '1'
+        "mensaje" => $depurar
             ? "Error de conexión: " . $e->getMessage()
             : "No se pudo conectar con la base de datos.",
     ]);
