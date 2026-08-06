@@ -7,6 +7,12 @@
      require_once '../configuracion/auth.php';
      verificarTokenAdmin($pdo);   // termina con 401 si no válido
 
+   Devuelve el id_administrador del dueño del token. Los endpoints que
+   solo necesitan saber que la petición está autorizada pueden ignorar
+   el valor; los que actúan sobre la cuenta que llama (cambiar la
+   contraseña, por ejemplo) lo necesitan para no tener que fiarse de un
+   id enviado por el cliente.
+
    El token viaja en:  Authorization: Bearer <64-char-hex-token>
 ============================================================= */
 
@@ -46,8 +52,9 @@ function verificarTokenAdmin($pdo) {
          LIMIT 1"
     );
     $s->execute([':t' => $token]);
+    $fila = $s->fetch();
 
-    if (!$s->fetch()) {
+    if (!$fila) {
         http_response_code(401);
         echo json_encode([
             'ok'      => false,
@@ -56,4 +63,6 @@ function verificarTokenAdmin($pdo) {
         ]);
         exit;
     }
+
+    return (int) $fila['id_administrador'];
 }

@@ -114,6 +114,23 @@ export const authAPI = {
   loginAdmin:   (data) => apiFetch('login.php',         'POST', data),
   loginCliente: (data) => apiFetch('login-cliente.php', 'POST', data),
   registro:     (data) => apiFetch('registro.php',      'POST', data),
+
+  /* El backend cierra las demas sesiones al cambiar la contrasena, asi
+     que devuelve un token nuevo. Sin guardarlo, la propia pestaña que
+     hizo el cambio se quedaria con el token viejo y el siguiente clic
+     la mandaria al login. */
+  async cambiarClave(data) {
+    const r = await apiFetch('cambiar_clave.php', 'POST', data);
+    if (r?.ok && r.token) {
+      try {
+        const s = JSON.parse(localStorage.getItem('op_admin_session')) ?? {};
+        localStorage.setItem('op_admin_session', JSON.stringify({
+          ...s, token: r.token, expiry: r.expiry,
+        }));
+      } catch { /* sesion ilegible: el proximo 401 llevara al login */ }
+    }
+    return r;
+  },
 };
 
 export const destacadosAPI = {
