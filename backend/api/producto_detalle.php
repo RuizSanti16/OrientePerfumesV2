@@ -84,17 +84,25 @@ try {
                 ? round(array_sum(array_column($ratings,'estrellas')) / count($ratings), 1)
                 : 0;
 
-            /* Stock actual (público: solo el número, sin info sensible) */
+            /* Stock actual (público: solo el número, sin info sensible)
+
+               La columna de tbl_inventario se llama `stock`; no existe
+               ninguna `stock_actual`. La consulta fallaba siempre y el
+               catch devolvía null, así que la ficha de producto nunca
+               mostraba existencias. Se conserva el catch porque este
+               endpoint es público y un fallo aquí no debe tumbar la
+               página, pero ahora deja rastro en el log. */
             try {
                 $s = $pdo->prepare("
-                    SELECT stock_actual FROM tbl_inventario
+                    SELECT stock FROM tbl_inventario
                     WHERE id_producto = :id
                     LIMIT 1
                 ");
                 $s->execute([':id' => $id]);
                 $inv = $s->fetch();
-                $producto['stock_actual'] = $inv ? (int)$inv['stock_actual'] : null;
+                $producto['stock_actual'] = $inv ? (int)$inv['stock'] : null;
             } catch (PDOException $e) {
+                error_log('[OrientPerfumes] Stock en producto_detalle: ' . $e->getMessage());
                 $producto['stock_actual'] = null;
             }
 

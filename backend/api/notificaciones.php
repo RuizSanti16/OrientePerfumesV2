@@ -34,9 +34,14 @@ try {
     /* Stock bajo (≤5 unidades) */
     $stockBajo = 0;
     try {
-        $s = $pdo->query("SELECT COUNT(*) FROM tbl_inventario WHERE COALESCE(stock_actual, stock, 0) <= 5");
+        /* La columna es `stock`, no stock_actual. Con el nombre erróneo la
+           consulta fallaba y el catch dejaba el contador en 0: la campana
+           de notificaciones nunca avisaba de existencias bajas. */
+        $s = $pdo->query("SELECT COUNT(*) FROM tbl_inventario WHERE COALESCE(stock, 0) <= 5");
         $stockBajo = (int)$s->fetchColumn();
-    } catch (PDOException $e) {}
+    } catch (PDOException $e) {
+        error_log('[OrientPerfumes] Stock bajo en notificaciones: ' . $e->getMessage());
+    }
 
     $total = $pedidosPend + $comentariosPend + $stockBajo;
 

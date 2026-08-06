@@ -105,9 +105,15 @@ try {
     /* ── 7. Stock bajo ───────────────────────────────────── */
     $stockBajoCount = 0;
     try {
-        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_inventario WHERE COALESCE(stock_actual, stock, 0) <= 5");
+        /* stock_actual no existe en tbl_inventario: la columna es `stock`.
+           Nombrarla hacía fallar la consulta entera, y el catch dejaba el
+           contador en 0, de modo que el panel nunca avisaba de stock bajo. */
+        $stmt = $pdo->query("SELECT COUNT(*) FROM tbl_inventario WHERE COALESCE(stock, 0) <= 5");
         $stockBajoCount = (int)$stmt->fetchColumn();
-    } catch (PDOException $e) { $stockBajoCount = 0; }
+    } catch (PDOException $e) {
+        error_log('[OrientPerfumes] Stock bajo en estadisticas: ' . $e->getMessage());
+        $stockBajoCount = 0;
+    }
 
     echo json_encode([
         'ok' => true,
