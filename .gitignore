@@ -52,3 +52,6 @@ orientperfumes-web.zip
 # Volcados de la base: llevan datos de clientes y el hash del admin.
 respaldo.sql
 importar-hostinger.sql
+
+# Credenciales de la cuenta FTP de despliegue. La plantilla si se versiona.
+scripts/ftp.json

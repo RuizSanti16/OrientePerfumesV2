@@ -1,0 +1,31 @@
+{
+  "_comentario": [
+    "Copiar este archivo como ftp.json, en esta misma carpeta, y",
+    "rellenarlo con los datos reales. ftp.json NO se versiona: lleva la",
+    "contrasena de la cuenta FTP.",
+    "",
+    "Los datos salen de hPanel > Archivos > Cuentas FTP. Conviene crear",
+    "una cuenta dedicada para el despliegue en lugar de usar la",
+    "principal, y limitar su carpeta a public_html.",
+    "",
+    "servidor: el host FTP que indica hPanel (suele ser el dominio o una",
+    "          IP). Sin ftp:// delante.",
+    "usuario:  el nombre completo, con el prefijo uXXXXXXXXX.",
+    "carpeta:  la ruta remota donde vive el sitio. Si la cuenta FTP ya",
+    "          apunta a public_html, dejar '/'; si entra en la raiz de",
+    "          la cuenta, poner '/public_html'.",
+    "ssl:      true usa FTPS explicito y cifra la conexion, incluida la",
+    "          contrasena. Dejarlo en true; ponerlo en false solo si el",
+    "          servidor no lo admite, sabiendo que entonces las",
+    "          credenciales viajan en claro.",
+    "pasivo:   true en casi todos los hostings. Solo cambiarlo si la",
+    "          conexion se queda colgada al listar o subir."
+  ],
+
+  "servidor": "ftp.orientperfumes.com.co",
+  "usuario": "u333364058_despliegue",
+  "password": "PON_AQUI_LA_CONTRASENA_FTP",
+  "carpeta": "/public_html",
+  "ssl": true,
+  "pasivo": true
+}
