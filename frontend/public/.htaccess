@@ -1,0 +1,57 @@
+# Se copia a dist/ al compilar y acaba en la raiz de public_html.
+#
+# ENRUTADO DE LA TIENDA
+# React Router maneja las rutas en el navegador, pero al recargar en
+# /colecciones o entrar por un enlace directo el servidor busca un
+# archivo con ese nombre, no lo encuentra y devuelve 404. La regla
+# manda esas peticiones a index.html para que React resuelva la ruta.
+#
+# La condicion es importante: solo se reescribe lo que NO existe como
+# archivo o carpeta. Asi /api, /assets y las imagenes se sirven tal
+# cual y no se los traga el index.html.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Forzar HTTPS. El certificado lo emite el propio hosting.
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # La API y las subidas se sirven sin tocar.
+    RewriteRule ^api/ - [L]
+
+    # Todo lo que no exista va al index.html de React.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# No listar el contenido de las carpetas sin index.
+Options -Indexes
+
+# Los assets llevan un hash en el nombre en cada compilacion, asi que
+# se pueden cachear indefinidamente: si cambian, cambia la URL.
+# index.html no, porque es quien apunta a los assets nuevos.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 year"
+    ExpiresByType application/javascript  "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 month"
+    ExpiresByType image/webp              "access plus 1 month"
+    ExpiresByType image/jpeg              "access plus 1 month"
+    ExpiresByType image/png               "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>

@@ -1,0 +1,18 @@
+# Esta carpeta queda dentro del espacio web publico al desplegar en
+# hosting compartido (public_html/api/configuracion). Ninguno de sus
+# archivos debe servirse por HTTP: entorno.php lleva la contrasena de
+# la base de datos, y crear-admin.php y hash-clave.php son de linea de
+# comandos. Se incluyen desde PHP con require, que no pasa por el
+# servidor web, asi que denegarlo aqui no rompe nada.
+#
+# Se cubren las dos sintaxis porque conviven versiones distintas de
+# Apache y LiteSpeed segun el hosting.
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

@@ -24,6 +24,10 @@ backend/uploads/*.tiff
 .env.local
 .env.*.local
 
+# Configuracion por archivo para hosting compartido: lleva la
+# contrasena de la base de datos. La plantilla si se versiona.
+backend/configuracion/entorno.php
+
 # Logs
 *.log
 npm-debug.log*
