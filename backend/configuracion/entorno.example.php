@@ -46,4 +46,23 @@ return [
        '0' en produccion: los detalles van al log del servidor y nunca
        al navegador. Ponerlo a '1' solo para diagnosticar. */
     'APP_DEBUG' => '0',
+
+    /* ── Pasarela de pago (Wompi) ───────────────────────────
+       Las llaves salen del panel de Wompi, seccion de
+       desarrolladores. Hay dos juegos: las de prueba empiezan por
+       pub_test_ / prv_test_, y las reales por pub_prod_ / prv_prod_.
+
+       'sandbox' cobra con tarjetas y bancos ficticios; 'produccion'
+       mueve dinero de verdad. Conviene dejar sandbox hasta haber
+       probado el flujo completo, incluido el aviso de confirmacion.
+
+       De los tres secretos, el de integridad firma el importe que
+       viaja al checkout y el de eventos valida los avisos que llegan
+       al webhook. Sin ellos el cobro no es seguro: el primero evita
+       que el cliente elija cuanto paga, el segundo que cualquiera
+       marque pedidos como pagados. */
+    'WOMPI_ENTORNO'             => 'sandbox',
+    'WOMPI_LLAVE_PUBLICA'       => 'pub_test_xxxxxxxxxxxxxxxxxxxx',
+    'WOMPI_SECRETO_INTEGRIDAD'  => 'test_integrity_xxxxxxxxxxxxxxxx',
+    'WOMPI_SECRETO_EVENTOS'     => 'test_events_xxxxxxxxxxxxxxxxxx',
 ];
