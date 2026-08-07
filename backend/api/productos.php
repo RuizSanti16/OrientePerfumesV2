@@ -75,6 +75,19 @@ try {
                 $presentaciones = json_encode($b['presentaciones']);
             }
 
+            /* El producto y su registro de inventario se crean juntos.
+
+               Antes solo se insertaba el producto, y nacia sin fila en
+               tbl_inventario: no aparecia en la pantalla de Inventario,
+               el aviso de stock bajo lo ignoraba, y al vender una unidad
+               el descuento de stock no encontraba que actualizar, de
+               modo que no fallaba pero tampoco hacia nada. Habia que
+               crear el registro a mano por cada producto.
+
+               Van en una transaccion para que no quede un producto sin
+               inventario si algo falla a mitad. */
+            $pdo->beginTransaction();
+
             $s = $pdo->prepare("
                 INSERT INTO tbl_productos (nombre, marca, precio, id_categoria, descripcion, imagen, presentaciones)
                 VALUES (:nombre, :marca, :precio, :id_categoria, :descripcion, :imagen, :presentaciones)
@@ -88,7 +101,31 @@ try {
                 ':imagen'         => $b['imagen']        ?? '',
                 ':presentaciones' => $presentaciones
             ]);
-            echo json_encode(['ok' => true, 'mensaje' => 'Producto creado', 'id' => $pdo->lastInsertId()]);
+            $idNuevo = $pdo->lastInsertId();
+
+            /* Stock inicial: el que venga del formulario, o 0. Nace con
+               existencias en cero, no invisible, que es la diferencia
+               importante: cero se puede corregir desde Inventario, la
+               ausencia de fila no se ve por ningun lado. */
+            $stockInicial = isset($b['stock']) ? max(0, (int) $b['stock']) : 0;
+
+            $pdo->prepare("
+                INSERT INTO tbl_inventario (id_producto, stock, ubicacion)
+                VALUES (:id, :stock, :ubicacion)
+            ")->execute([
+                ':id'        => $idNuevo,
+                ':stock'     => $stockInicial,
+                ':ubicacion' => $b['ubicacion'] ?? '',
+            ]);
+
+            $pdo->commit();
+
+            echo json_encode([
+                'ok'      => true,
+                'mensaje' => 'Producto creado',
+                'id'      => $idNuevo,
+                'stock'   => $stockInicial,
+            ]);
             break;
 
         case 'PUT':
@@ -136,8 +173,25 @@ try {
             echo json_encode(['ok' => false, 'mensaje' => 'Método no permitido']);
     }
 } catch (PDOException $e) {
+    /* Sin este rollBack, un fallo entre el alta del producto y la de su
+       inventario dejaria la transaccion abierta. */
+    if ($pdo->inTransaction()) $pdo->rollBack();
+
+    /* El mensaje de PDO se enviaba tal cual al cliente, y lleva el
+       nombre de la base y de las tablas: cualquiera que provocara un
+       error los leia. Ya se vio en produccion, con un
+       "Table 'uXXXXXXXX_orientperfums.tbl_productos' doesn't exist"
+       visible desde el navegador. Ahora el detalle va al log y solo se
+       muestra con APP_DEBUG activado. */
+    error_log('[OrientPerfumes] Error en productos: ' . $e->getMessage());
+
     http_response_code(500);
-    echo json_encode(['ok' => false, 'mensaje' => $e->getMessage()]);
+    echo json_encode([
+        'ok'      => false,
+        'mensaje' => envOr('APP_DEBUG', '0') === '1'
+            ? $e->getMessage()
+            : 'No se pudo completar la operacion.',
+    ]);
 }
 require_once '../configuracion/CerrarConexion.php';
 ?>
