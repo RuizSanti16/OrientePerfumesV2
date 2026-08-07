@@ -115,6 +115,30 @@ if ($Simular) {
     return
 }
 
+# ── Certificado ────────────────────────────────────────────
+# Hostinger presenta un certificado legitimo de Sectigo para *.hstgr.io,
+# pero se conecta por ftp.<dominio>, que no esta cubierto: .NET lo
+# rechaza por RemoteCertificateNameMismatch.
+#
+# Se acepta unicamente ese desajuste de nombre. Un certificado caducado,
+# autofirmado o con la cadena rota sigue rechazandose, que es lo que de
+# verdad delataria a un impostor. Asi la conexion sigue cifrada y
+# validada contra una autoridad de confianza; lo unico que se relaja es
+# la comprobacion del nombre del host.
+$ignorarNombre = if ($null -ne $cfg.ssl_ignorar_nombre) { [bool]$cfg.ssl_ignorar_nombre } else { $true }
+
+if ($usarSsl -and $ignorarNombre) {
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {
+        param($remitente, $certificado, $cadena, $errores)
+        $soloNombre = ($errores -eq [System.Net.Security.SslPolicyErrors]::RemoteCertificateNameMismatch)
+        if (-not $soloNombre -and $errores -ne [System.Net.Security.SslPolicyErrors]::None) {
+            Write-Host "    Certificado rechazado: $errores" -ForegroundColor Red
+            return $false
+        }
+        return $true
+    }
+}
+
 # ── Funciones FTP ──────────────────────────────────────────
 function Nueva-Peticion([string] $url, [string] $metodo) {
     $r = [System.Net.FtpWebRequest]::Create($url)
