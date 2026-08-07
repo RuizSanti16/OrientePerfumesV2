@@ -8,6 +8,16 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/../configuracion/cors.php';
 
+/* Tienda cerrada al publico: responde 503 a quien no traiga sesion de
+   administrador. Va antes de validar los campos porque este endpoint
+   abre la conexion despues de validarlos, y con el guardian ahi una
+   peticion mal formada respondia sin llegar a pasar por el. No filtraba
+   datos, pero el cierre de la tienda no debe depender de la forma que
+   tenga la peticion. */
+require_once __DIR__ . '/../configuracion/Conexion.php';
+require_once __DIR__ . '/../configuracion/mantenimiento.php';
+bloquearSiMantenimiento($pdo);
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'mensaje' => 'Metodo no permitido']);
@@ -34,14 +44,7 @@ if (strlen($loginPassword) < 6) {
     exit;
 }
 
-require_once '../configuracion/Conexion.php';
-
-/* Tienda cerrada al publico: responde 503 a quien no traiga sesion
-   de administrador. La comprobacion va aqui, en el servidor, porque
-   un aviso puesto solo en React no impediria pedir los datos
-   directamente a este endpoint. */
-require_once __DIR__ . "/../configuracion/mantenimiento.php";
-bloquearSiMantenimiento($pdo);
+/* La conexion ya se abrio arriba, junto al control de mantenimiento. */
 
 
 try {
