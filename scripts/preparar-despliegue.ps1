@@ -74,8 +74,14 @@ New-Item -ItemType Directory -Force -Path $destino | Out-Null
 # borrado del proyecto seguiria apareciendo como si existiera. Ademas
 # hacia que las comprobaciones de mas abajo dieran falsos positivos,
 # validando archivos sobrantes de la vez anterior.
+# .subido se conserva junto a .preparado: es el registro de que archivos
+# ya envio subir-ftp.ps1. Borrarlo aqui hacia que la siguiente subida
+# creyera que no se ha enviado nada nunca y reenviara el proyecto
+# entero, precisamente al usar -Preparar, que es la forma recomendada de
+# lanzarla. La subida seguia siendo correcta, solo dejaba de ser
+# incremental.
 Get-ChildItem $destino -Force |
-    Where-Object { $_.Name -ne '.preparado' } |
+    Where-Object { $_.Name -notin @('.preparado', '.subido') } |
     Remove-Item -Recurse -Force
 
 New-Item -ItemType Directory -Force -Path $destino | Out-Null
@@ -132,7 +138,7 @@ Write-Host '      Todo correcto.' -ForegroundColor Green
 Write-Host '[4/4] Resultado' -ForegroundColor Yellow
 Write-Host ''
 
-$todos    = Get-ChildItem $destino -Recurse -File -Force | Where-Object { $_.Name -ne '.preparado' }
+$todos    = Get-ChildItem $destino -Recurse -File -Force | Where-Object { $_.Name -notin @('.preparado', '.subido') }
 $cambiados = $todos | Where-Object { $_.LastWriteTime -gt $anterior }
 
 Write-Host "      Carpeta: $destino"
