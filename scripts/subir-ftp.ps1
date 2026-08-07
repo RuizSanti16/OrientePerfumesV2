@@ -181,18 +181,35 @@ foreach ($p in $pendientes) {
         if (-not $creadas[$carpetaRel]) { Crear-Carpeta $carpetaRel; $creadas[$carpetaRel] = $true }
     }
 
-    try {
-        $r = Nueva-Peticion "$base/$rel" ([System.Net.WebRequestMethods+Ftp]::UploadFile)
-        $bytes = [System.IO.File]::ReadAllBytes($p.Local)
-        $r.ContentLength = $bytes.Length
-        $s = $r.GetRequestStream()
-        $s.Write($bytes, 0, $bytes.Length)
-        $s.Close()
-        $resp = $r.GetResponse(); $resp.Close()
+    # El servidor devuelve 450 "archivo no disponible" de forma
+    # intermitente, sin relacion con el tamano ni con el archivo: al
+    # repetir la misma subida suele completarse. Se reintenta con una
+    # pausa creciente antes de darlo por fallido.
+    $intentos = 3
+    $subido   = $false
+    $ultimoError = ''
+
+    for ($i = 1; $i -le $intentos -and -not $subido; $i++) {
+        try {
+            $r = Nueva-Peticion "$base/$rel" ([System.Net.WebRequestMethods+Ftp]::UploadFile)
+            $bytes = [System.IO.File]::ReadAllBytes($p.Local)
+            $r.ContentLength = $bytes.Length
+            $s = $r.GetRequestStream()
+            $s.Write($bytes, 0, $bytes.Length)
+            $s.Close()
+            $resp = $r.GetResponse(); $resp.Close()
+            $subido = $true
+        } catch {
+            $ultimoError = $_.Exception.Message
+            if ($i -lt $intentos) { Start-Sleep -Milliseconds (500 * $i) }
+        }
+    }
+
+    if ($subido) {
         Write-Host ("    OK  " + $rel) -ForegroundColor Green
         $ok++
-    } catch {
-        Write-Host ("    ERROR  " + $rel + " -- " + $_.Exception.Message) -ForegroundColor Red
+    } else {
+        Write-Host ("    ERROR  " + $rel + " -- " + $ultimoError) -ForegroundColor Red
         $fallos += $rel
         # Se quita del registro para que el proximo intento lo reintente.
         $huellas.Remove($p.Rel)
