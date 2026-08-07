@@ -47,6 +47,20 @@ return [
        al navegador. Ponerlo a '1' solo para diagnosticar. */
     'APP_DEBUG' => '0',
 
+    /* ── Tienda cerrada al publico ──────────────────────────
+       '1' muestra "Proximamente disponible" a los visitantes y hace
+       que los endpoints publicos respondan 503. El panel sigue
+       funcionando, y quien tenga sesion de administrador ve la tienda
+       con normalidad para poder revisarla.
+
+       Se comprueba en el servidor, no solo en React: un aviso puesto
+       unicamente en el frontend se saltaria tocando el navegador, y los
+       endpoints seguirian entregando productos y precios a quien los
+       pidiera directamente.
+
+       '0' reabre la tienda. */
+    'MANTENIMIENTO' => '0',
+
     /* ── Pasarela de pago (Wompi) ───────────────────────────
        Las llaves salen del panel de Wompi, seccion de
        desarrolladores. Hay dos juegos: las de prueba empiezan por

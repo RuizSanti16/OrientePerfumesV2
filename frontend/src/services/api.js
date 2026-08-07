@@ -62,6 +62,12 @@ async function apiFetch(endpoint, method = 'GET', data = null) {
   return res.json();
 }
 
+/* Dice si la tienda esta cerrada al publico y si quien pregunta es
+   administrador. Lo consulta App al arrancar, antes de pintar nada. */
+export const estadoAPI = {
+  consultar: () => apiFetch('estado.php'),
+};
+
 export const productosAPI = {
   listar:     ()     => apiFetch('productos.php'),
   obtener:    (id)   => apiFetch(`productos.php?id=${id}`),

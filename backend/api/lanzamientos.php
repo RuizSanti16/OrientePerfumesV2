@@ -10,6 +10,14 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../configuracion/cors.php';
 
 require_once __DIR__ . '/../configuracion/Conexion.php';
+
+/* Tienda cerrada al publico: responde 503 a quien no traiga sesion
+   de administrador. La comprobacion va aqui, en el servidor, porque
+   un aviso puesto solo en React no impediria pedir los datos
+   directamente a este endpoint. */
+require_once __DIR__ . "/../configuracion/mantenimiento.php";
+bloquearSiMantenimiento($pdo);
+
 require_once __DIR__ . '/../configuracion/auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];

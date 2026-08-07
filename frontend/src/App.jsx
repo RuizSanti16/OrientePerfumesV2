@@ -1,4 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { estadoAPI } from './services/api';
+import Proximamente from './pages/Proximamente';
 import Home            from './pages/Home';
 import NotFound        from './pages/NotFound';
 import Login           from './pages/Login';
@@ -47,28 +50,64 @@ function AdminRoute({ children }) {
 }
 
 
+/* Cierra la tienda al público mientras se prepara el catálogo.
+
+   Quien decide es el servidor: estado.php dice si está cerrada y si
+   quien pregunta trae sesión de administrador válida. Aquí no se mira
+   localStorage para eso, porque cualquiera podría escribir un token
+   inventado y ver la tienda; el servidor comprueba que exista de verdad
+   y no haya expirado.
+
+   Mientras se resuelve la consulta no se muestra nada, para que el
+   visitante no vea la tienda un instante antes del aviso. */
+function PuertaTienda({ children }) {
+  const [estado, setEstado] = useState(null);
+
+  useEffect(() => {
+    let vigente = true;
+    estadoAPI.consultar()
+      .then(r => { if (vigente) setEstado(r); })
+      /* Si estado.php no responde, se deja pasar: es preferible que la
+         tienda siga en pie ante un fallo puntual a dejarla cerrada por
+         un error de red. Los endpoints siguen protegidos por su cuenta. */
+      .catch(() => { if (vigente) setEstado({ mantenimiento: false }); });
+    return () => { vigente = false; };
+  }, []);
+
+  if (estado === null) return null;
+  if (estado.mantenimiento && !estado.es_admin) return <Proximamente />;
+  return children;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Tienda pública */}
-        <Route path="/"          element={<Home />} />
+        {/* El acceso y el panel quedan fuera de la puerta: son la vía
+            para entrar cuando la tienda está cerrada. */}
         <Route path="/login"     element={<Login />} />
-        <Route path="/coleccion" element={<Coleccion />} />
-        <Route path="/noticias"  element={<Noticias />} />
-        <Route path="/contacto"  element={<Contacto />} />
-        <Route path="/producto/:id" element={<Producto />} />
-        <Route path="/nosotros"     element={<SobreNosotros />} />
-        {/* El menu enlazaba a /sobre-nosotros, que no existia como ruta y
-            llevaba a la pagina de error. Se mantiene como redireccion para
-            que los enlaces antiguos y los marcadores sigan funcionando. */}
-        <Route path="/sobre-nosotros" element={<Navigate to="/nosotros" replace />} />
-        <Route path="/faq"          element={<FAQ />} />
-        <Route path="/comparador"   element={<Comparador />} />
-        <Route path="/quiz"         element={<Quiz />} />
-        <Route path="/checkout"     element={<Checkout />} />
-        <Route path="/seguimiento"         element={<SeguimientoPedido />} />
-        <Route path="/seguimiento/:codigo" element={<SeguimientoPedido />} />
+
+        {/* Tienda pública, toda ella tras la puerta. Se agrupa en una
+            ruta sin path para no repetir el envoltorio en cada línea:
+            así no se puede olvidar en una nueva página. */}
+        <Route element={<PuertaTienda><Outlet /></PuertaTienda>}>
+          <Route path="/"          element={<Home />} />
+          <Route path="/coleccion" element={<Coleccion />} />
+          <Route path="/noticias"  element={<Noticias />} />
+          <Route path="/contacto"  element={<Contacto />} />
+          <Route path="/producto/:id" element={<Producto />} />
+          <Route path="/nosotros"     element={<SobreNosotros />} />
+          {/* El menu enlazaba a /sobre-nosotros, que no existia como ruta y
+              llevaba a la pagina de error. Se mantiene como redireccion para
+              que los enlaces antiguos y los marcadores sigan funcionando. */}
+          <Route path="/sobre-nosotros" element={<Navigate to="/nosotros" replace />} />
+          <Route path="/faq"          element={<FAQ />} />
+          <Route path="/comparador"   element={<Comparador />} />
+          <Route path="/quiz"         element={<Quiz />} />
+          <Route path="/checkout"     element={<Checkout />} />
+          <Route path="/seguimiento"         element={<SeguimientoPedido />} />
+          <Route path="/seguimiento/:codigo" element={<SeguimientoPedido />} />
+        </Route>
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
