@@ -53,6 +53,7 @@ orientperfumes-web.zip
 respaldo.sql
 importar-hostinger.sql
 restaurar-productos.sql
+importar-catalogo.sql
 
 # Credenciales de la cuenta FTP de despliegue. La plantilla si se versiona.
 scripts/ftp.json
