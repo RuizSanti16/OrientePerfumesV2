@@ -6,6 +6,10 @@
 
 require_once __DIR__ . "/Configuracion.php";
 
+/* Deja disponible responderErrorServidor() en todos los endpoints, que
+   incluyen este archivo, sin tener que anadir un require a cada uno. */
+require_once __DIR__ . "/errores.php";
+
 try {
     $pdo = new PDO($conexionBD, $usuario, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE,            PDO::ERRMODE_EXCEPTION);

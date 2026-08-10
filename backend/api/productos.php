@@ -177,21 +177,7 @@ try {
        inventario dejaria la transaccion abierta. */
     if ($pdo->inTransaction()) $pdo->rollBack();
 
-    /* El mensaje de PDO se enviaba tal cual al cliente, y lleva el
-       nombre de la base y de las tablas: cualquiera que provocara un
-       error los leia. Ya se vio en produccion, con un
-       "Table 'uXXXXXXXX_orientperfums.tbl_productos' doesn't exist"
-       visible desde el navegador. Ahora el detalle va al log y solo se
-       muestra con APP_DEBUG activado. */
-    error_log('[OrientPerfumes] Error en productos: ' . $e->getMessage());
-
-    http_response_code(500);
-    echo json_encode([
-        'ok'      => false,
-        'mensaje' => envOr('APP_DEBUG', '0') === '1'
-            ? $e->getMessage()
-            : 'No se pudo completar la operacion.',
-    ]);
+    responderErrorServidor($e, basename(__FILE__));
 }
 require_once '../configuracion/CerrarConexion.php';
 ?>

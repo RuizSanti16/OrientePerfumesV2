@@ -24,6 +24,21 @@ if (empty($loginUsuario) || empty($loginPassword)) {
 }
 
 require_once '../configuracion/Conexion.php';
+require_once '../configuracion/intentos.php';
+
+/* Freno a la fuerza bruta. La espera de 300 ms que habia mas abajo no
+   es un limite: permite unos tres intentos por segundo, indefinidamente.
+   Aqui se rechaza el intento antes incluso de mirar la contrasena. */
+list($bloqueado, $minutos) = loginBloqueado($pdo, $loginUsuario);
+if ($bloqueado) {
+    http_response_code(429);
+    echo json_encode([
+        'ok'      => false,
+        'code'    => 'DEMASIADOS_INTENTOS',
+        'mensaje' => "Demasiados intentos fallidos. Espera $minutos minutos e inténtalo de nuevo.",
+    ]);
+    exit;
+}
 
 /* Auto-migración: añadir columnas token si no existen */
 try { $pdo->query("SELECT token FROM tbl_administrador LIMIT 1"); }
@@ -43,7 +58,11 @@ try {
     $admin = $stmt->fetch();
 
     if (!$admin) {
-        /* Pequeña demora para dificultar ataques de fuerza bruta por tiempo */
+        /* Se cuenta también el intento contra un usuario inexistente:
+           si no, un atacante probaría nombres sin coste hasta dar con
+           uno válido. La demora se conserva para que acertar el nombre
+           no sea distinguible por el tiempo de respuesta. */
+        registrarIntentoFallido($pdo, $loginUsuario);
         usleep(300000);
         echo json_encode(['ok' => false, 'mensaje' => 'Usuario o contraseña incorrectos']);
         exit;
@@ -53,10 +72,15 @@ try {
 
     /* Solo password_verify — sin fallback en texto plano */
     if (!password_verify($loginPassword, $col_pass)) {
+        registrarIntentoFallido($pdo, $loginUsuario);
         usleep(300000);
         echo json_encode(['ok' => false, 'mensaje' => 'Usuario o contraseña incorrectos']);
         exit;
     }
+
+    /* Entrada correcta: se borra el historial para que unos cuantos
+       fallos previos no dejen bloqueado a quien acaba de acertar. */
+    limpiarIntentos($pdo, $loginUsuario);
 
     /* Generar token seguro de 64 caracteres con expiración 24 h */
     $token  = bin2hex(random_bytes(32));

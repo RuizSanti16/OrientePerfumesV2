@@ -48,6 +48,35 @@ Options -Indexes
     <FilesMatch "\.(html)$">
         Header set Cache-Control "no-cache, must-revalidate"
     </FilesMatch>
+
+    # ── Cabeceras de seguridad ──────────────────────────────
+    # Cada una cierra un ataque concreto. Sin ellas el navegador aplica
+    # sus valores por defecto, que son los permisivos.
+
+    # Obliga a usar HTTPS durante un año, incluso si alguien escribe
+    # http:// a mano. Evita que la primera peticion viaje en claro, que
+    # es donde un atacante en la misma red interceptaria la sesion.
+    # Un año es el minimo que exige la lista de precarga de navegadores.
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Impide que la tienda se cargue dentro de un iframe ajeno. Sin
+    # esto, una pagina fraudulenta puede superponer la tuya invisible
+    # y hacer que el visitante pulse donde no cree (clickjacking).
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Impide que el navegador adivine el tipo de un archivo. Sin esto,
+    # algo subido como imagen pero con contenido HTML podria acabar
+    # interpretandose como pagina.
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Al salir del sitio no se envia la ruta completa de la que venia,
+    # solo el dominio: las URL de seguimiento de pedidos llevan el
+    # codigo, y no tiene por que llegar a terceros.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # La tienda no usa camara, microfono ni geolocalizacion. Negarlos
+    # explicitamente evita que un script incrustado los pida.
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 </IfModule>
 
 <IfModule mod_deflate.c>

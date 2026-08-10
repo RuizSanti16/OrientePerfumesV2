@@ -82,7 +82,7 @@ try {
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'mensaje' => $e->getMessage()]);
+    responderErrorServidor($e, basename(__FILE__));
 }
 require_once '../configuracion/CerrarConexion.php';
 ?>

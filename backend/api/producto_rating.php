@@ -26,7 +26,7 @@ try {
     $s->execute([':id'=>$id,':n'=>$nombre,':e'=>$estrellas,':c'=>$comentario]);
     echo json_encode(['ok'=>true,'mensaje'=>'Calificación enviada','id'=>$pdo->lastInsertId()]);
 } catch (PDOException $e) {
-    echo json_encode(['ok'=>false,'mensaje'=>$e->getMessage()]);
+    responderErrorServidor($e, basename(__FILE__));
 }
 require_once '../configuracion/CerrarConexion.php';
 ?>
