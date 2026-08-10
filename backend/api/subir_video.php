@@ -106,6 +106,10 @@ if (!move_uploaded_file($file['tmp_name'], $destino)) {
 /* La ruta publica depende de donde este montado el backend: en XAMPP
    cuelga de /OrientPerfumesV2/, pero en un contenedor o subdominio la
    raiz es otra. Se configura con UPLOADS_BASE_URL. */
-$baseUploads = getenv('UPLOADS_BASE_URL') ?: '/OrientPerfumesV2/backend/uploads';
+/* Con envOr y no con getenv, por lo mismo que en subir_imagen.php: en
+   hosting compartido la configuracion llega por entorno.php y getenv()
+   no la ve, con lo que el video quedaba guardado con la ruta del XAMPP
+   local y no se reproducia en produccion. */
+$baseUploads = envOr('UPLOADS_BASE_URL', '/OrientPerfumesV2/backend/uploads');
 $url = rtrim($baseUploads, '/') . '/' . $filename;
 echo json_encode(['ok' => true, 'url' => $url, 'nombre' => $file['name']]);

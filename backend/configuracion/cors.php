@@ -16,7 +16,14 @@
      require_once __DIR__ . '/../configuracion/cors.php';
 ============================================================= */
 
-$corsEnv = getenv('CORS_ORIGINS');
+/* Se incluye Configuracion.php para poder usar envOr: getenv() no ve la
+   configuracion de entorno.php en hosting compartido, asi que
+   CORS_ORIGINS quedaba siempre sin leer. Hoy no se nota porque la tienda
+   y la API comparten dominio y no hay CORS de por medio, pero el dia que
+   se separen fallaria de forma difícil de relacionar con esta linea. */
+require_once __DIR__ . '/Configuracion.php';
+
+$corsEnv = envOr('CORS_ORIGINS', '');
 
 $origenesPermitidos = $corsEnv
     ? array_filter(array_map('trim', explode(',', $corsEnv)))
