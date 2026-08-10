@@ -419,6 +419,12 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 .hero__title {
   font-family: var(--font-display);
+  /* Respeta los saltos de linea del titulo sin necesidad de insertar
+     HTML. Antes se metia un <br>, lo que obligaba a renderizar el
+     titulo como HTML y abria la puerta a inyectar scripts desde el
+     panel. pre-line conserva el salto y colapsa los espacios sobrantes,
+     que es justo lo que hace falta aqui. */
+  white-space: pre-line;
   font-size: clamp(56px, 7vw, 96px);
   font-weight: 600;
   line-height: 1.02;

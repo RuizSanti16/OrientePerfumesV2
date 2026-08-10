@@ -194,7 +194,19 @@ export default function Home() {
               <div className="hero__overlay" aria-hidden="true"></div>
               <div className="hero__content">
                 <div className="hero__label">{s.label}</div>
-                <h1 className="hero__title" dangerouslySetInnerHTML={{__html: (s.titulo||'').replace(/\\n|\n/g,'<br>')}}/>
+                {/* Se renderiza como texto, no como HTML.
+
+                    Antes se insertaba con dangerouslySetInnerHTML tras
+                    cambiar los saltos de linea por <br>, lo que convertia
+                    el titulo en HTML ejecutable: un administrador (o
+                    quien le robara la sesion) podia dejar un <script> en
+                    la portada que se ejecutaria en el navegador de todos
+                    los visitantes.
+
+                    El salto de linea se conserva pasando la secuencia
+                    literal \n a un salto real y dejando que lo respete
+                    el CSS con white-space: pre-line. */}
+                <h1 className="hero__title">{(s.titulo || '').replace(/\\n/g, '\n')}</h1>
                 <p className="hero__subtitle">{s.subtitulo}</p>
                 <div className="hero__cta">
                   <a href="#categorias" className="btn-primary">{s.btn1}</a>
