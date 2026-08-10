@@ -104,9 +104,21 @@ export default function Footer() {
 
         {/* Barra inferior */}
         <div style={{ borderTop: '1px solid rgba(201,168,76,0.08)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <p style={{ fontSize: 12, color: '#9A9180', margin: 0 }}>
-            © {new Date().getFullYear()} OrientPerfumes · Todos los derechos reservados
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <p style={{ fontSize: 12, color: '#9A9180', margin: 0 }}>
+              © {new Date().getFullYear()} OrientPerfumes · Todos los derechos reservados
+            </p>
+            {/* La ley obliga a tener estas paginas accesibles, y el pie es
+                donde la gente las busca. */}
+            <a onClick={() => navigate('/politica-de-datos')} style={{ ...link, fontSize: 12 }}
+               onMouseEnter={over} onMouseLeave={out}>
+              Política de datos
+            </a>
+            <a onClick={() => navigate('/terminos')} style={{ ...link, fontSize: 12 }}
+               onMouseEnter={over} onMouseLeave={out}>
+              Términos y condiciones
+            </a>
+          </div>
           <a href="#" style={{ fontSize: 12, color: '#9A9180', textDecoration: 'none', transition: 'color 0.2s', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             onMouseEnter={over} onMouseLeave={out}>
             <IconArrowUp size={13}/> Volver Arriba

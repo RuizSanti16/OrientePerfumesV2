@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { estadoAPI } from './services/api';
 import Proximamente from './pages/Proximamente';
+import PoliticaDatos from './pages/PoliticaDatos';
+import Terminos from './pages/Terminos';
 import Home            from './pages/Home';
 import NotFound        from './pages/NotFound';
 import Login           from './pages/Login';
@@ -108,6 +110,12 @@ export default function App() {
           <Route path="/seguimiento"         element={<SeguimientoPedido />} />
           <Route path="/seguimiento/:codigo" element={<SeguimientoPedido />} />
         </Route>
+
+        {/* Paginas legales, fuera de la puerta de mantenimiento: la ley
+            obliga a tenerlas accesibles, y ademas no revelan nada del
+            catalogo. */}
+        <Route path="/politica-de-datos" element={<PoliticaDatos />} />
+        <Route path="/terminos"          element={<Terminos />} />
 
         {/* Panel admin */}
         <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
