@@ -56,3 +56,7 @@ restaurar-productos.sql
 
 # Credenciales de la cuenta FTP de despliegue. La plantilla si se versiona.
 scripts/ftp.json
+
+# Respaldos cifrados: aunque el contenido no sea legible, no tiene
+# sentido versionar un volcado de la base.
+*.sql.enc
