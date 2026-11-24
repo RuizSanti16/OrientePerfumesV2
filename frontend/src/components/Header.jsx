@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SocialButtons from './SocialButtons';
 import SearchBar from './SearchBar';
+import CarritoPanel from './CarritoPanel';
+import { useCarrito } from '../hooks/useCarrito';
 import { IconClose } from './Icons';
 
 const NAV_LINKS = [
@@ -16,9 +18,7 @@ const NAV_LINKS = [
 ];
 
 export default function Header({
-  cartCount    = 0,
   wishCount    = 0,
-  onCartClick,
   onWishlistClick,
   showSearch   = true,
   showAnnouncement = true,
@@ -27,6 +27,15 @@ export default function Header({
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  /* El carrito lo lleva el Header, no cada página.
+
+     Antes cada una pasaba onCartClick y montaba su propio panel, de
+     modo que el icono solo existía en la portada y en Colección: desde
+     la ficha de un producto, que es donde más se añade al carrito, no
+     había forma de abrirlo ni de llegar a pagar. */
+  const { count: cartCount } = useCarrito();
+  const [carritoAbierto, setCarritoAbierto] = useState(false);
 
   const isHome = location.pathname === '/';
   const isAdmin = location.pathname.startsWith('/admin');
@@ -115,14 +124,13 @@ export default function Header({
               {wishCount > 0 && <span className="action-btn__badge" aria-hidden="true">{wishCount}</span>}
             </button>
           )}
-          {onCartClick && (
-            <button className="action-btn" onClick={onCartClick} aria-label={`Carrito (${cartCount} items)`}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
-              {cartCount > 0 && <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>}
-            </button>
-          )}
+          {/* Siempre visible, en todas las páginas. */}
+          <button className="action-btn" onClick={() => setCarritoAbierto(a => !a)} aria-label={`Carrito (${cartCount} items)`}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            {cartCount > 0 && <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>}
+          </button>
           <div className="header-social">
             <SocialButtons />
           </div>
@@ -161,6 +169,8 @@ export default function Header({
           </button>
         </div>
       )}
+
+      <CarritoPanel abierto={carritoAbierto} onCerrar={() => setCarritoAbierto(false)} />
 
       {/* Drawer overlay */}
       <div

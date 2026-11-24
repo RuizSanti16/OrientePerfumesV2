@@ -51,7 +51,8 @@ function parsePrecio(v) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { agregar: agregarCarrito, count: cartCount, carrito, quitar: quitarCarrito } = useCarrito();
+  /* Solo "agregar": el panel del carrito y su total viven en el Header. */
+  const { agregar: agregarCarrito } = useCarrito();
   const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
   const [panelAbierto, setPanelAbierto] = useState(null);
   const [productosDestacados, setProductosDestacados] = useState([]);
@@ -169,16 +170,11 @@ export default function Home() {
   useEffect(() => { startAuto(); return stopAuto; }, [slides.length]);
 
 
-  /* ── Panel lateral ── */
-  const totalCarrito = carrito.reduce((s,i) => s+(i.precio*(i.cantidad||1)), 0);
-
   return (
     <>
       <Header
         showSearch={true}
-        cartCount={cartCount}
         wishCount={wishCount}
-        onCartClick={() => setPanelAbierto(p => p === 'carrito' ? null : 'carrito')}
         onWishlistClick={() => setPanelAbierto(p => p === 'wishlist' ? null : 'wishlist')}
       />
 
@@ -445,38 +441,8 @@ export default function Home() {
 
       {/* ── Paneles laterales ── */}
       {panelAbierto && <div onClick={() => setPanelAbierto(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:999}}/>}
-      <SidePanel abierto={panelAbierto==='carrito'} titulo="CARRITO DE COMPRAS" onCerrar={() => setPanelAbierto(null)}>
-        {carrito.length===0
-          ? <p style={{textAlign:'center',padding:'20px',color:'#9A9180',fontSize:'12px',letterSpacing:'0.1em'}}>EL CARRITO ESTÁ VACÍO</p>
-          : <>
-              {carrito.map((item,i) => (
-                <div key={i} style={{display:'flex',gap:10,padding:'10px 0',borderBottom:'1px solid rgba(201,168,76,0.1)'}}>
-                  {item.imagen ? <img src={item.imagen} style={{width:44,height:44,objectFit:'cover',borderRadius:4}} alt=""/> : <div style={{width:44,height:44,background:'rgba(201,168,76,0.1)',borderRadius:4}}/>}
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,color:'#E8DCC8',fontWeight:600}}>{item.nombre}</div>
-                    {item.presentacion && <div style={{fontSize:10,color:'#9A9180'}}>{item.presentacion}</div>}
-                    <div style={{fontSize:11,color:'#C9A84C',marginTop:2}}>{formatCOP(item.precio)} × {item.cantidad||1}</div>
-                  </div>
-                  <button onClick={() => quitarCarrito(i)} style={{background:'none',border:'none',color:'#e05252',cursor:'pointer',fontSize:16, display:'flex'}}><IconClose size={14}/></button>
-                </div>
-              ))}
-              <div style={{marginTop:12,textAlign:'right'}}>
-                <div style={{fontSize:11,color:'#9A9180',letterSpacing:'0.1em'}}>TOTAL</div>
-                <div style={{fontSize:18,color:'#C9A84C',fontWeight:700}}>{formatCOP(totalCarrito)}</div>
-              </div>
-              {/* Sin este botón el carrito de la portada era un callejón
-                  sin salida: mostraba los productos y el total, pero no
-                  había forma de llegar a pagar. El de Colección sí lo
-                  tenía, así que la compra solo se podía terminar si el
-                  cliente pasaba por esa página. */}
-              <button
-                onClick={() => { setPanelAbierto(null); navigate('/checkout'); }}
-                style={{marginTop:16,width:'100%',padding:'12px',background:'#C9A84C',border:'none',borderRadius:6,color:'#0a0a08',fontFamily:'Cinzel, serif',fontSize:11,letterSpacing:'0.18em',fontWeight:700,cursor:'pointer'}}>
-                FINALIZAR PEDIDO
-              </button>
-            </>
-        }
-      </SidePanel>
+      {/* El carrito ya no se monta aquí: vive en el Header, para que
+          esté en todas las páginas y haya una sola copia. */}
       <SidePanel abierto={panelAbierto==='wishlist'} titulo="LISTA DE DESEOS" onCerrar={() => setPanelAbierto(null)}>
         {wishlist.length===0
           ? <p style={{textAlign:'center',padding:'20px',color:'#9A9180',fontSize:'12px',letterSpacing:'0.1em'}}>TU LISTA DE DESEOS ESTÁ VACÍA</p>

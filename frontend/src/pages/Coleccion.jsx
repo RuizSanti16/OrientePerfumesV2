@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
-import { productosAPI, categoriasAPI, cuponesAPI } from '../services/api';
+import { productosAPI, categoriasAPI } from '../services/api';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
 import { useInView }     from '../hooks/useInView';
@@ -70,16 +70,12 @@ export default function Coleccion() {
   const [panelAbierto, setPanelAbierto] = useState(null);
   const [vista,        setVista]        = useState(() => localStorage.getItem('op_vista_col') || 'grid');
 
-  /* Carrito + Wishlist */
-  const { agregar: agregarCarrito, quitar: quitarCarrito, carrito, count: cartCount } = useCarrito();
-  const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
-  const totalCarrito = carrito.reduce((s, i) => s + (i.precio * (i.cantidad || 1)), 0);
+  /* Carrito + Wishlist.
 
-  /* Cupón */
-  const [cuponInput,    setCuponInput]    = useState('');
-  const [cuponAplicado, setCuponAplicado] = useState(null);
-  const [cuponError,    setCuponError]    = useState('');
-  const [aplicando,     setAplicando]     = useState(false);
+     De aqui solo queda "agregar": el panel del carrito, con su total y
+     su cupon, vive ahora en el Header. */
+  const { agregar: agregarCarrito } = useCarrito();
+  const { toggle: toggleWish, estaEn, wishlist, quitar: quitarWish, count: wishCount } = useWishlist();
 
   /* Comparador */
   const {
@@ -89,20 +85,6 @@ export default function Coleccion() {
     limpiar: limpiarComparar,
     estaEn:  estaEnComparar,
   } = useComparador();
-
-  async function aplicarCupon() {
-    if (!cuponInput.trim()) return;
-    setAplicando(true);
-    setCuponError('');
-    const res = await cuponesAPI.validar(cuponInput.trim(), totalCarrito);
-    if (res.ok) {
-      setCuponAplicado(res.data);
-      setCuponInput('');
-    } else {
-      setCuponError(res.mensaje || 'Código inválido');
-    }
-    setAplicando(false);
-  }
 
   /* Carga de productos */
   useEffect(() => {
@@ -136,16 +118,12 @@ export default function Coleccion() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const totalConDescuento = Math.max(0, totalCarrito - (cuponAplicado?.descuento || 0));
-
   return (
     <div style={{ background: '#0a0a08', minHeight: '100vh', color: '#E8DCC8', fontFamily: 'Raleway, sans-serif',
       paddingBottom: comparar.length > 0 ? 80 : 0 }}>
 
       <Header
-        cartCount={cartCount}
         wishCount={wishCount}
-        onCartClick={() => setPanelAbierto(p => p === 'carrito' ? null : 'carrito')}
         onWishlistClick={() => setPanelAbierto(p => p === 'wishlist' ? null : 'wishlist')}
       />
 
@@ -315,84 +293,17 @@ export default function Coleccion() {
       <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: 340, maxWidth: '100vw', background: '#111', borderLeft: '1px solid rgba(201,168,76,0.2)', zIndex: 1000, transform: panelAbierto ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 20, borderBottom: '1px solid rgba(201,168,76,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontFamily: 'Cinzel, serif', fontSize: 13, letterSpacing: '0.15em', color: '#C9A84C' }}>
-            {panelAbierto === 'carrito' ? 'CARRITO DE COMPRAS' : 'LISTA DE DESEOS'}
+            LISTA DE DESEOS
           </span>
           <button onClick={() => setPanelAbierto(null)} style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: 20, display:'flex' }}><IconClose size={16}/></button>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
 
-          {/* ── Carrito ── */}
-          {panelAbierto === 'carrito' && (
-            carrito.length === 0
-              ? <p style={{ textAlign: 'center', color: '#9A9180', fontSize: 12, letterSpacing: '0.1em', padding: '20px 0' }}>EL CARRITO ESTÁ VACÍO</p>
-              : <>
-                  {carrito.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid rgba(201,168,76,0.1)' }}>
-                      {item.imagen
-                        ? <img src={item.imagen} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4 }} alt="" />
-                        : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconBottle size={26}/></div>}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, color: '#E8DCC8', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.nombre}</div>
-                        {item.presentacion && <div style={{ fontSize: 10, color: '#9A9180' }}>{item.presentacion}</div>}
-                        <div style={{ fontSize: 11, color: '#C9A84C', marginTop: 2 }}>{formatCOP(item.precio)} × {item.cantidad || 1}</div>
-                      </div>
-                      <button onClick={() => quitarCarrito(i)} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 16, padding: '0 4px', flexShrink: 0, display: 'flex' }}><IconClose size={14}/></button>
-                    </div>
-                  ))}
+          {/* El carrito ya no se monta aqui: vive en el Header,
+              para que este en todas las paginas y haya una sola
+              copia. El cupon que habia en este panel duplicaba el
+              del checkout, que es donde se sigue aplicando. */}
 
-                  {/* Cupón */}
-                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(201,168,76,0.12)' }}>
-                    {cuponAplicado ? (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 6 }}>
-                        <div style={{ fontSize: 11, color: '#C9A84C', fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
-                          {cuponAplicado.codigo}
-                          {cuponAplicado.tipo === 'porcentaje' ? ` (-${cuponAplicado.valor}%)` : ''}
-                        </div>
-                        <button onClick={() => { setCuponAplicado(null); setCuponError(''); }} style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', fontSize: 14, display:'flex' }}><IconClose size={13}/></button>
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <input
-                          value={cuponInput}
-                          onChange={e => { setCuponInput(e.target.value.toUpperCase()); setCuponError(''); }}
-                          onKeyDown={e => e.key === 'Enter' && aplicarCupon()}
-                          placeholder="CÓDIGO DE DESCUENTO"
-                          style={{ flex: 1, background: '#1a1a18', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 4, padding: '8px 10px', color: '#E8DCC8', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.06em', outline: 'none' }}
-                        />
-                        <button onClick={aplicarCupon} disabled={!cuponInput || aplicando}
-                          style={{ background: cuponInput && !aplicando ? '#C9A84C' : 'rgba(201,168,76,0.15)', border: 'none', borderRadius: 4, padding: '8px 12px', color: cuponInput && !aplicando ? '#0a0a08' : '#9A9180', fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.1em', cursor: cuponInput && !aplicando ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
-                          {aplicando ? '...' : 'OK'}
-                        </button>
-                      </div>
-                    )}
-                    {cuponError && <div style={{ fontSize: 11, color: '#e05252', marginTop: 5 }}>{cuponError}</div>}
-                  </div>
-
-                  {/* Totales */}
-                  <div style={{ marginTop: 12, textAlign: 'right' }}>
-                    {cuponAplicado && (
-                      <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#9A9180', marginBottom: 4 }}>
-                          <span style={{ letterSpacing: '0.08em' }}>SUBTOTAL</span>
-                          <span>{formatCOP(totalCarrito)}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#e08020', marginBottom: 8 }}>
-                          <span style={{ letterSpacing: '0.08em' }}>DESCUENTO</span>
-                          <span>-{formatCOP(cuponAplicado.descuento)}</span>
-                        </div>
-                      </>
-                    )}
-                    <div style={{ fontSize: 11, color: '#9A9180', letterSpacing: '0.1em' }}>TOTAL</div>
-                    <div style={{ fontSize: 20, color: '#C9A84C', fontWeight: 700 }}>{formatCOP(totalConDescuento)}</div>
-                  </div>
-                  {/* Finalizar pedido */}
-                  <button
-                    onClick={() => { setPanelAbierto(null); navigate('/checkout'); }}
-                    style={{ marginTop: 16, width: '100%', padding: '12px', background: '#C9A84C', border: 'none', borderRadius: 6, color: '#0a0a08', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.18em', fontWeight: 700, cursor: 'pointer' }}>
-                    FINALIZAR PEDIDO
-                  </button>
-                </>
-          )}
 
           {/* ── Wishlist ── */}
           {panelAbierto === 'wishlist' && (
