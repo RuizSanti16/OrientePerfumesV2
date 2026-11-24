@@ -61,22 +61,28 @@ return [
        '0' reabre la tienda. */
     'MANTENIMIENTO' => '0',
 
-    /* ── Pasarela de pago (Wompi) ───────────────────────────
-       Las llaves salen del panel de Wompi, seccion de
-       desarrolladores. Hay dos juegos: las de prueba empiezan por
-       pub_test_ / prv_test_, y las reales por pub_prod_ / prv_prod_.
+    /* ── Pasarela de pago (Bold) ────────────────────────────
+       Las llaves salen de bold.co, seccion Integraciones >
+       Llaves de integracion > Boton de pagos. Hay dos juegos, uno de
+       pruebas y otro de produccion.
 
-       'sandbox' cobra con tarjetas y bancos ficticios; 'produccion'
-       mueve dinero de verdad. Conviene dejar sandbox hasta haber
-       probado el flujo completo, incluido el aviso de confirmacion.
+       'pruebas' cobra con tarjetas ficticias; 'produccion' mueve
+       dinero de verdad y exige pasar antes el proceso de
+       certificacion de Bold.
 
-       De los tres secretos, el de integridad firma el importe que
-       viaja al checkout y el de eventos valida los avisos que llegan
-       al webhook. Sin ellos el cobro no es seguro: el primero evita
-       que el cliente elija cuanto paga, el segundo que cualquiera
-       marque pedidos como pagados. */
-    'WOMPI_ENTORNO'             => 'sandbox',
-    'WOMPI_LLAVE_PUBLICA'       => 'pub_test_xxxxxxxxxxxxxxxxxxxx',
-    'WOMPI_SECRETO_INTEGRIDAD'  => 'test_integrity_xxxxxxxxxxxxxxxx',
-    'WOMPI_SECRETO_EVENTOS'     => 'test_events_xxxxxxxxxxxxxxxxxx',
+       La llave de identidad es publica: viaja al navegador y solo
+       sirve para identificar el comercio. La secreta no sale nunca de
+       aqui: firma el importe que se envia a cobrar y valida los avisos
+       que llegan al webhook. Sin ella el cobro no es seguro, porque lo
+       primero evita que el cliente elija cuanto paga y lo segundo que
+       cualquiera marque pedidos como pagados.
+
+       MODO: 'redirect' envia al cliente a la pagina de Bold y lo trae
+       de vuelta; 'embedded' abre la pasarela en una ventana sobre la
+       tienda. Conviene empezar por redirect, que depende de menos
+       cosas, y cambiarlo despues si se prefiere. */
+    'BOLD_ENTORNO'          => 'pruebas',
+    'BOLD_LLAVE_IDENTIDAD'  => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'BOLD_LLAVE_SECRETA'    => 'xxxxxxxxxxxxxxxxxxxxxx',
+    'BOLD_MODO'             => 'redirect',
 ];

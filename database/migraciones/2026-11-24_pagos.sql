@@ -9,7 +9,7 @@
 -- obligaria a inventar estados como "pagado_pero_no_enviado".
 --
 -- Por eso se anade `estado_pago` aparte, y `referencia_pago`, que es el
--- identificador que viaja a Wompi y vuelve en la confirmacion.
+-- identificador que viaja a la pasarela y vuelve en la confirmacion.
 --
 -- tbl_pagos guarda cada evento recibido. No es un lujo de auditoria:
 -- las pasarelas reintentan el aviso si no responden 200 a la primera, y
