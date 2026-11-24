@@ -464,6 +464,16 @@ export default function Home() {
                 <div style={{fontSize:11,color:'#9A9180',letterSpacing:'0.1em'}}>TOTAL</div>
                 <div style={{fontSize:18,color:'#C9A84C',fontWeight:700}}>{formatCOP(totalCarrito)}</div>
               </div>
+              {/* Sin este botón el carrito de la portada era un callejón
+                  sin salida: mostraba los productos y el total, pero no
+                  había forma de llegar a pagar. El de Colección sí lo
+                  tenía, así que la compra solo se podía terminar si el
+                  cliente pasaba por esa página. */}
+              <button
+                onClick={() => { setPanelAbierto(null); navigate('/checkout'); }}
+                style={{marginTop:16,width:'100%',padding:'12px',background:'#C9A84C',border:'none',borderRadius:6,color:'#0a0a08',fontFamily:'Cinzel, serif',fontSize:11,letterSpacing:'0.18em',fontWeight:700,cursor:'pointer'}}>
+                FINALIZAR PEDIDO
+              </button>
             </>
         }
       </SidePanel>
