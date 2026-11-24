@@ -188,6 +188,13 @@ export default function Checkout() {
 
     if (r.ok) {
       vaciar();
+      /* Si eligió pagar en línea, va directo a la pasarela. El pedido
+         ya está creado, que es lo que exige Bold y además deja rastro
+         aunque el cliente abandone el pago a medias. */
+      if (form.metodo_pago === 'bold') {
+        navigate(`/pago/${r.codigo}`);
+        return;
+      }
       setCodigoOk({ codigo: r.codigo, nombre: form.nombre });
     } else {
       alert(r.mensaje || 'Error al procesar el pedido. Inténtalo de nuevo.');
@@ -268,6 +275,10 @@ export default function Checkout() {
             <Field label="Método de pago">
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {[
+                  /* Pagar en línea va primero: es el único método que
+                     se confirma solo, sin que nadie tenga que revisar
+                     un comprobante a mano. */
+                  { value: 'bold',          label: 'Pagar en línea' },
                   { value: 'contraentrega', label: 'Contraentrega' },
                   { value: 'transferencia', label: 'Transferencia' },
                   { value: 'efectivo',      label: 'Efectivo' },

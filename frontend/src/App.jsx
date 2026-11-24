@@ -4,6 +4,8 @@ import { estadoAPI } from './services/api';
 import Proximamente from './pages/Proximamente';
 import PoliticaDatos from './pages/PoliticaDatos';
 import Terminos from './pages/Terminos';
+import Pago from './pages/Pago';
+import PagoResultado from './pages/PagoResultado';
 import Home            from './pages/Home';
 import NotFound        from './pages/NotFound';
 import Login           from './pages/Login';
@@ -109,6 +111,12 @@ export default function App() {
           <Route path="/checkout"     element={<Checkout />} />
           <Route path="/seguimiento"         element={<SeguimientoPedido />} />
           <Route path="/seguimiento/:codigo" element={<SeguimientoPedido />} />
+
+          {/* Pago. La de resultado va sin parametro de ruta porque Bold
+              vuelve a una URL fija y añade el pedido como parametro de
+              consulta: no podemos elegir su forma. */}
+          <Route path="/pago/resultado" element={<PagoResultado />} />
+          <Route path="/pago/:codigo"   element={<Pago />} />
         </Route>
 
         {/* Paginas legales, fuera de la puerta de mantenimiento: la ley

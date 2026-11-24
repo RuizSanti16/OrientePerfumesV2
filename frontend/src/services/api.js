@@ -68,6 +68,16 @@ export const estadoAPI = {
   consultar: () => apiFetch('estado.php'),
 };
 
+/* Pasarela de pago (Bold).
+
+   iniciar() solo manda el codigo del pedido: el importe y la firma los
+   calcula el servidor a partir de lo guardado. Enviarlos desde aqui
+   dejaria que el cliente eligiera cuanto paga. */
+export const pagosAPI = {
+  iniciar: (codigo) => apiFetch('pago_iniciar.php', 'POST', { codigo }),
+  estado:  (codigo) => apiFetch(`pago_estado.php?codigo=${encodeURIComponent(codigo)}`),
+};
+
 export const productosAPI = {
   listar:     ()     => apiFetch('productos.php'),
   obtener:    (id)   => apiFetch(`productos.php?id=${id}`),
