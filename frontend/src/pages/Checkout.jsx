@@ -130,10 +130,18 @@ export default function Checkout() {
   const [enviando,     setEnviando]     = useState(false);
   const [codigoOk,     setCodigoOk]     = useState(null);
 
+  /* Al mandar a la pasarela se vacía el carrito, y eso dejaba a este
+     efecto creyendo que el cliente había llegado aquí sin nada: lo
+     devolvía a /coleccion y pisaba la navegación a /pago. El pedido
+     quedaba creado y sin cobrar. */
+  const [saliendoAPagar, setSaliendoAPagar] = useState(false);
+
   /* Si el carrito está vacío, redirigir */
   useEffect(() => {
-    if (carrito.length === 0 && !codigoOk) navigate('/coleccion', { replace: true });
-  }, [carrito, codigoOk, navigate]);
+    if (carrito.length === 0 && !codigoOk && !saliendoAPagar) {
+      navigate('/coleccion', { replace: true });
+    }
+  }, [carrito, codigoOk, saliendoAPagar, navigate]);
 
   const descuento  = cuponData?.descuento || 0;
   const totalFinal = Math.max(0, totalCarrito - descuento);
@@ -169,7 +177,7 @@ export default function Checkout() {
     setEnviando(true);
 
     const items = carrito.map(item => ({
-      id_producto:    item.id,
+      id_producto:    item.id_producto,
       nombre:         item.nombre,
       cantidad:       item.cantidad,
       precio_unitario:item.precio,
@@ -187,14 +195,16 @@ export default function Checkout() {
     setEnviando(false);
 
     if (r.ok) {
-      vaciar();
       /* Si eligió pagar en línea, va directo a la pasarela. El pedido
          ya está creado, que es lo que exige Bold y además deja rastro
          aunque el cliente abandone el pago a medias. */
       if (form.metodo_pago === 'bold') {
+        setSaliendoAPagar(true);
+        vaciar();
         navigate(`/pago/${r.codigo}`);
         return;
       }
+      vaciar();
       setCodigoOk({ codigo: r.codigo, nombre: form.nombre });
     } else {
       alert(r.mensaje || 'Error al procesar el pedido. Inténtalo de nuevo.');
