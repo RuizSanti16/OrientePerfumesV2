@@ -44,7 +44,12 @@ ALTER TABLE tbl_pedidos
 
 CREATE TABLE IF NOT EXISTS tbl_pagos (
     id                INT AUTO_INCREMENT PRIMARY KEY,
-    id_pedido         INT NOT NULL,
+    -- Nullable a proposito: si llega un aviso cuya referencia no casa
+    -- con ningun pedido, hay que guardarlo igual. Con NOT NULL el
+    -- registro fallaba, el webhook respondia 500, Bold reintentaba
+    -- cinco veces y el evento se perdia sin dejar rastro, que es justo
+    -- lo contrario de lo que se busca aqui.
+    id_pedido         INT          NULL DEFAULT NULL,
     referencia        VARCHAR(40)  NOT NULL,
     -- El id que asigna la pasarela. Unico: es lo que evita que un
     -- reintento del aviso aplique el mismo pago dos veces.
