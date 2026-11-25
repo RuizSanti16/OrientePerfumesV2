@@ -32,6 +32,7 @@ bloquearSiMantenimiento($pdo);
 require_once '../configuracion/auth.php';
 require_once '../configuracion/precios.php';
 require_once __DIR__ . '/../configuracion/cobertura.php';
+require_once __DIR__ . '/../configuracion/avisos.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
@@ -243,6 +244,19 @@ try {
             if (!@mail(trim($b['correo']), $asunto, $cuerpo, $headers)) {
                 error_log("[OrientPerfumes] No se pudo enviar el correo del pedido {$codigo}");
             }
+
+            /* Aviso al WhatsApp del negocio. Va despues del commit y
+               despues del correo, y no puede tumbar nada: si el envio
+               falla, el pedido ya esta guardado y el cliente ve su
+               confirmacion igual. */
+            avisarWhatsApp(textoPedidoNuevo(
+                $codigo,
+                trim($b['nombre']),
+                $calculo['total'],
+                $metodo,
+                trim($b['ciudad'] ?? ''),
+                $calculo['items']
+            ));
 
             echo json_encode([
                 'ok'     => true,

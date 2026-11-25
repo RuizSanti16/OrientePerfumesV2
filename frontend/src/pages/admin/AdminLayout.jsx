@@ -220,6 +220,17 @@ export default function AdminLayout() {
         </nav>
 
         <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(201,168,76,0.1)' }}>
+          {/* Ida y vuelta a la tienda sin cerrar sesión ni escribir la
+              URL a mano: es el camino que más se repite mientras se
+              revisa un cambio. El Header de la tienda trae el botón de
+              vuelta al panel. */}
+          <button onClick={() => navigate('/')}
+            style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: '4px', padding: '8px 12px', color: '#C9A84C', cursor: 'pointer', fontSize: '11px', width: '100%', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" width="13" height="13">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+            </svg>
+            Ver tienda
+          </button>
           <div style={{ fontSize: '12px', color: '#E8DCC8', marginBottom: '8px' }}>{session.nombre}</div>
           <button onClick={logout}
             style={{ background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '4px', padding: '6px 12px', color: '#9A9180', cursor: 'pointer', fontSize: '11px', width: '100%' }}>

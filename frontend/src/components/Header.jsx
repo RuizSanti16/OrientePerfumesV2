@@ -131,6 +131,19 @@ export default function Header({
             </svg>
             {cartCount > 0 && <span className="action-btn__badge" aria-hidden="true">{cartCount}</span>}
           </button>
+          {/* Vuelta al panel, solo para quien tiene sesión de admin.
+              Estaba únicamente dentro del drawer, a dos toques y sin
+              verse: revisar un cambio obligaba a abrir el menú o a
+              escribir /admin a mano cada vez. */}
+          {adminSession && (
+            <button className="action-btn" onClick={() => navigate('/admin')}
+              aria-label="Ir al panel de administración" title="Panel de administración"
+              style={{ color: '#C9A84C' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" width="20" height="20">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 8.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 018.25 20.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25A2.25 2.25 0 0113.5 8.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+              </svg>
+            </button>
+          )}
           <div className="header-social">
             <SocialButtons />
           </div>

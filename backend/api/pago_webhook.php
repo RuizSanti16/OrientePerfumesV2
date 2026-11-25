@@ -30,6 +30,7 @@
 
 require_once __DIR__ . '/../configuracion/Conexion.php';
 require_once __DIR__ . '/../configuracion/bold.php';
+require_once __DIR__ . '/../configuracion/avisos.php';
 
 /* El cuerpo se lee crudo y se usa tal cual para la firma: decodificar
    y volver a codificar cambiaria los espacios y el orden, y la firma
@@ -85,7 +86,7 @@ try {
     /* El pedido se busca por la referencia que enviamos al cobrar. */
     $pedido = null;
     if ($referencia !== '') {
-        $p = $pdo->prepare("SELECT id, total, estado_pago FROM tbl_pedidos WHERE referencia_pago = :r LIMIT 1");
+        $p = $pdo->prepare("SELECT id, total, estado_pago, codigo_seguimiento FROM tbl_pedidos WHERE referencia_pago = :r LIMIT 1");
         $p->execute([':r' => $referencia]);
         $pedido = $p->fetch();
     }
@@ -147,6 +148,21 @@ try {
     }
 
     $pdo->commit();
+
+    /* Aviso al WhatsApp del negocio, solo cuando el dinero entra de
+       verdad y el pedido no constaba ya como pagado.
+
+       Va despues del commit y nunca antes del 200: si CallMeBot tarda
+       o falla, Bold no debe quedarse esperando ni reintentar un
+       evento que ya quedo aplicado. avisarWhatsApp traga sus propios
+       fallos por ese motivo. */
+    if ($pedido && $estado === 'aprobado' && $pedido['estado_pago'] !== 'aprobado') {
+        avisarWhatsApp(textoPagoAprobado(
+            $pedido['codigo_seguimiento'],
+            $pedido['total'],
+            $metodo
+        ));
+    }
 
     /* 200 siempre que el evento se haya registrado, aunque no casara
        con ningun pedido: ya esta guardado y reenviarlo no ayudaria. */

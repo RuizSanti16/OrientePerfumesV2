@@ -85,4 +85,21 @@ return [
     'BOLD_LLAVE_IDENTIDAD'  => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     'BOLD_LLAVE_SECRETA'    => 'xxxxxxxxxxxxxxxxxxxxxx',
     'BOLD_MODO'             => 'redirect',
+
+    /* Aviso por WhatsApp al numero del negocio en cada venta: uno al
+       crearse el pedido y otro cuando Bold confirma el pago.
+
+       Se envia por CallMeBot. Para obtener la clave:
+         1. Guarda el numero +34 644 51 95 23 en el telefono.
+         2. Mandale por WhatsApp: I allow callmebot to send me messages
+         3. Responde con la clave (apikey). Esa es WHATSAPP_CLAVE.
+       La clave va atada al numero que escribio, asi que WHATSAPP_NUMERO
+       tiene que ser ese mismo, con indicativo del pais y sin el +.
+
+       Con WHATSAPP_AVISOS en '0', o si falta el numero o la clave, no
+       se envia nada y la tienda funciona igual: un aviso que falla
+       nunca tumba una venta. */
+    'WHATSAPP_AVISOS'       => '0',
+    'WHATSAPP_NUMERO'       => '573001234567',
+    'WHATSAPP_CLAVE'        => '123456',
 ];
