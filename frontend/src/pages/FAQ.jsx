@@ -55,7 +55,7 @@ const CATEGORIAS = [
     preguntas: [
       {
         q: '¿Qué métodos de pago aceptan?',
-        a: 'Aceptamos transferencias bancarias, pagos por PSE, consignaciones y Nequi/Daviplata. Para más información sobre métodos disponibles, contáctanos directamente a través de nuestros canales de atención.',
+        a: 'El pago se realiza en línea a través de Bold, nuestra pasarela de pagos, que acepta PSE, tarjetas de crédito y débito, Nequi y Daviplata. Si estás en Medellín, Rionegro o un municipio cercano, también puedes pagar en efectivo al recibir el pedido.',
       },
       {
         q: '¿Los precios incluyen IVA?',

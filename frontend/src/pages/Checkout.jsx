@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCarrito } from '../hooks/useCarrito';
 import { pedidosAPI, cuponesAPI } from '../services/api';
+import { CIUDADES_CON_EFECTIVO, OTRA_CIUDAD } from '../datosCobertura';
 
 /* ── helpers ────────────────────────────────────────────── */
 function fmt(n) {
@@ -120,8 +121,13 @@ export default function Checkout() {
   const [form, setForm] = useState({
     nombre: '', correo: '', telefono: '',
     direccion: '', ciudad: '', notas: '',
-    metodo_pago: 'contraentrega',
+    metodo_pago: 'bold',
   });
+
+  /* El desplegable de ciudad y el campo para escribirla van por
+     separado: "Otra ciudad" no es el nombre de ningún municipio, así
+     que form.ciudad guarda siempre lo que de verdad se envía. */
+  const [ciudadSelect, setCiudadSelect] = useState('');
   const [errores,      setErrores]      = useState({});
   const [cuponInput,   setCuponInput]   = useState('');
   const [cuponData,    setCuponData]    = useState(null);
@@ -152,6 +158,29 @@ export default function Checkout() {
     if (errores[name]) setErrores(er => ({ ...er, [name]: '' }));
   }
 
+  /* ¿Se puede pagar en efectivo con la ciudad elegida?
+     Esto decide solo lo que se ve; quien manda es el servidor. */
+  const hayEfectivo = CIUDADES_CON_EFECTIVO.includes(form.ciudad);
+
+  function cambiarCiudad(e) {
+    const elegida = e.target.value;
+    setCiudadSelect(elegida);
+    /* Con "Otra ciudad" la escribe el cliente, así que se parte de
+       vacío en vez de arrastrar la anterior. */
+    setForm(f => ({ ...f, ciudad: elegida === OTRA_CIUDAD ? '' : elegida }));
+    setErrores(er => ({ ...er, ciudad: '' }));
+  }
+
+  /* Si estaba elegido el efectivo y la nueva ciudad no lo admite, el
+     método vuelve a pago en línea. Sin esto el pedido se enviaría con
+     un método que el servidor rechaza, y el cliente vería un error
+     sin entender de dónde sale. */
+  useEffect(() => {
+    if (form.metodo_pago === 'efectivo' && !hayEfectivo) {
+      setForm(f => ({ ...f, metodo_pago: 'bold' }));
+    }
+  }, [hayEfectivo, form.metodo_pago]);
+
   async function aplicarCupon() {
     if (!cuponInput.trim()) return;
     setAplicando(true); setCuponError(''); setCuponData(null);
@@ -167,6 +196,9 @@ export default function Checkout() {
     if (!form.correo.trim())    err.correo    = 'Requerido';
     if (!/\S+@\S+\.\S+/.test(form.correo)) err.correo = 'Correo inválido';
     if (!form.direccion.trim()) err.direccion = 'Requerido';
+    /* La ciudad era opcional, pero ahora decide si cabe el efectivo
+       y hasta dónde se entrega: sin ella no se puede despachar. */
+    if (!form.ciudad.trim())    err.ciudad    = 'Requerido';
     return err;
   }
 
@@ -259,8 +291,19 @@ export default function Checkout() {
             <Field label="Teléfono">
               <input name="telefono" value={form.telefono} onChange={cambiar} placeholder="+57 300 000 0000" style={INPUT_STYLE} />
             </Field>
-            <Field label="Ciudad">
-              <input name="ciudad" value={form.ciudad} onChange={cambiar} placeholder="Ciudad" style={INPUT_STYLE} />
+            <Field label="Ciudad" required>
+              <select value={ciudadSelect} onChange={cambiarCiudad}
+                style={{ ...INPUT_STYLE, borderColor: errores.ciudad ? '#e74c3c' : 'rgba(201,168,76,0.18)' }}>
+                <option value="">Selecciona tu ciudad</option>
+                {CIUDADES_CON_EFECTIVO.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value={OTRA_CIUDAD}>Otra ciudad</option>
+              </select>
+              {ciudadSelect === OTRA_CIUDAD && (
+                <input name="ciudad" value={form.ciudad} onChange={cambiar}
+                  placeholder="Escribe tu ciudad"
+                  style={{ ...INPUT_STYLE, marginTop: 8, borderColor: errores.ciudad ? '#e74c3c' : 'rgba(201,168,76,0.18)' }} />
+              )}
+              {errores.ciudad && <span style={{ fontSize: 11, color: '#e74c3c' }}>{errores.ciudad}</span>}
             </Field>
           </div>
 
@@ -287,11 +330,14 @@ export default function Checkout() {
                 {[
                   /* Pagar en línea va primero: es el único método que
                      se confirma solo, sin que nadie tenga que revisar
-                     un comprobante a mano. */
-                  { value: 'bold',          label: 'Pagar en línea' },
-                  { value: 'contraentrega', label: 'Contraentrega' },
-                  { value: 'transferencia', label: 'Transferencia' },
-                  { value: 'efectivo',      label: 'Efectivo' },
+                     un comprobante a mano, y el único disponible en
+                     todo el país.
+
+                     El efectivo solo aparece donde se entrega en
+                     persona. Contraentrega y transferencia ya no
+                     existen. */
+                  { value: 'bold',     label: 'Pagar en línea' },
+                  ...(hayEfectivo ? [{ value: 'efectivo', label: 'Efectivo al recibir' }] : []),
                 ].map(opt => (
                   <label key={opt.value}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 14px', background: form.metodo_pago === opt.value ? 'rgba(201,168,76,0.1)' : '#1A1A18', border: `1px solid ${form.metodo_pago === opt.value ? 'rgba(201,168,76,0.4)' : 'rgba(201,168,76,0.12)'}`, borderRadius: 6, cursor: 'pointer', fontSize: 13, color: form.metodo_pago === opt.value ? '#C9A84C' : '#9A9180' }}>
@@ -300,6 +346,13 @@ export default function Checkout() {
                   </label>
                 ))}
               </div>
+              <p style={{ fontSize: 11, color: '#6B6355', marginTop: 8, lineHeight: 1.5 }}>
+                {!form.ciudad
+                  ? 'Elige tu ciudad para ver los métodos de pago disponibles.'
+                  : hayEfectivo
+                    ? `En ${form.ciudad} puedes pagar en efectivo al recibir el pedido.`
+                    : 'El pago en efectivo solo está disponible en Medellín, Rionegro y municipios cercanos, donde entregamos en persona.'}
+              </p>
             </Field>
           </div>
 

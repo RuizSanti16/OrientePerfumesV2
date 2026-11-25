@@ -31,6 +31,7 @@ bloquearSiMantenimiento($pdo);
 
 require_once '../configuracion/auth.php';
 require_once '../configuracion/precios.php';
+require_once __DIR__ . '/../configuracion/cobertura.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
@@ -49,7 +50,7 @@ $pdo->exec("
         total               DECIMAL(12,2) NOT NULL DEFAULT 0,
         descuento           DECIMAL(12,2) NOT NULL DEFAULT 0,
         cupon               VARCHAR(30)  DEFAULT NULL,
-        metodo_pago         VARCHAR(40)  DEFAULT 'contraentrega',
+        metodo_pago         VARCHAR(40)  DEFAULT 'bold',
         fecha_pedido        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
@@ -150,6 +151,20 @@ try {
                 exit;
             }
 
+            /* El metodo de pago se comprueba igual que el importe, y
+               por la misma razon: aqui se guardaba tal cual venia, de
+               modo que bastaba enviar 'efectivo' desde cualquier parte
+               para llevarse el pedido sin pagar. El efectivo solo vale
+               donde se entrega en persona. */
+            list($metodoOk, $metodo) = validarMetodoPago(
+                $b['metodo_pago'] ?? '',
+                $b['ciudad'] ?? ''
+            );
+            if (!$metodoOk) {
+                echo json_encode(['ok' => false, 'mensaje' => $metodo]);
+                exit;
+            }
+
             /* Generar código único */
             $codigo = '';
             do {
@@ -180,7 +195,7 @@ try {
                 ':total'   => $calculo['total'],
                 ':desc'    => $calculo['descuento'],
                 ':cupon'   => $calculo['cupon'],
-                ':metodo'  => $b['metodo_pago'] ?? 'contraentrega',
+                ':metodo'  => $metodo,
             ]);
             $idPedido = $pdo->lastInsertId();
 
