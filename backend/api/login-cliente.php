@@ -13,6 +13,7 @@ require_once __DIR__ . '/../configuracion/cors.php';
    peticion mal formada respondia sin llegar a pasar por el. */
 require_once __DIR__ . '/../configuracion/Conexion.php';
 require_once __DIR__ . '/../configuracion/mantenimiento.php';
+require_once __DIR__ . '/../configuracion/auth.php';
 bloquearSiMantenimiento($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -52,13 +53,28 @@ try {
         exit;
     }
 
-    $passOk = password_verify($loginPassword, $cliente['password'])
-           || $cliente['password'] === $loginPassword;
+    /* Solo bcrypt. Antes habia detras un
+       `|| $cliente['password'] === $loginPassword`, que aceptaba la
+       clave comparandola en texto plano: cualquier cuenta que hubiera
+       quedado sin cifrar entraba asi, y quien consiguiera leer la
+       tabla tendria las claves listas para usar. Una cuenta antigua
+       sin cifrar ya no entra, y tiene que recuperar su contrasena. */
+    $passOk = password_verify($loginPassword, $cliente['password']);
 
     if (!$passOk) {
         echo json_encode(['ok' => false, 'mensaje' => 'Usuario o contraseña incorrectos']);
         exit;
     }
+
+    /* Token de sesion. Sin el, el servidor no podia distinguir a un
+       cliente de cualquiera que llamara a la API, y exigir cuenta
+       para comprar habria sido un adorno del navegador. */
+    $token = generarTokenSesion();
+    $pdo->prepare(
+        "UPDATE tbl_clientes
+            SET token = :t, token_expiry = DATE_ADD(NOW(), INTERVAL 30 DAY)
+          WHERE id_cliente = :id"
+    )->execute([':t' => $token, ':id' => $cliente['id_cliente']]);
 
     echo json_encode([
         'ok'      => true,
@@ -66,7 +82,8 @@ try {
         'id'      => $cliente['id_cliente'],
         'nombre'  => $cliente['nombre'],
         'usuario' => $cliente['usuario'],
-        'correo'  => $cliente['correo']
+        'correo'  => $cliente['correo'],
+        'token'   => $token,
     ]);
 
 } catch (PDOException $e) {

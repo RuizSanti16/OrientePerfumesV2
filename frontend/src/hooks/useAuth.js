@@ -24,7 +24,11 @@ export function useAuth() {
     const session = {
       id: data.id, username: data.usuario,
       nombre: data.nombre, email: data.correo,
-      tipo: 'cliente'
+      tipo: 'cliente',
+      /* Sin el token la sesión era solo un nombre en el navegador: el
+         servidor no podía comprobar nada y el endpoint de pedidos
+         rechazaría la compra. */
+      token: data.token ?? null,
     };
     localStorage.setItem('op_session', JSON.stringify(session));
     setClienteSession(session);

@@ -66,3 +66,80 @@ function verificarTokenAdmin($pdo) {
 
     return (int) $fila['id_administrador'];
 }
+
+/* =============================================================
+   Sesion de clientes
+
+   Misma mecanica que la del admin y por el mismo motivo: hasta ahora
+   el login de clientes devolvia los datos y el navegador los
+   guardaba en localStorage, asi que el servidor no tenia forma de
+   saber quien llamaba. Exigir la cuenta solo en React no cierra
+   nada, porque la API es publica y cualquiera puede llamarla
+   directamente.
+============================================================= */
+
+if (!function_exists('cabeceraAutorizacion')) {
+
+    /** Lee el token Bearer de la peticion. Cadena vacia si no hay. */
+    function cabeceraAutorizacion() {
+        $auth = '';
+        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $auth = $_SERVER['HTTP_AUTHORIZATION'];
+        } elseif (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            /* Apache con mod_rewrite puede mover el header */
+            $auth = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        } elseif (function_exists('apache_request_headers')) {
+            foreach (apache_request_headers() as $k => $v) {
+                if (strtolower($k) === 'authorization') { $auth = $v; break; }
+            }
+        }
+        return preg_match('/^Bearer\s+([a-f0-9]{64})$/i', trim($auth), $m) ? $m[1] : '';
+    }
+
+    /**
+     * Devuelve el id del cliente que llama, o null si no hay sesion.
+     *
+     * No termina la peticion: hay sitios donde la sesion es opcional
+     * y solo sirve para atribuir lo que se guarda.
+     */
+    function clienteActual(PDO $pdo) {
+        $token = cabeceraAutorizacion();
+        if ($token === '') return null;
+
+        try {
+            $s = $pdo->prepare(
+                "SELECT id_cliente FROM tbl_clientes
+                  WHERE token = :t AND token_expiry > NOW() LIMIT 1"
+            );
+            $s->execute([':t' => $token]);
+            $fila = $s->fetch();
+            return $fila ? (int) $fila['id_cliente'] : null;
+        } catch (PDOException $e) {
+            error_log('[OrientPerfumes] Error comprobando sesion de cliente: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Exige sesion de cliente y devuelve su id. Termina con 401 si no
+     * la hay, con un code que el frontend usa para mandar al login.
+     */
+    function verificarTokenCliente(PDO $pdo) {
+        $id = clienteActual($pdo);
+        if ($id === null) {
+            http_response_code(401);
+            echo json_encode([
+                'ok'      => false,
+                'code'    => 'REQUIERE_CUENTA',
+                'mensaje' => 'Inicia sesion o crea una cuenta para completar tu pedido.',
+            ]);
+            exit;
+        }
+        return $id;
+    }
+
+    /** Token de sesion nuevo. Mismo formato que el del admin. */
+    function generarTokenSesion() {
+        return bin2hex(random_bytes(32));
+    }
+}

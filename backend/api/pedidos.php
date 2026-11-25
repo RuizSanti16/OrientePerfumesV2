@@ -129,8 +129,15 @@ try {
             }
             break;
 
-        /* ── POST: crear pedido (público) ─────────────────── */
+        /* ── POST: crear pedido (requiere cuenta) ─────────── */
         case 'POST':
+            /* Ver la tienda es libre; comprar no. Se comprueba aqui y
+               no solo en React porque este endpoint es publico: sin
+               esto bastaria llamarlo directamente para pedir sin
+               cuenta. Va lo primero, antes incluso de mirar los
+               campos, para no trabajar en balde. */
+            $idCliente = verificarTokenCliente($pdo);
+
             $b = json_decode(file_get_contents('php://input'), true);
 
             $required = ['nombre', 'correo', 'direccion', 'items'];
@@ -179,14 +186,15 @@ try {
             /* Insertar pedido */
             $ins = $pdo->prepare("
                 INSERT INTO tbl_pedidos
-                    (codigo_seguimiento, nombre, correo, telefono, direccion, ciudad,
+                    (codigo_seguimiento, id_cliente, nombre, correo, telefono, direccion, ciudad,
                      notas, estado, total, descuento, cupon, metodo_pago)
                 VALUES
-                    (:codigo, :nombre, :correo, :tel, :dir, :ciudad,
+                    (:codigo, :cliente, :nombre, :correo, :tel, :dir, :ciudad,
                      :notas, 'pendiente', :total, :desc, :cupon, :metodo)
             ");
             $ins->execute([
                 ':codigo'  => $codigo,
+                ':cliente' => $idCliente,
                 ':nombre'  => trim($b['nombre']),
                 ':correo'  => trim($b['correo']),
                 ':tel'     => trim($b['telefono']  ?? ''),

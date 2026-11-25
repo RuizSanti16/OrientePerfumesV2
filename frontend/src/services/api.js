@@ -11,6 +11,24 @@ function getAdminToken() {
   } catch { return null; }
 }
 
+export function getClienteToken() {
+  try {
+    const s = JSON.parse(localStorage.getItem('op_session'));
+    return s?.token ?? null;
+  } catch { return null; }
+}
+
+export function haySesionCliente() {
+  return getClienteToken() !== null;
+}
+
+/* El del cliente manda sobre el del admin: quien esté comprando lo
+   hace como cliente aunque además administre la tienda, y es el
+   único que el endpoint de pedidos acepta. */
+function tokenDeSesion() {
+  return getClienteToken() ?? getAdminToken();
+}
+
 export async function subirImagen(file) {
   const form = new FormData();
   form.append('imagen', file);
@@ -48,12 +66,23 @@ export function subirVideo(file, onProgress) {
 async function apiFetch(endpoint, method = 'GET', data = null) {
   const url  = `${API_BASE}/${endpoint}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  const token = getAdminToken();
+  const token = tokenDeSesion();
   if (token) opts.headers['Authorization'] = `Bearer ${token}`;
   if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
   const res = await fetch(url, opts);
 
   if (res.status === 401) {
+    /* Dos 401 muy distintos.
+
+       REQUIERE_CUENTA no es una sesión caducada: es un visitante sin
+       cuenta pidiendo algo que la necesita. Antes todo 401 borraba la
+       sesión del administrador y lo echaba al login, de modo que un
+       admin que probara a comprar se quedaba sin su sesión del panel
+       por algo que no tenía que ver con ella. Aquí se devuelve el
+       cuerpo y que lo resuelva la pantalla que llamó. */
+    const cuerpo = await res.json().catch(() => ({}));
+    if (cuerpo.code === 'REQUIERE_CUENTA') return cuerpo;
+
     localStorage.removeItem('op_admin_session');
     window.location.href = '/login';
     return { ok: false, mensaje: 'Sesión expirada' };

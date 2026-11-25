@@ -16,6 +16,7 @@ require_once __DIR__ . '/../configuracion/cors.php';
    tenga la peticion. */
 require_once __DIR__ . '/../configuracion/Conexion.php';
 require_once __DIR__ . '/../configuracion/mantenimiento.php';
+require_once __DIR__ . '/../configuracion/auth.php';
 bloquearSiMantenimiento($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -75,10 +76,27 @@ try {
         ':telefono'  => $loginTelefono
     ]);
 
+    /* La cuenta queda con la sesion abierta. Quien se registra lo
+       hace para seguir con algo, casi siempre terminar un pedido:
+       devolver solo "cuenta creada" y mandarlo al login es un paso de
+       mas justo antes de pagar. */
+    $idCliente = (int) $pdo->lastInsertId();
+    $token     = generarTokenSesion();
+    $pdo->prepare(
+        "UPDATE tbl_clientes
+            SET token = :t, token_expiry = DATE_ADD(NOW(), INTERVAL 30 DAY)
+          WHERE id_cliente = :id"
+    )->execute([':t' => $token, ':id' => $idCliente]);
+
     echo json_encode([
         'ok'      => true,
         'mensaje' => 'Cuenta creada exitosamente',
-        'usuario' => $loginUsuario
+        'tipo'    => 'cliente',
+        'id'      => $idCliente,
+        'nombre'  => $loginUsuario,
+        'usuario' => $loginUsuario,
+        'correo'  => $loginCorreo,
+        'token'   => $token,
     ]);
 
 } catch (PDOException $e) {

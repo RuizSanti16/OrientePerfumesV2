@@ -1,14 +1,24 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { IconArrowLeft } from '../components/Icons';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { loginAdmin, loginCliente } = useAuth();
 
-  const [vista,    setVista]   = useState('login'); // login | register | recover
+  /* A dónde volver al terminar. Quien llega aquí desde el checkout
+     quiere seguir pagando, no aterrizar en la portada y tener que
+     rehacer el camino. */
+  const destino = location.state?.volverA || '/';
+
+  /* Quien viene a crear cuenta para poder comprar empieza en el
+     formulario de registro, no en el de entrar. */
+  const [vista,    setVista]   = useState(
+    location.state?.vista === 'register' ? 'register' : 'login'
+  ); // login | register | recover
   const [loading,  setLoading] = useState(false);
   const [error,    setError]   = useState('');
   const [success,  setSuccess] = useState('');
@@ -41,7 +51,7 @@ export default function Login() {
       const resAdmin = await authAPI.loginAdmin({ usuario, password });
       if (resAdmin.ok) { loginAdmin(resAdmin); navigate('/admin'); return; }
       const resCliente = await authAPI.loginCliente({ usuario, password });
-      if (resCliente.ok) { loginCliente(resCliente); navigate('/'); return; }
+      if (resCliente.ok) { loginCliente(resCliente); navigate(destino); return; }
       setError('Usuario o contraseña incorrectos.');
     } catch { setError('Error de conexión. Verifica que XAMPP esté activo.'); }
     finally { setLoading(false); }
@@ -56,6 +66,11 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await authAPI.registro({ usuario: regUser, correo: regEmail, telefono: regTel, password: regPass });
+      /* El registro ya deja la sesión abierta, así que se entra
+         directo. Pedir que inicie sesión a continuación era un paso
+         de más justo antes de pagar, que es cuando casi todo el
+         mundo se registra. */
+      if (res.ok && res.token) { loginCliente(res); navigate(destino); return; }
       if (res.ok) { setSuccess('¡Cuenta creada! Ya puedes iniciar sesión.'); cambiarVista('login'); }
       else setError(res.mensaje || 'Error al crear la cuenta');
     } catch { setError('Error de conexión'); }

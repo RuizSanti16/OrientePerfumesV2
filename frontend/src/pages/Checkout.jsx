@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCarrito } from '../hooks/useCarrito';
-import { pedidosAPI, cuponesAPI } from '../services/api';
+import { pedidosAPI, cuponesAPI, haySesionCliente } from '../services/api';
 import { CIUDADES_CON_EFECTIVO, OTRA_CIUDAD } from '../datosCobertura';
 
 /* ── helpers ────────────────────────────────────────────── */
@@ -128,6 +128,16 @@ export default function Checkout() {
      separado: "Otra ciudad" no es el nombre de ningún municipio, así
      que form.ciudad guarda siempre lo que de verdad se envía. */
   const [ciudadSelect, setCiudadSelect] = useState('');
+
+  /* Ver la tienda es libre, comprar no. Se comprueba al entrar y no
+     al pulsar confirmar: rellenar seis campos para que al final te
+     digan que hace falta cuenta es la peor forma de pedirla.
+     El servidor lo exige igual, que es lo que de verdad cierra. */
+  const conCuenta = haySesionCliente();
+
+  function irARegistro(vista) {
+    navigate('/login', { state: { volverA: '/checkout', vista } });
+  }
   const [errores,      setErrores]      = useState({});
   const [cuponInput,   setCuponInput]   = useState('');
   const [cuponData,    setCuponData]    = useState(null);
@@ -238,6 +248,11 @@ export default function Checkout() {
       }
       vaciar();
       setCodigoOk({ codigo: r.codigo, nombre: form.nombre });
+    } else if (r.code === 'REQUIERE_CUENTA') {
+      /* Red de seguridad: el aviso de arriba ya pide la cuenta, pero
+         una sesión puede caducar con el formulario abierto. El
+         carrito no se toca, así que al volver sigue todo puesto. */
+      irARegistro('login');
     } else {
       alert(r.mensaje || 'Error al procesar el pedido. Inténtalo de nuevo.');
     }
@@ -275,6 +290,33 @@ export default function Checkout() {
           <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 24, color: '#F5F0E8', marginBottom: 24 }}>
             Datos de <span style={{ color: '#C9A84C' }}>entrega</span>
           </div>
+
+          {!conCuenta && (
+            <div style={{
+              marginBottom: 24, padding: '18px 20px',
+              background: 'rgba(201,168,76,0.06)',
+              border: '1px solid rgba(201,168,76,0.25)', borderRadius: 8,
+            }}>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', color: '#C9A84C', marginBottom: 8 }}>
+                NECESITAS UNA CUENTA
+              </div>
+              <p style={{ fontSize: 13, color: '#9A9180', lineHeight: 1.6, marginBottom: 14 }}>
+                Para completar tu pedido tienes que entrar con tu cuenta. Así
+                puedes seguir tus compras y consultar tus pedidos anteriores.
+                Tu carrito se conserva.
+              </p>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button type="button" onClick={() => irARegistro('register')}
+                  style={{ padding: '10px 18px', background: '#C9A84C', border: 'none', borderRadius: 6, color: '#0a0a08', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', fontWeight: 700, cursor: 'pointer' }}>
+                  CREAR CUENTA
+                </button>
+                <button type="button" onClick={() => irARegistro('login')}
+                  style={{ padding: '10px 18px', background: 'none', border: '1px solid rgba(201,168,76,0.4)', borderRadius: 6, color: '#C9A84C', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.15em', cursor: 'pointer' }}>
+                  YA TENGO CUENTA
+                </button>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <Field label="Nombre completo" required>
@@ -356,8 +398,9 @@ export default function Checkout() {
             </Field>
           </div>
 
-          <button type="submit" disabled={enviando}
-            style={{ width: '100%', padding: '14px', background: '#C9A84C', border: 'none', borderRadius: 6, color: '#0a0a08', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.2em', fontWeight: 700, cursor: enviando ? 'default' : 'pointer', opacity: enviando ? 0.7 : 1 }}>
+          <button type="submit" disabled={enviando || !conCuenta}
+            title={conCuenta ? undefined : 'Entra con tu cuenta para completar el pedido'}
+            style={{ width: '100%', padding: '14px', background: '#C9A84C', border: 'none', borderRadius: 6, color: '#0a0a08', fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.2em', fontWeight: 700, cursor: (enviando || !conCuenta) ? 'default' : 'pointer', opacity: (enviando || !conCuenta) ? 0.5 : 1 }}>
             {enviando ? 'PROCESANDO...' : 'CONFIRMAR PEDIDO'}
           </button>
         </form>
