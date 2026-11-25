@@ -1,8 +1,26 @@
 import { useNavigate } from 'react-router-dom';
-import { useCarrito } from '../hooks/useCarrito';
+import { useCarrito, claveLinea, MAX_POR_LINEA } from '../hooks/useCarrito';
 import { IconClose } from './Icons';
 
 const formatCOP = n => '$' + Number(n || 0).toLocaleString('es-CO');
+
+/* Botón redondo de − y + */
+function BotonCantidad({ signo, onClick, disabled, etiqueta }) {
+  return (
+    <button onClick={onClick} disabled={disabled} aria-label={etiqueta}
+      style={{
+        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+        background: 'none', border: '1px solid rgba(201,168,76,0.3)',
+        color: disabled ? '#4A463D' : '#C9A84C',
+        cursor: disabled ? 'default' : 'pointer',
+        fontSize: 14, lineHeight: 1, display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        opacity: disabled ? 0.4 : 1, padding: 0,
+      }}>
+      {signo}
+    </button>
+  );
+}
 
 /* Panel del carrito, compartido por todo el sitio.
 
@@ -21,7 +39,7 @@ const formatCOP = n => '$' + Number(n || 0).toLocaleString('es-CO');
    duplicado. El descuento se aplica un paso más adelante. */
 export default function CarritoPanel({ abierto, onCerrar }) {
   const navigate = useNavigate();
-  const { carrito, quitar, total } = useCarrito();
+  const { carrito, quitar, cambiar, total } = useCarrito();
 
   return (
     <>
@@ -63,27 +81,43 @@ export default function CarritoPanel({ abierto, onCerrar }) {
             </p>
           ) : (
             <>
-              {carrito.map((item, i) => (
-                <div key={i} style={{
-                  display: 'flex', gap: 10, padding: '10px 0',
-                  borderBottom: '1px solid rgba(201,168,76,0.1)',
-                }}>
-                  {item.imagen
-                    ? <img src={item.imagen} alt="" style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4 }} />
-                    : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4 }} />}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, color: '#E8DCC8', fontWeight: 600 }}>{item.nombre}</div>
-                    {item.presentacion && <div style={{ fontSize: 10, color: '#9A9180' }}>{item.presentacion}</div>}
-                    <div style={{ fontSize: 11, color: '#C9A84C', marginTop: 2 }}>
-                      {formatCOP(item.precio)} × {item.cantidad || 1}
+              {/* La línea se identifica por producto + presentación, no
+                  por su posición: al quitar una, las de debajo cambian
+                  de índice y el botón habría actuado sobre otra. */}
+              {carrito.map(item => {
+                const clave = claveLinea(item);
+                const cant  = item.cantidad || 1;
+                return (
+                  <div key={clave} style={{
+                    display: 'flex', gap: 10, padding: '10px 0',
+                    borderBottom: '1px solid rgba(201,168,76,0.1)',
+                  }}>
+                    {item.imagen
+                      ? <img src={item.imagen} alt="" style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 4, flexShrink: 0 }} />
+                      : <div style={{ width: 44, height: 44, background: 'rgba(201,168,76,0.1)', borderRadius: 4, flexShrink: 0 }} />}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, color: '#E8DCC8', fontWeight: 600 }}>{item.nombre}</div>
+                      {item.presentacion && <div style={{ fontSize: 10, color: '#9A9180' }}>{item.presentacion}</div>}
+                      <div style={{ fontSize: 11, color: '#C9A84C', marginTop: 2 }}>
+                        {formatCOP(item.precio * cant)}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+                        <BotonCantidad signo="−" etiqueta={`Quitar una unidad de ${item.nombre}`}
+                          onClick={() => cambiar(clave, cant - 1)} />
+                        <span style={{ fontSize: 12, color: '#E8DCC8', minWidth: 16, textAlign: 'center' }}>{cant}</span>
+                        <BotonCantidad signo="+" etiqueta={`Añadir una unidad de ${item.nombre}`}
+                          disabled={cant >= MAX_POR_LINEA}
+                          onClick={() => cambiar(clave, cant + 1)} />
+                      </div>
                     </div>
+                    <button onClick={() => quitar(clave)} aria-label={`Quitar ${item.nombre} del carrito`}
+                      style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', padding: '0 4px', flexShrink: 0, display: 'flex', alignSelf: 'flex-start' }}>
+                      <IconClose size={14} />
+                    </button>
                   </div>
-                  <button onClick={() => quitar(i)} aria-label={`Quitar ${item.nombre}`}
-                    style={{ background: 'none', border: 'none', color: '#e05252', cursor: 'pointer', padding: '0 4px', flexShrink: 0, display: 'flex' }}>
-                    <IconClose size={14} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
 
               <div style={{ marginTop: 12, textAlign: 'right' }}>
                 <div style={{ fontSize: 11, color: '#9A9180', letterSpacing: '0.1em' }}>TOTAL</div>

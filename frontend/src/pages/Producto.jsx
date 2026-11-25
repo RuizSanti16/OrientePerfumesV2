@@ -105,10 +105,28 @@ export default function Producto() {
   const presActual = pres[presIdx];
   const precio = presActual?.precio || producto.precio;
 
+  function lineaCarrito() {
+    return {
+      id_producto:  producto.id_producto,
+      nombre:       producto.nombre,
+      marca:        producto.marca || '',
+      precio:       Number(precio),
+      imagen:       producto.imagen || '',
+      presentacion: presActual?.etiqueta || '',
+    };
+  }
+
   function handleCarrito() {
-    agregar({ id: String(producto.id_producto) + (presActual ? '_'+presActual.etiqueta : ''), nombre: producto.nombre, marca: producto.marca||'', precio: Number(precio), imagen: producto.imagen||'', presentacion: presActual?.etiqueta||'' });
+    agregar(lineaCarrito());
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  }
+
+  /* Comprar sin pasar por el panel del carrito: desde la ficha es el
+     camino más corto, y era el que faltaba. */
+  function handleComprarAhora() {
+    agregar(lineaCarrito());
+    navigate('/checkout');
   }
 
   async function enviarRating(e) {
@@ -251,6 +269,13 @@ export default function Producto() {
                 {enWishlist ? <IconHeartFilled size={22}/> : <IconHeart size={22}/>}
               </button>
             </div>
+
+            {producto.stock_actual !== 0 && (
+              <button onClick={handleComprarAhora}
+                style={{ width:'100%', marginTop:10, background:'none', border:'1px solid rgba(201,168,76,0.45)', borderRadius:8, padding:'13px', color:'#C9A84C', fontFamily:'Cinzel,serif', fontSize:12, letterSpacing:'0.15em', cursor:'pointer', transition:'all 0.3s' }}>
+                COMPRAR AHORA
+              </button>
+            )}
 
             {/* Info extra */}
             <div style={{ display:'flex', flexDirection:'column', gap:10, paddingTop:16, borderTop:'1px solid rgba(201,168,76,0.1)' }}>
