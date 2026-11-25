@@ -1,6 +1,4 @@
-import { useSyncExternalStore } from 'react';
-
-const KEY = 'op_carrito';
+import { crearAlmacenLocal } from './almacenLocal';
 
 /* Tope por línea. El servidor rechaza más de 50 unidades en
    precios.php; cortar aquí evita que el cliente llegue hasta el pago
@@ -36,68 +34,31 @@ export function claveLinea(item) {
   return `${item.id_producto}|${item.presentacion || ''}`;
 }
 
-function leerGuardado() {
-  try {
-    const guardado = JSON.parse(localStorage.getItem(KEY) || '[]');
-    /* Los carritos ya guardados en el navegador traen la forma vieja */
-    return Array.isArray(guardado) ? guardado.map(normalizar) : [];
-  } catch { return []; }
-}
-
-/* ── El carrito vive en el módulo, no dentro de cada componente ──
-
-   Antes esto era un useState, de modo que cada useCarrito() creaba su
-   propia copia: la ficha de producto añadía a la suya y el Header
-   seguía mostrando el contador anterior, porque nunca se enteraba. Y
-   las dos copias guardaban en el mismo localStorage, así que la que
-   escribiera después borraba lo de la otra.
-
-   Con un único estado y useSyncExternalStore, todos los componentes
-   leen lo mismo y React los vuelve a dibujar a la vez. */
-let estado = leerGuardado();
-const oyentes = new Set();
-
-function publicar(nuevo) {
-  estado = nuevo;
-  try { localStorage.setItem(KEY, JSON.stringify(estado)); }
-  catch { /* modo privado o almacenamiento lleno: el carrito sigue
-             funcionando en esta pestaña, solo no sobrevive al cierre */ }
-  oyentes.forEach(fn => fn());
-}
-
-function suscribir(fn) {
-  oyentes.add(fn);
-  return () => oyentes.delete(fn);
-}
-
-/* Dos pestañas abiertas son el mismo carrito. Sin esto, comprar en
-   una dejaba a la otra mostrando lo de antes y la siguiente escritura
-   revivía los productos ya pedidos. */
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', e => {
-    if (e.key !== KEY) return;
-    estado = leerGuardado();
-    oyentes.forEach(fn => fn());
-  });
-}
+/* El carrito vive una sola vez, en el módulo, y los componentes se
+   suscriben: antes cada useCarrito() creaba su propia copia y el
+   Header no se enteraba de lo que añadía la ficha de producto. El
+   mecanismo está en almacenLocal.js, compartido con la lista de
+   deseos. */
+const almacen = crearAlmacenLocal('op_carrito', normalizar);
 
 /* ── Operaciones ─────────────────────────────────────────── */
 
 export function agregarAlCarrito(crudo) {
   const producto = normalizar(crudo);
   const clave    = claveLinea(producto);
-  const idx      = estado.findIndex(x => claveLinea(x) === clave);
+  const lista    = almacen.leer();
+  const idx      = lista.findIndex(x => claveLinea(x) === clave);
 
   if (idx >= 0) {
-    const nuevo = [...estado];
+    const nuevo = [...lista];
     nuevo[idx] = {
       ...nuevo[idx],
       cantidad: Math.min(nuevo[idx].cantidad + producto.cantidad, MAX_POR_LINEA),
     };
-    publicar(nuevo);
+    almacen.publicar(nuevo);
     return;
   }
-  publicar([...estado, producto]);
+  almacen.publicar([...lista, producto]);
 }
 
 /**
@@ -107,21 +68,23 @@ export function agregarAlCarrito(crudo) {
 export function cambiarCantidad(clave, cantidad) {
   const n = Math.min(Math.max(0, Math.floor(cantidad)), MAX_POR_LINEA);
   if (n === 0) return quitarDelCarrito(clave);
-  publicar(estado.map(x => (claveLinea(x) === clave ? { ...x, cantidad: n } : x)));
+  almacen.publicar(almacen.leer().map(
+    x => (claveLinea(x) === clave ? { ...x, cantidad: n } : x)
+  ));
 }
 
 export function quitarDelCarrito(clave) {
-  publicar(estado.filter(x => claveLinea(x) !== clave));
+  almacen.publicar(almacen.leer().filter(x => claveLinea(x) !== clave));
 }
 
 export function vaciarCarrito() {
-  publicar([]);
+  almacen.publicar([]);
 }
 
 /* ── Hook ────────────────────────────────────────────────── */
 
 export function useCarrito() {
-  const carrito = useSyncExternalStore(suscribir, () => estado);
+  const carrito = almacen.usar();
 
   const total = carrito.reduce((s, i) => s + (i.precio * (i.cantidad || 1)), 0);
   const count = carrito.reduce((s, i) => s + (i.cantidad || 1), 0);

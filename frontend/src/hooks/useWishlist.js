@@ -1,34 +1,38 @@
-import { useState, useEffect } from 'react';
+import { crearAlmacenLocal } from './almacenLocal';
 
-const KEY = 'op_wishlist';
+/* El id se guarda siempre como texto. Unas pantallas lo pasaban con
+   String(p.id_producto) y otras con el numero tal cual, asi que
+   estaEn() daba false para un producto que si estaba en la lista: el
+   corazon salia vacio y volver a pulsarlo lo anadia por segunda vez
+   en vez de quitarlo. */
+function normalizar(producto) {
+  return { ...producto, id: String(producto.id ?? producto.id_producto ?? '') };
+}
 
-function getWishlist() {
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+const almacen = crearAlmacenLocal('op_wishlist', normalizar);
+
+export function toggleWishlist(crudo) {
+  const producto = normalizar(crudo);
+  const lista    = almacen.leer();
+  const existe   = lista.some(x => x.id === producto.id);
+
+  almacen.publicar(existe
+    ? lista.filter(x => x.id !== producto.id)
+    : [...lista, producto]);
+}
+
+export function quitarDeWishlist(id) {
+  almacen.publicar(almacen.leer().filter(x => x.id !== String(id)));
 }
 
 export function useWishlist() {
-  const [wishlist, setWishlist] = useState(getWishlist);
+  const wishlist = almacen.usar();
 
-  useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(wishlist));
-  }, [wishlist]);
-
-  function toggle(producto) {
-    setWishlist(prev => {
-      const existe = prev.some(x => x.id === producto.id);
-      return existe
-        ? prev.filter(x => x.id !== producto.id)
-        : [...prev, producto];
-    });
-  }
-
-  function estaEn(id) {
-    return wishlist.some(x => x.id === id);
-  }
-
-  function quitar(id) {
-    setWishlist(prev => prev.filter(x => x.id !== id));
-  }
-
-  return { wishlist, toggle, estaEn, quitar, count: wishlist.length };
+  return {
+    wishlist,
+    count:  wishlist.length,
+    toggle: toggleWishlist,
+    quitar: quitarDeWishlist,
+    estaEn: id => wishlist.some(x => x.id === String(id)),
+  };
 }

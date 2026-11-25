@@ -1,55 +1,47 @@
-import { useState, useCallback } from 'react';
+import { crearAlmacenLocal } from './almacenLocal';
 
-const KEY = 'op_comparar';
 const MAX = 3;
 
-function leerStorage() {
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-  catch { return []; }
+function normalizar(producto) {
+  return {
+    id:     String(producto.id ?? producto.id_producto ?? ''),
+    nombre: producto.nombre || '',
+    imagen: producto.imagen || '',
+    precio: producto.precio || 0,
+  };
 }
 
+const almacen = crearAlmacenLocal('op_comparar', normalizar);
+
 /**
- * Hook para gestionar la selección de productos a comparar.
- * Persiste en localStorage bajo la clave 'op_comparar'.
- * Máximo MAX (3) productos simultáneos.
+ * Seleccion de productos a comparar, maximo MAX (3) a la vez.
+ *
+ * Comparte el almacen con el carrito y la lista de deseos: antes cada
+ * componente tenia su propia copia en un useState y no se enteraba de
+ * lo que hicieran los demas.
  */
 export function useComparador() {
-  const [items, setItems] = useState(leerStorage);
+  const items = almacen.usar();
 
-  const agregar = useCallback((producto) => {
-    setItems(prev => {
-      if (prev.length >= MAX) return prev;
-      if (prev.find(p => String(p.id) === String(producto.id))) return prev;
-      const next = [
-        ...prev,
-        {
-          id:     String(producto.id),
-          nombre: producto.nombre  || '',
-          imagen: producto.imagen  || '',
-          precio: producto.precio  || 0,
-        },
-      ];
-      localStorage.setItem(KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  return {
+    items,
+    count: items.length,
+    estaEn: id => items.some(p => p.id === String(id)),
 
-  const quitar = useCallback((id) => {
-    setItems(prev => {
-      const next = prev.filter(p => String(p.id) !== String(id));
-      localStorage.setItem(KEY, JSON.stringify(next));
-      return next;
-    });
-  }, []);
+    agregar(crudo) {
+      const producto = normalizar(crudo);
+      const lista    = almacen.leer();
+      if (lista.length >= MAX) return;
+      if (lista.some(p => p.id === producto.id)) return;
+      almacen.publicar([...lista, producto]);
+    },
 
-  const limpiar = useCallback(() => {
-    localStorage.setItem(KEY, '[]');
-    setItems([]);
-  }, []);
+    quitar(id) {
+      almacen.publicar(almacen.leer().filter(p => p.id !== String(id)));
+    },
 
-  const estaEn = useCallback((id) => {
-    return items.some(p => String(p.id) === String(id));
-  }, [items]);
-
-  return { items, agregar, quitar, limpiar, estaEn, count: items.length };
+    limpiar() {
+      almacen.publicar([]);
+    },
+  };
 }
