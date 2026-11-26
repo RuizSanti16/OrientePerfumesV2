@@ -39,6 +39,7 @@ export default function SearchBar() {
   const [todos,    setTodos]    = useState({ productos: [], categorias: [], marcas: [] });
   const inputRef   = useRef(null);
   const wrapRef    = useRef(null);
+  const listaRef   = useRef(null);
 
   /* Cargar todos los datos una sola vez */
   useEffect(() => {
@@ -99,6 +100,35 @@ export default function SearchBar() {
 
   function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
 
+  /* ── Manejo con el teclado ──────────────────────────────────
+
+     El desplegable solo se podía usar con el ratón: ni flechas ni
+     Enter. Quien escribe el nombre de un perfume ya tiene las manos
+     en el teclado, así que tenía que soltarlo para elegir.
+
+     Los tres grupos se aplanan en una sola lista, porque para las
+     flechas el desplegable es una columna: bajar desde el último
+     producto lleva a la primera colección, sin saltos raros. */
+  const navegables = [
+    ...results.productos.map(p  => ({ clave: `p${p.id_producto}`,  ir: () => irAProducto(p) })),
+    ...results.categorias.map(c => ({ clave: `c${c.id_categoria}`, ir: () => irACategoria(c) })),
+    ...results.marcas.map(m     => ({ clave: `m${m.id_marca}`,     ir: () => irAMarca(m) })),
+  ];
+
+  const [activo, setActivo] = useState(-1);
+
+  /* Al cambiar lo escrito, la selección vuelve a empezar: dejarla
+     donde estaba apuntaría a un resultado que ya no es ese. */
+  useEffect(() => { setActivo(-1); }, [results]);
+
+  /* Que el elegido con las flechas se vea: la lista llega a 480px de
+     alto y desborda, así que al bajar se perdía por debajo. */
+  useEffect(() => {
+    if (activo < 0 || !listaRef.current) return;
+    const fila = listaRef.current.querySelector(`[data-indice="${activo}"]`);
+    if (fila) fila.scrollIntoView({ block: 'nearest' });
+  }, [activo]);
+
   /* Elegir un perfume lleva a SU ficha.
 
      Antes llevaba a /coleccion?categoria=..., es decir, a la lista
@@ -121,8 +151,62 @@ export default function SearchBar() {
   }
 
   function handleKey(e) {
-    if (e.key === 'Escape') { setOpen(false); setQuery(''); inputRef.current?.blur(); }
+    if (e.key === 'Escape') {
+      setOpen(false); setQuery(''); inputRef.current?.blur();
+      return;
+    }
+
+    if (!open || navegables.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      /* preventDefault para que la flecha mueva por la lista y no el
+         cursor dentro del texto escrito. */
+      e.preventDefault();
+      setActivo(i => (i + 1) % navegables.length);
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActivo(i => (i <= 0 ? navegables.length - 1 : i - 1));
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      /* Enter sin haber bajado va al primero, que es lo que espera
+         quien escribe el nombre entero y pulsa Enter sin mirar. */
+      (navegables[activo] ?? navegables[0]).ir();
+      return;
+    }
+
+    if (e.key === 'Home') { e.preventDefault(); setActivo(0); return; }
+    if (e.key === 'End')  { e.preventDefault(); setActivo(navegables.length - 1); }
   }
+
+  /* Lo que toda fila comparte. El resaltado sale de un único sitio:
+     antes el ratón pintaba el fondo a mano en onMouseEnter, y con el
+     teclado habrían quedado dos filas resaltadas a la vez. Pasar el
+     ratón ahora mueve la selección, no pinta. */
+  function propsFila(indice) {
+    return {
+      'data-indice': indice,
+      id: `search-op-${indice}`,
+      role: 'option',
+      'aria-selected': activo === indice,
+      onMouseEnter: () => setActivo(indice),
+      style: {
+        width: '100%', border: 'none', padding: '10px 16px',
+        display: 'flex', alignItems: 'center', gap: 12,
+        cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s',
+        background: activo === indice ? 'rgba(201,168,76,0.1)' : 'none',
+      },
+    };
+  }
+
+  /* Donde empieza cada grupo dentro de la lista aplanada */
+  const baseCategorias = results.productos.length;
+  const baseMarcas     = baseCategorias + results.categorias.length;
 
   return (
     <div ref={wrapRef} className="header__search-wrap" style={{ position: 'relative', flex: 1, maxWidth: 600 }}>
@@ -143,6 +227,11 @@ export default function SearchBar() {
           aria-label="Buscar productos"
           aria-expanded={open}
           aria-controls="search-dropdown"
+          role="combobox"
+          aria-autocomplete="list"
+          /* Con el teclado el foco no se mueve del campo, así que sin
+             esto un lector de pantalla no anunciaría lo elegido. */
+          aria-activedescendant={activo >= 0 ? `search-op-${activo}` : undefined}
         />
         <button aria-label="Buscar" onClick={() => inputRef.current?.focus()}>
           {loading
@@ -159,6 +248,7 @@ export default function SearchBar() {
         <div
           id="search-dropdown"
           role="listbox"
+          ref={listaRef}
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
             background: '#111', border: '1px solid rgba(201,168,76,0.2)',
@@ -176,11 +266,8 @@ export default function SearchBar() {
           {results.productos.length > 0 && (
             <div>
               <GroupLabel>Productos</GroupLabel>
-              {results.productos.map(p => (
-                <button key={p.id_producto} onClick={() => irAProducto(p)}
-                  style={{ width: '100%', background: 'none', border: 'none', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.07)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+              {results.productos.map((p, i) => (
+                <button key={p.id_producto} onClick={() => irAProducto(p)} {...propsFila(i)}>
                   {/* Imagen */}
                   {p.imagen
                     ? <img src={p.imagen} alt={p.nombre} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />
@@ -202,11 +289,8 @@ export default function SearchBar() {
           {results.categorias.length > 0 && (
             <div style={{ borderTop: results.productos.length ? '1px solid rgba(201,168,76,0.08)' : 'none' }}>
               <GroupLabel>Colecciones</GroupLabel>
-              {results.categorias.map(c => (
-                <button key={c.id_categoria} onClick={() => irACategoria(c)}
-                  style={{ width: '100%', background: 'none', border: 'none', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.07)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+              {results.categorias.map((c, i) => (
+                <button key={c.id_categoria} onClick={() => irACategoria(c)} {...propsFila(baseCategorias + i)}>
                   <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <IconCategoria nombre={c.nombre} />
                   </div>
@@ -224,11 +308,8 @@ export default function SearchBar() {
           {results.marcas.length > 0 && (
             <div style={{ borderTop: (results.productos.length || results.categorias.length) ? '1px solid rgba(201,168,76,0.08)' : 'none' }}>
               <GroupLabel>Marcas</GroupLabel>
-              {results.marcas.map(m => (
-                <button key={m.id_marca} onClick={() => irAMarca(m)}
-                  style={{ width: '100%', background: 'none', border: 'none', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.07)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+              {results.marcas.map((m, i) => (
+                <button key={m.id_marca} onClick={() => irAMarca(m)} {...propsFila(baseMarcas + i)}>
                   <div style={{ width: 40, height: 40, background: 'rgba(201,168,76,0.08)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><IconMarca /></div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, color: '#E8DCC8', fontWeight: 600 }}><Highlight text={m.nombre} query={query} /></div>
@@ -246,10 +327,9 @@ export default function SearchBar() {
               <span style={{ fontSize: 11, color: '#9A9180', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
                 {total} resultado{total !== 1 ? 's' : ''} para "{query}"
               </span>
-              <button onClick={() => { setOpen(false); setQuery(''); }}
-                style={{ fontSize: 11, color: '#9A9180', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
-                ESC para cerrar
-              </button>
+              <span style={{ fontSize: 11, color: '#6B6355', fontFamily: 'Cinzel, serif', letterSpacing: '0.08em' }}>
+                ↑↓ moverse · ↵ abrir · ESC cerrar
+              </span>
             </div>
           )}
         </div>
