@@ -219,18 +219,16 @@ export default function Home() {
                   style={s.color_subtitulo ? { color: s.color_subtitulo } : undefined}>
                   {s.subtitulo}
                 </p>
-                <div className="hero__cta">
-                  <a href="#categorias" className="btn-primary">{s.btn1}</a>
-                  <a href="#productos"  className="btn-secondary">{s.btn2}</a>
-                </div>
+                {/* Aquí iban dos botones, "Explorar colección" y "Ver
+                    novedades", que solo bajaban a dos secciones de
+                    esta misma página. El visitante llega igual
+                    deslizando, y quitarlos deja respirar al título. */}
               </div>
             </div>
           );
         })}
-        {/* Las flechas de los lados se retiran: se comían las esquinas
-            de la imagen y competían con el título. El carrusel pasa
-            solo, y los puntos de abajo siguen permitiendo ir a un
-            slide concreto. */}
+        <button className="hero__arrow hero__arrow--prev" onClick={() => { goTo(slideActual-1); startAuto(); }} aria-label="Slide anterior">&#8249;</button>
+        <button className="hero__arrow hero__arrow--next" onClick={() => { goTo(slideActual+1); startAuto(); }} aria-label="Siguiente slide">&#8250;</button>
         <div className="hero__dots" role="tablist">
           {slides.map((_, i) => (
             <button key={i} className={`hero__dot${i===slideActual?' active':''}`} role="tab" aria-selected={i===slideActual} onClick={() => { goTo(i); startAuto(); }} aria-label={`Ir al slide ${i+1}`}/>

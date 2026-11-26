@@ -248,12 +248,15 @@ export default function Carrusel() {
             <div style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <span style={{ ...fieldLabel, fontSize: 10, letterSpacing: '0.15em', color: '#C9A84C' }}>TEXTOS DEL SLIDE</span>
 
+              {/* Los campos de los dos botones se retiran con los
+                  botones: el slide ya no los muestra, y un campo que
+                  se rellena y no aparece en ninguna parte es
+                  exactamente lo que confunde. Las columnas siguen en
+                  la base por si algún día vuelven. */}
               {[
                 ['label',     'Etiqueta superior',          'Ej: Perfumería Nicho'],
                 ['titulo',    'Título  (\\n = salto línea)', 'Ej: Tesoros\\nOlfativos'],
                 ['subtitulo', 'Subtítulo',                   'Ej: Las más exclusivas casas de nicho'],
-                ['btn1',      'Botón 1',                     'Ej: Descubrir Nicho'],
-                ['btn2',      'Botón 2',                     'Ej: Ver Catálogo'],
               ].map(([key, label, placeholder]) => (
                 <div key={key}>
                   <span style={fieldLabel}>{label.toUpperCase()}</span>
