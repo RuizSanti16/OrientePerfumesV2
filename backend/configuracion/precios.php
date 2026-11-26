@@ -22,6 +22,54 @@
 if (!function_exists('calcularTotalesPedido')) {
 
     /**
+     * Precio real de un producto en la presentacion elegida.
+     *
+     * Las presentaciones viven en tbl_productos.presentaciones, un
+     * JSON como [{"etiqueta":"100ml","precio":"250000"}, ...]. Un
+     * perfume de 250.000 el frasco se vende a 25.000 la muestra de
+     * 5ml, asi que cobrar siempre el precio del producto multiplicaba
+     * por diez lo que el cliente creia estar pagando.
+     *
+     * @return array [precio(float), error(string|null)]
+     */
+    function precioDePresentacion(array $prod, $presentacion) {
+        $base = (float) $prod['precio'];
+        $pres = trim((string) $presentacion);
+
+        $lista = [];
+        if (!empty($prod['presentaciones'])) {
+            $leido = json_decode($prod['presentaciones'], true);
+            if (is_array($leido)) $lista = $leido;
+        }
+
+        /* Sin presentacion elegida, o producto que no las tiene: el
+           precio del producto, que es lo que se muestra en la ficha. */
+        if ($pres === '' || !$lista) {
+            if ($base <= 0) {
+                return [0.0, 'Uno de los productos no tiene precio definido.'];
+            }
+            return [$base, null];
+        }
+
+        foreach ($lista as $p) {
+            $etiqueta = trim((string) ($p['etiqueta'] ?? ''));
+            if ($etiqueta === '' || mb_strtolower($etiqueta, 'UTF-8') !== mb_strtolower($pres, 'UTF-8')) {
+                continue;
+            }
+            $precio = (float) ($p['precio'] ?? 0);
+            if ($precio <= 0) {
+                return [0.0, 'La presentacion ' . $etiqueta . ' no tiene precio definido.'];
+            }
+            return [$precio, null];
+        }
+
+        /* Pidio una presentacion que este producto no vende. Se
+           rechaza en vez de cobrar el precio base: si no, bastaria
+           inventarse una etiqueta para elegir que precio se paga. */
+        return [0.0, 'La presentacion elegida ya no esta disponible para ' . $prod['nombre'] . '.'];
+    }
+
+    /**
      * Devuelve las lineas con su precio real y los totales.
      *
      * @param  PDO         $pdo
@@ -56,16 +104,26 @@ if (!function_exists('calcularTotalesPedido')) {
                 return ['ok' => false, 'mensaje' => 'La cantidad maxima por producto es 50 unidades.'];
             }
 
-            if (!isset($pedidas[$id])) {
-                $pedidas[$id] = ['cantidad' => 0, 'presentacion' => $it['presentacion'] ?? null];
+            /* Se agrupa por producto Y presentacion.
+
+               Agrupar solo por producto juntaba en una sola linea el
+               frasco de 100ml y la muestra de 5ml, y se quedaba con
+               la presentacion de la primera: dos articulos de precio
+               muy distinto cobrados los dos al mismo. */
+            $pres  = trim((string) ($it['presentacion'] ?? ''));
+            $clave = $id . '|' . mb_strtolower($pres, 'UTF-8');
+
+            if (!isset($pedidas[$clave])) {
+                $pedidas[$clave] = ['id' => $id, 'cantidad' => 0, 'presentacion' => $pres];
             }
-            $pedidas[$id]['cantidad'] += $cant;
+            $pedidas[$clave]['cantidad'] += $cant;
         }
 
         /* Precios reales, de la base. */
-        $ids    = array_keys($pedidas);
+        $ids    = array_values(array_unique(array_column($pedidas, 'id')));
         $marcas = implode(',', array_fill(0, count($ids), '?'));
-        $stmt   = $pdo->prepare("SELECT id_producto, nombre, precio FROM tbl_productos WHERE id_producto IN ($marcas)");
+        $stmt   = $pdo->prepare("SELECT id_producto, nombre, precio, presentaciones
+                                   FROM tbl_productos WHERE id_producto IN ($marcas)");
         $stmt->execute($ids);
 
         $encontrados = [];
@@ -74,16 +132,25 @@ if (!function_exists('calcularTotalesPedido')) {
         $lineas   = [];
         $subtotal = 0.0;
 
-        foreach ($pedidas as $id => $datos) {
+        foreach ($pedidas as $datos) {
+            $id = $datos['id'];
             if (!isset($encontrados[$id])) {
                 return ['ok' => false, 'mensaje' => 'Uno de los productos ya no esta disponible.'];
             }
 
-            $prod   = $encontrados[$id];
-            $precio = (float) $prod['precio'];
+            $prod = $encontrados[$id];
 
-            if ($precio <= 0) {
-                return ['ok' => false, 'mensaje' => 'Uno de los productos no tiene precio definido.'];
+            /* El precio es el de la presentacion elegida, no el del
+               producto.
+
+               Aqui se tomaba siempre tbl_productos.precio, que es el
+               del frasco grande: quien pedia una muestra de 5ml por
+               25.000 veia 250.000 al ir a pagar. El precio de cada
+               presentacion esta en la columna presentaciones, un JSON
+               con etiqueta y precio. */
+            list($precio, $error) = precioDePresentacion($prod, $datos['presentacion']);
+            if ($error !== null) {
+                return ['ok' => false, 'mensaje' => $error];
             }
 
             $subtotal += $precio * $datos['cantidad'];
@@ -93,7 +160,7 @@ if (!function_exists('calcularTotalesPedido')) {
                 'nombre'          => $prod['nombre'],
                 'cantidad'        => $datos['cantidad'],
                 'precio_unitario' => $precio,
-                'presentacion'    => $datos['presentacion'],
+                'presentacion'    => $datos['presentacion'] !== '' ? $datos['presentacion'] : null,
             ];
         }
 
