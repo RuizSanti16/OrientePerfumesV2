@@ -61,6 +61,27 @@ try {
                         $row['presentaciones'] = [];
                     }
                 }
+                unset($row);
+
+                /* Notas olfativas, solo si se piden.
+
+                   Las usa el quiz para recomendar por lo que el
+                   perfume huele de verdad y no por su categoria. No
+                   van siempre porque el catalogo entero con sus notas
+                   es bastante mas que enviar a cada visitante en cada
+                   pagina. Una sola consulta para todas: una por
+                   producto serian trescientas. */
+                if (isset($_GET['con_notas'])) {
+                    $porProducto = [];
+                    foreach ($pdo->query("SELECT id_producto, tipo, nota FROM tbl_producto_notas") as $n) {
+                        $porProducto[(int) $n['id_producto']][] = $n['nota'];
+                    }
+                    foreach ($rows as &$row) {
+                        $row['notas'] = $porProducto[(int) $row['id_producto']] ?? [];
+                    }
+                    unset($row);
+                }
+
                 echo json_encode(['ok' => true, 'data' => $rows]);
             }
             break;

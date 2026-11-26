@@ -127,6 +127,9 @@ export const pagosAPI = {
 
 export const productosAPI = {
   listar:     ()     => apiFetch('productos.php'),
+  /* Con las notas olfativas de cada uno. Lo usa el quiz; no va en el
+     listado normal porque es bastante más que enviar en cada página. */
+  listarConNotas: () => apiFetch('productos.php?con_notas=1'),
   obtener:    (id)   => apiFetch(`productos.php?id=${id}`),
   crear:      (data) => apiFetch('productos.php', 'POST', data),
   actualizar: (data) => apiFetch('productos.php', 'PUT',  data),

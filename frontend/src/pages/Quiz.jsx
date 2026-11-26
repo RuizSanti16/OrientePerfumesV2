@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../components/Footer';
 import { productosAPI } from '../services/api';
+import { FAMILIAS_NOTAS } from '../datosNotas';
 import { useCarrito }   from '../hooks/useCarrito';
 import Header from '../components/Header';
 
@@ -66,50 +67,121 @@ const PREGUNTAS = [
   },
 ];
 
-/* ── Motor de puntuación ── */
+/* Qué familias de notas busca cada respuesta olfativa.
+
+   El quiz preguntaba por la familia y luego puntuaba mirando la
+   categoría del producto: contestar "floral" sumaba puntos a todo lo
+   que fuera "Diseñador". Son cosas distintas, y la respuesta no
+   tenía nada que ver con a qué huele el perfume. Ahora se compara
+   con sus notas reales. */
+const FAMILIAS_POR_RESPUESTA = {
+  oriental:  ['Orientales y Resinas', 'Especias', 'Dulces y Gourmand'],
+  floral:    ['Florales', 'Frutales'],
+  fresca:    ['Cítricos', 'Verdes y Aromáticas', 'Marinas y Frescas'],
+  amaderada: ['Maderas', 'Almizcles y Animales'],
+};
+
+/* Notas que suelen marcar una fragancia intensa o ligera. La
+   intensidad no está en la base, pero los ingredientes la sugieren
+   bastante bien: un oud con incienso no es una colonia de verano. */
+const NOTAS_INTENSAS = ['Oud', 'Agarwood', 'Incienso', 'Mirra', 'Ámbar', 'Pachulí',
+  'Cuero', 'Tuberosa', 'Azafrán', 'Labdanum', 'Benjuí', 'Opoponaco', 'Castóreo'];
+const NOTAS_LIGERAS  = ['Bergamota', 'Limón', 'Lima', 'Naranja', 'Mandarina', 'Pomelo',
+  'Neroli', 'Menta', 'Té Verde', 'Notas Marinas', 'Notas Acuáticas', 'Ozono',
+  'Hierbabuena', 'Yuzu', 'Sal Marina'];
+
+/* El precio más bajo al que se puede comprar: el de la presentación
+   más barata, no el del frasco grande.
+
+   Con el precio base, alguien que dijera "hasta 100.000" se quedaba
+   sin ver perfumes de 250.000 de los que puede llevarse una muestra
+   de 5ml por 25.000. */
+function precioMinimo(p) {
+  const base = Number(p.precio || 0);
+  const pres = Array.isArray(p.presentaciones) ? p.presentaciones : [];
+  const precios = pres.map(x => Number(x.precio || 0)).filter(n => n > 0);
+  return precios.length ? Math.min(...precios) : base;
+}
+
+function normalizar(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+/* ── Motor de puntuación ──
+
+   Devuelve la puntuación y los motivos, para poder decirle al
+   visitante por qué se le recomienda cada frasco en vez de pedirle
+   que se fíe de una lista sin explicación. */
 function puntuarProducto(p, respuestas) {
-  const cat    = (p.nombre_categoria || '').toLowerCase();
-  const precio = Number(p.precio || 0);
+  const cat    = normalizar(p.nombre_categoria);
+  const notas  = (p.notas || []).map(normalizar);
+  const minimo = precioMinimo(p);
+  const motivos = [];
   let score = 0;
 
-  /* Q1: Ocasión */
+  /* Q4 va primero: es el único filtro que descarta. Se mira contra
+     el precio más bajo disponible. */
+  const topes = { hasta_100: 100000, hasta_300: 300000, hasta_600: 600000 };
+  const tope  = topes[respuestas[3]];
+  if (tope && minimo > tope) return { score: -1, motivos: [] };
+  if (respuestas[3] === 'mas_600' && Number(p.precio || 0) < 600000) score -= 2;
+
+  /* Q2: familia olfativa, contra las notas reales */
+  const familias = FAMILIAS_POR_RESPUESTA[respuestas[1]] || [];
+  const buscadas = FAMILIAS_NOTAS
+    .filter(f => familias.includes(f.familia))
+    .flatMap(f => f.notas.map(normalizar));
+
+  const coinciden = notas.filter(n => buscadas.includes(n));
+  if (coinciden.length) {
+    /* Tres puntos por nota, hasta cuatro notas: a partir de ahí el
+       perfume ya es claramente de esa familia y sumar más solo
+       aplastaría al resto de criterios. */
+    score += Math.min(coinciden.length, 4) * 3;
+    const nombres = (p.notas || []).filter(n => buscadas.includes(normalizar(n))).slice(0, 3);
+    motivos.push(`Lleva ${nombres.join(', ')}`);
+  }
+
+  /* Q3: intensidad, también por notas */
+  const intensas = notas.filter(n => NOTAS_INTENSAS.map(normalizar).includes(n)).length;
+  const ligeras  = notas.filter(n => NOTAS_LIGERAS.map(normalizar).includes(n)).length;
+  const fuerte   = intensas > ligeras;
+  const suave    = ligeras > intensas;
+
+  if ((respuestas[2] === 'intensa' || respuestas[2] === 'muy_intensa') && fuerte) {
+    score += 4; motivos.push('De estela marcada');
+  }
+  if ((respuestas[2] === 'muy_ligera' || respuestas[2] === 'moderada') && suave) {
+    score += 4; motivos.push('Ligero y fresco');
+  }
+
+  /* Q1 y Q5 siguen usando la categoría, que para "dónde encaja" y
+     "qué tipo de casa" sí es la información adecuada. */
   const ocasion = respuestas[0];
-  if (ocasion === 'diario')     { if (cat.includes('diseñador')) score += 3; if (cat.includes('nicho')) score += 1; }
-  if (ocasion === 'noche')      { if (cat.includes('oriental'))  score += 4; if (cat.includes('nicho')) score += 2; if (cat.includes('exclusiv')) score += 2; }
-  if (ocasion === 'romantica')  { if (cat.includes('oriental'))  score += 3; if (cat.includes('nicho')) score += 2; }
-  if (ocasion === 'trabajo')    { if (cat.includes('diseñador')) score += 4; }
+  if (ocasion === 'diario'    && cat.includes('disenador')) { score += 3; motivos.push('Va bien a diario'); }
+  if (ocasion === 'noche'     && (cat.includes('oriental') || cat.includes('exclusiv'))) { score += 3; motivos.push('Pensado para la noche'); }
+  if (ocasion === 'romantica' && cat.includes('oriental'))  { score += 3; motivos.push('Cálido y envolvente'); }
+  if (ocasion === 'trabajo'   && cat.includes('disenador')) { score += 3; motivos.push('Discreto para la oficina'); }
 
-  /* Q2: Familia */
-  const familia = respuestas[1];
-  if (familia === 'oriental')   { if (cat.includes('oriental'))  score += 5; }
-  if (familia === 'floral')     { if (cat.includes('diseñador')) score += 3; if (cat.includes('nicho')) score += 2; }
-  if (familia === 'fresca')     { if (cat.includes('diseñador')) score += 4; }
-  if (familia === 'amaderada')  { if (cat.includes('nicho'))     score += 4; if (cat.includes('oriental')) score += 2; }
-
-  /* Q3: Intensidad */
-  const intensidad = respuestas[2];
-  if (intensidad === 'muy_ligera' || intensidad === 'moderada') { if (cat.includes('diseñador')) score += 2; }
-  if (intensidad === 'intensa')    { if (cat.includes('oriental')) score += 2; if (cat.includes('nicho')) score += 1; }
-  if (intensidad === 'muy_intensa'){ if (cat.includes('oriental')) score += 3; if (cat.includes('exclusiv')) score += 2; }
-
-  /* Q4: Presupuesto — filtro duro + bonus */
-  const presupuesto = respuestas[3];
-  if (presupuesto === 'hasta_100' && precio > 100000) return -1;
-  if (presupuesto === 'hasta_300' && precio > 300000) return -1;
-  if (presupuesto === 'hasta_600' && precio > 600000) return -1;
-  if (presupuesto === 'mas_600'   && precio >= 600000) score += 3;
-  if (presupuesto === 'hasta_100' && precio <= 100000) score += 2;
-  if (presupuesto === 'hasta_300' && precio <= 300000) score += 2;
-  if (presupuesto === 'hasta_600' && precio <= 600000) score += 2;
-
-  /* Q5: Tipo */
   const tipo = respuestas[4];
-  if (tipo === 'disenador' && cat.includes('diseñador')) score += 5;
-  if (tipo === 'nicho'     && cat.includes('nicho'))     score += 5;
-  if (tipo === 'oriental'  && cat.includes('oriental'))  score += 5;
+  if (tipo === 'disenador' && cat.includes('disenador')) { score += 5; motivos.push('De casa de diseñador'); }
+  if (tipo === 'nicho'     && cat.includes('nicho'))     { score += 5; motivos.push('Perfumería nicho'); }
+  if (tipo === 'oriental'  && cat.includes('oriental'))  { score += 5; motivos.push('Oriental'); }
   if (tipo === 'ninguna')  score += 1;
 
-  return score;
+  /* Un perfume sin notas cargadas no puede competir con los que sí
+     las tienen, pero tampoco debe quedar fuera: sigue puntuando por
+     categoría y precio. */
+  if (notas.length === 0) score += 1;
+
+  if (tope && minimo <= tope) {
+    score += 2;
+    if (minimo < Number(p.precio || 0)) {
+      motivos.push(`Desde ${new Intl.NumberFormat('es-CO', { style:'currency', currency:'COP', maximumFractionDigits:0 }).format(minimo)} en muestra`);
+    }
+  }
+
+  return { score, motivos: motivos.slice(0, 3) };
 }
 
 export default function Quiz() {
@@ -126,7 +198,8 @@ export default function Quiz() {
 
   /* Cargar catálogo una sola vez */
   useEffect(() => {
-    productosAPI.listar().then(res => {
+    /* Con las notas: son la base de la recomendación. */
+    productosAPI.listarConNotas().then(res => {
       if (res.ok) setProductos(res.data || []);
     }).catch(() => {});
   }, []);
@@ -144,7 +217,10 @@ export default function Quiz() {
       setCargandoProd(true);
       setTimeout(() => {
         const scored = productos
-          .map(p => ({ ...p, _score: puntuarProducto(p, nuevas) }))
+          .map(p => {
+            const { score, motivos } = puntuarProducto(p, nuevas);
+            return { ...p, _score: score, _motivos: motivos };
+          })
           .filter(p => p._score > 0)
           .sort((a, b) => b._score - a._score);
         setResultados(scored.slice(0, 4));
@@ -292,7 +368,21 @@ export default function Quiz() {
                       onClick={() => navigate(`/producto/${p.id_producto}`)}>
                       {p.nombre}
                     </div>
-                    <div style={{ fontSize: 16, color: '#C9A84C', fontWeight: 600, marginBottom: 14 }}>{formatCOP(p.precio)}</div>
+                    <div style={{ fontSize: 16, color: '#C9A84C', fontWeight: 600, marginBottom: 10 }}>{formatCOP(p.precio)}</div>
+
+                    {/* Por qué se recomienda. Una lista de cuatro
+                        frascos sin explicación pide que te fíes; con
+                        el motivo delante, la recomendación se puede
+                        juzgar. */}
+                    {p._motivos?.length > 0 && (
+                      <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 14px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {p._motivos.map((m, k) => (
+                          <li key={k} style={{ fontSize: 11, color: '#9A9180', display: 'flex', gap: 6, alignItems: 'flex-start', lineHeight: 1.45 }}>
+                            <span style={{ color: '#C9A84C', flexShrink: 0 }}>·</span>{m}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => handleCarrito(p)}
