@@ -22,11 +22,21 @@ export function haySesionCliente() {
   return getClienteToken() !== null;
 }
 
-/* El del cliente manda sobre el del admin: quien esté comprando lo
-   hace como cliente aunque además administre la tienda, y es el
-   único que el endpoint de pedidos acepta. */
-function tokenDeSesion() {
-  return getClienteToken() ?? getAdminToken();
+/* Qué sesión usa cada petición.
+
+   Esto llegó a devolver el token de cliente antes que el de admin, y
+   rompía el panel: con una sesión de cliente abierta, los endpoints
+   de administración recibían el token equivocado, respondían 401 y
+   el 401 cerraba la sesión de administrador. Quien se registrara
+   como cliente para probar una compra se quedaba fuera del panel.
+
+   Las dos sesiones pueden convivir, así que la elección va por
+   petición: el panel usa la de admin y el checkout pide la de
+   cliente a propósito. */
+function tokenDeSesion(auth) {
+  if (auth === 'cliente') return getClienteToken();
+  if (auth === 'admin')   return getAdminToken();
+  return getAdminToken() ?? getClienteToken();
 }
 
 export async function subirImagen(file) {
@@ -63,10 +73,10 @@ export function subirVideo(file, onProgress) {
   });
 }
 
-async function apiFetch(endpoint, method = 'GET', data = null) {
+async function apiFetch(endpoint, method = 'GET', data = null, auth = 'auto') {
   const url  = `${API_BASE}/${endpoint}`;
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  const token = tokenDeSesion();
+  const token = tokenDeSesion(auth);
   if (token) opts.headers['Authorization'] = `Bearer ${token}`;
   if (data && (method === 'POST' || method === 'PUT')) opts.body = JSON.stringify(data);
   const res = await fetch(url, opts);
@@ -243,7 +253,10 @@ export const pedidosAPI = {
   listar:          ()       => apiFetch('pedidos.php'),
   obtener:         (id)     => apiFetch(`pedidos.php?id=${id}`),
   seguimiento:     (codigo) => apiFetch(`pedidos.php?codigo=${encodeURIComponent(codigo)}`),
-  crear:           (data)   => apiFetch('pedidos.php', 'POST', data),
+  /* Comprar es siempre como cliente, aunque quien lo haga tenga
+     además sesión de administrador: es la única que acepta el
+     endpoint, y el pedido queda atribuido a esa cuenta. */
+  crear:           (data)   => apiFetch('pedidos.php', 'POST', data, 'cliente'),
   actualizarEstado:(data)   => apiFetch('pedidos.php', 'PUT',  data),
   eliminar:        (id)     => apiFetch(`pedidos.php?id=${id}`, 'DELETE'),
 };

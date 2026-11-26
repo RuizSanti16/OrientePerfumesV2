@@ -26,15 +26,46 @@ try {
         case 'POST':
             $b = json_decode(file_get_contents('php://input'), true);
             if (empty($b['nombre'])) { echo json_encode(['ok'=>false,'mensaje'=>'Nombre requerido']); break; }
-            $s = $pdo->prepare("INSERT INTO tbl_marcas (nombre, descripcion, pais_origen) VALUES (:n,:d,:p)");
-            $s->execute([':n'=>$b['nombre'],':d'=>$b['descripcion']??'',':p'=>$b['pais_origen']??'']);
+            $s = $pdo->prepare("INSERT INTO tbl_marcas (nombre, logo, descripcion, pais_origen) VALUES (:n,:l,:d,:p)");
+            $s->execute([
+                ':n'=>$b['nombre'],
+                ':l'=>($b['logo'] ?? '') !== '' ? $b['logo'] : null,
+                ':d'=>$b['descripcion']??'',
+                ':p'=>$b['pais_origen']??'',
+            ]);
             echo json_encode(['ok'=>true,'id'=>$pdo->lastInsertId(),'mensaje'=>'Marca creada']);
             break;
+
         case 'PUT':
             $b = json_decode(file_get_contents('php://input'), true);
             if (empty($b['id_marca'])) { echo json_encode(['ok'=>false,'mensaje'=>'ID requerido']); break; }
-            $s = $pdo->prepare("UPDATE tbl_marcas SET nombre=:n, descripcion=:d, pais_origen=:p WHERE id_marca=:id");
-            $s->execute([':n'=>$b['nombre'],':d'=>$b['descripcion']??'',':p'=>$b['pais_origen']??'',':id'=>$b['id_marca']]);
+
+            /* Solo se tocan los campos que vienen en la peticion.
+
+               Antes se escribian los cuatro siempre, con ?? '' de
+               respaldo: mandar unicamente el logo, como hace la
+               pantalla de logos, habria dejado la marca sin nombre ni
+               pais. */
+            $campos = [];
+            $datos  = [':id' => $b['id_marca']];
+
+            foreach (['nombre' => 'n', 'descripcion' => 'd', 'pais_origen' => 'p'] as $col => $ph) {
+                if (array_key_exists($col, $b)) {
+                    $campos[] = "$col = :$ph";
+                    $datos[":$ph"] = $b[$col];
+                }
+            }
+            /* El logo admite vaciarse a proposito, asi que una cadena
+               vacia se guarda como NULL en vez de ignorarse. */
+            if (array_key_exists('logo', $b)) {
+                $campos[] = 'logo = :l';
+                $datos[':l'] = trim((string) $b['logo']) !== '' ? trim($b['logo']) : null;
+            }
+
+            if (!$campos) { echo json_encode(['ok'=>false,'mensaje'=>'Nada que actualizar']); break; }
+
+            $s = $pdo->prepare("UPDATE tbl_marcas SET " . implode(', ', $campos) . " WHERE id_marca = :id");
+            $s->execute($datos);
             echo json_encode(['ok'=>true,'mensaje'=>'Marca actualizada']);
             break;
         case 'DELETE':

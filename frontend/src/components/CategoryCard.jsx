@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const KEY = 'op_colecciones_logos';
-function getLogos() {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; }
-  catch { return {}; }
-}
-
 /* ── Paleta única por categoría ─────────────────────────────── */
 const CONFIG = {
   'Nicho': {
@@ -432,51 +426,14 @@ export function CategoryCard({ nombre }) {
   );
 }
 
-/* ── BrandsMarquee ───────────────────────────────────────────── */
-function BrandsMarquee() {
-  const [logos, setLogos] = useState([]);
+/* Aquí vivía BrandsMarquee, que pintaba los logos leyéndolos de
+   localStorage. Era la mitad del problema: el cliente los subía, se
+   guardaban en su navegador, y su propio marquee se los mostraba
+   solo a él. Nadie más los veía.
 
-  useEffect(() => {
-    const all  = getLogos();
-    const seen = new Set();
-    const flat = Object.values(all).flat().filter(l => {
-      if (!l?.imagen || seen.has(l.id)) return false;
-      seen.add(l.id);
-      return true;
-    });
-    setLogos(flat);
-  }, []);
-
-  if (!logos.length) return null;
-
-  const copies = logos.length < 6 ? 4 : logos.length < 10 ? 3 : 2;
-  const track  = Array.from({ length: copies }, () => logos).flat();
-  const dur    = `${Math.max(logos.length * 4, 18)}s`;
-
-  return (
-    <div className="brands-marquee" aria-label="Marcas representadas">
-      <div className="brands-marquee__header">
-        <span className="brands-marquee__line" />
-        <span className="brands-marquee__eyebrow">Marcas Representadas</span>
-        <span className="brands-marquee__line" />
-      </div>
-      <div className="brands-marquee__fade brands-marquee__fade--left"  aria-hidden="true" />
-      <div className="brands-marquee__fade brands-marquee__fade--right" aria-hidden="true" />
-      <div className="brands-marquee__viewport">
-        <div className="brands-marquee__track"
-          style={{ animationDuration: dur, '--copies': copies }}>
-          {track.map((logo, i) => (
-            <div key={`${logo.id}-${i}`} className="brands-marquee__item">
-              <img src={logo.imagen} alt={logo.nombre} loading="lazy"
-                className="brands-marquee__img" />
-              <span className="brands-marquee__name">{logo.nombre}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+   Ahora hay una sola franja de marcas, FranjaMarcas, que los lee del
+   servidor y vive en la portada. Dos tiras de logos en la misma
+   página no aportaban nada. */
 
 /* ── CategoriasSection ───────────────────────────────────────── */
 export function CategoriasSection() {
@@ -494,7 +451,6 @@ export function CategoriasSection() {
         ))}
       </div>
 
-      <BrandsMarquee />
     </section>
   );
 }

@@ -6,6 +6,7 @@ import { destacadosAPI, noticiasAPI, carruselAPI, lanzamientosAPI } from '../ser
 import Header            from '../components/Header';
 import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
+import FranjaMarcas from '../components/FranjaMarcas';
 import SearchBar from '../components/SearchBar';
 import { IconClose, IconCheck, IconArrowRight } from '../components/Icons';
 
@@ -255,18 +256,13 @@ export default function Home() {
 
       <div className="section-divider"><span className="section-divider__gem"/></div>
 
-      {/* ── Marcas ── */}
-      <section className="brands-section">
-        <div className="section__header">
-          <div className="section__eyebrow">Productos 100% originales</div>
-          <h2 className="section__title" style={{fontSize:'28px'}}>Marcas</h2>
-        </div>
-        <nav className="brands-list">
-          {['Chanel','Dior','Tom Ford','Creed','Xerjoff','Lattafa','Orientica','Azzaro','Armaf','Frech avenue'].map(m => (
-            <span key={m} className="brand-item">{m}</span>
-          ))}
-        </nav>
-      </section>
+      {/* ── Marcas ──
+          La lista estaba escrita a mano aquí dentro, así que mostraba
+          casas que podían no estar en el catálogo y se quedaba atrás
+          cada vez que entraba una nueva. Además decía "Frech avenue".
+          Ahora salen las marcas de la base, con su logo si lo tienen,
+          y cada una lleva a su catálogo. */}
+      <FranjaMarcas />
 
       <div className="section-divider"><span className="section-divider__gem"/></div>
 
