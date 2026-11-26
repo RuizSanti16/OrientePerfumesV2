@@ -156,6 +156,11 @@ export default function Home() {
     imgSize:  s.imgSize  || 'cover',
     imgPosX:  s.imgPosX  ?? 50,
     imgPosY:  s.imgPosY  ?? 50,
+    /* El mapeo copia campo a campo, así que un campo nuevo que no se
+       nombre aquí se pierde por el camino aunque el servidor lo
+       mande. Vacío o nulo deja el color del CSS. */
+    color_titulo:    s.color_titulo    || null,
+    color_subtitulo: s.color_subtitulo || null,
   })) : SLIDES;
 
   function goTo(idx) {
@@ -203,8 +208,17 @@ export default function Home() {
                     El salto de linea se conserva pasando la secuencia
                     literal \n a un salto real y dejando que lo respete
                     el CSS con white-space: pre-line. */}
-                <h1 className="hero__title">{(s.titulo || '').replace(/\\n/g, '\n')}</h1>
-                <p className="hero__subtitle">{s.subtitulo}</p>
+                {/* El color sale de los ajustes del slide. Sin color
+                    guardado se deja el del CSS, que es el dorado de
+                    siempre: así los slides que ya existían no cambian. */}
+                <h1 className="hero__title"
+                  style={s.color_titulo ? { color: s.color_titulo } : undefined}>
+                  {(s.titulo || '').replace(/\\n/g, '\n')}
+                </h1>
+                <p className="hero__subtitle"
+                  style={s.color_subtitulo ? { color: s.color_subtitulo } : undefined}>
+                  {s.subtitulo}
+                </p>
                 <div className="hero__cta">
                   <a href="#categorias" className="btn-primary">{s.btn1}</a>
                   <a href="#productos"  className="btn-secondary">{s.btn2}</a>
@@ -213,8 +227,10 @@ export default function Home() {
             </div>
           );
         })}
-        <button className="hero__arrow hero__arrow--prev" onClick={() => { goTo(slideActual-1); startAuto(); }} aria-label="Slide anterior">&#8249;</button>
-        <button className="hero__arrow hero__arrow--next" onClick={() => { goTo(slideActual+1); startAuto(); }} aria-label="Siguiente slide">&#8250;</button>
+        {/* Las flechas de los lados se retiran: se comían las esquinas
+            de la imagen y competían con el título. El carrusel pasa
+            solo, y los puntos de abajo siguen permitiendo ir a un
+            slide concreto. */}
         <div className="hero__dots" role="tablist">
           {slides.map((_, i) => (
             <button key={i} className={`hero__dot${i===slideActual?' active':''}`} role="tab" aria-selected={i===slideActual} onClick={() => { goTo(i); startAuto(); }} aria-label={`Ir al slide ${i+1}`}/>

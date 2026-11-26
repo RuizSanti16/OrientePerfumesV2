@@ -80,6 +80,10 @@ export default function Carrusel() {
         label: s.label, titulo: s.titulo, subtitulo: s.subtitulo,
         btn1: s.btn1, btn2: s.btn2,
         imagen: s.imagen?.startsWith('data:') ? '' : (s.imagen || ''),
+        /* Vacío significa "el color de siempre", y así lo entiende el
+           servidor, que lo guarda como NULL. */
+        color_titulo:    s.color_titulo    || '',
+        color_subtitulo: s.color_subtitulo || '',
       }));
       const r = await carruselAPI.guardar(aGuardar);
       if (r.ok) mostrarMsg(true, 'Carrusel guardado. Ya es visible para los visitantes.');
@@ -175,7 +179,37 @@ export default function Carrusel() {
                     <span style={{ fontFamily: 'Cinzel, serif', fontSize: 9, color: '#C9A84C', letterSpacing: '0.1em' }}>SUBIENDO...</span>
                   </div>
                 ) : s.imagen ? (
-                  <img src={s.imagen} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <>
+                    <img src={s.imagen} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {/* El texto encima de la foto, con sus colores y el
+                        mismo velo oscuro que la portada. Elegir un color
+                        sin ver cómo cae sobre la imagen es ir a ciegas:
+                        aquí se nota al momento si se lee o no. */}
+                    <div aria-hidden="true" style={{
+                      position: 'absolute', inset: 0,
+                      background: 'linear-gradient(90deg, rgba(10,10,8,0.82) 0%, rgba(10,10,8,0.45) 60%, rgba(10,10,8,0.2) 100%)',
+                      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                      padding: '14px 14px 14px 16px', gap: 5, pointerEvents: 'none',
+                    }}>
+                      <div style={{ fontFamily: 'Cinzel, serif', fontSize: 7, letterSpacing: '0.22em', color: '#C9A84C', textTransform: 'uppercase' }}>
+                        {s.label || 'Etiqueta'}
+                      </div>
+                      <div style={{
+                        fontFamily: 'Cormorant Garamond, serif', fontSize: 22, lineHeight: 1.05,
+                        whiteSpace: 'pre-line', color: s.color_titulo || '#C9A84C',
+                        textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+                      }}>
+                        {(s.titulo || 'Título').replace(/\\n/g, '\n')}
+                      </div>
+                      <div style={{
+                        fontFamily: 'Cormorant Garamond, serif', fontSize: 11, fontStyle: 'italic',
+                        color: s.color_subtitulo || '#E8DCC8',
+                        textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+                      }}>
+                        {s.subtitulo || 'Subtítulo'}
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 12, textAlign: 'center' }}>
                     <IconUpload />
@@ -226,6 +260,43 @@ export default function Carrusel() {
                   <input style={inp} value={s[key] || ''} onChange={e => update(s.id, key, e.target.value)} placeholder={placeholder} />
                 </div>
               ))}
+
+              {/* Color del texto.
+
+                  El título iba siempre en dorado y el subtítulo en
+                  crema: sobre una foto clara no se leían, y no había
+                  manera de cambiarlo sin tocar el código. Va por
+                  slide porque cada uno lleva su propia imagen. */}
+              <div style={{ borderTop: '1px solid rgba(201,168,76,0.12)', paddingTop: 14, marginTop: 2 }}>
+                <span style={{ ...fieldLabel, color: '#C9A84C' }}>COLOR DEL TEXTO</span>
+                <p style={{ fontSize: 11, color: '#6B6355', margin: '0 0 10px', lineHeight: 1.5 }}>
+                  Si lo dejas sin tocar se usa el color de siempre. Elige otro
+                  cuando la foto de fondo no deje leer bien el texto.
+                </p>
+                {[
+                  ['color_titulo',    'Título',    '#C9A84C'],
+                  ['color_subtitulo', 'Subtítulo', '#E8DCC8'],
+                ].map(([key, etiqueta, porDefecto]) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <input
+                      type="color"
+                      value={s[key] || porDefecto}
+                      onChange={e => update(s.id, key, e.target.value)}
+                      aria-label={`Color del ${etiqueta.toLowerCase()} del slide`}
+                      style={{ width: 38, height: 30, background: 'none', border: '1px solid rgba(201,168,76,0.25)', borderRadius: 5, padding: 2, cursor: 'pointer', flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: '#9A9180', flex: 1 }}>
+                      {etiqueta}
+                      {!s[key] && <span style={{ color: '#5a5448', marginLeft: 6 }}>· por defecto</span>}
+                    </span>
+                    {s[key] && (
+                      <button onClick={() => update(s.id, key, '')}
+                        style={{ background: 'none', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 4, padding: '3px 9px', color: '#9A9180', cursor: 'pointer', fontSize: 10, fontFamily: 'Cinzel, serif' }}>
+                        QUITAR
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>

@@ -28,11 +28,27 @@ if ($method !== 'GET') {
     verificarTokenAdmin($pdo);
 }
 
+/**
+ * Deja pasar solo un color hexadecimal. Cualquier otra cosa se guarda
+ * como NULL, que para el frontend significa "el de siempre".
+ *
+ * Este valor acaba en el atributo de estilo de la portada. Aceptar
+ * texto libre seria dejar que lo que se escribe en el panel se cuele
+ * en el CSS de la pagina publica, y los tres caracteres de mas que
+ * cuesta comprobarlo no se discuten.
+ */
+function colorValido($color) {
+    $color = trim((string) $color);
+    if ($color === '') return null;
+    return preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $color) ? $color : null;
+}
+
 try {
     switch ($method) {
 
         case 'GET':
-            $s = $pdo->query("SELECT id, orden, label, titulo, subtitulo, btn1, btn2, imagen
+            $s = $pdo->query("SELECT id, orden, label, titulo, subtitulo, btn1, btn2, imagen,
+                                     color_titulo, color_subtitulo
                               FROM tbl_carrusel ORDER BY orden ASC, id ASC");
             echo json_encode(['ok' => true, 'data' => $s->fetchAll()]);
             break;
@@ -52,8 +68,10 @@ try {
             $pdo->exec("DELETE FROM tbl_carrusel");
 
             $ins = $pdo->prepare(
-                "INSERT INTO tbl_carrusel (orden, label, titulo, subtitulo, btn1, btn2, imagen)
-                 VALUES (:orden, :label, :titulo, :subtitulo, :btn1, :btn2, :imagen)"
+                "INSERT INTO tbl_carrusel (orden, label, titulo, subtitulo, btn1, btn2, imagen,
+                                           color_titulo, color_subtitulo)
+                 VALUES (:orden, :label, :titulo, :subtitulo, :btn1, :btn2, :imagen,
+                         :color_titulo, :color_subtitulo)"
             );
             $n = 0;
             foreach ($slides as $i => $s) {
@@ -68,6 +86,8 @@ try {
                        el archivo y aqui solo entra su URL. */
                     ':imagen'    => (isset($s['imagen']) && strpos($s['imagen'], 'data:') !== 0)
                                         ? $s['imagen'] : '',
+                    ':color_titulo'    => colorValido($s['color_titulo']    ?? null),
+                    ':color_subtitulo' => colorValido($s['color_subtitulo'] ?? null),
                 ]);
                 $n++;
             }
