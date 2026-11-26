@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { marcasAPI } from '../services/api';
 
@@ -12,32 +12,83 @@ import { marcasAPI } from '../services/api';
    bloque entero no se dibuja, que es mejor que una banda vacía. */
 export default function FranjaMarcas() {
   const navigate = useNavigate();
-  const [todas, setTodas] = useState([]);
+  const tiraRef  = useRef(null);
+  const [marcas, setMarcas] = useState([]);
 
   useEffect(() => {
     let vigente = true;
     marcasAPI.listar()
       .then(r => {
         if (!vigente || !r?.ok) return;
-        setTodas(r.data || []);
+        /* Solo las que tienen logo. La franja es una selección del
+           administrador, no el listado del catálogo: poner las 47
+           casas por su nombre llenaba media portada de texto. */
+        setMarcas((r.data || []).filter(m => m.logo));
       })
       .catch(() => {});
     return () => { vigente = false; };
   }, []);
 
-  /* Con logos se muestran los logos. Mientras no haya ninguno se
-     muestran los nombres, que es lo que hacía antes esta sección,
-     solo que tomándolos de la base en vez de una lista escrita a
-     mano en el código que ni siquiera coincidía con el catálogo. */
-  const conLogo = todas.filter(m => m.logo);
-  const marcas  = conLogo.length > 0 ? conLogo : todas;
+  /* La tira se repite y la animación recorre exactamente un juego:
+     al terminar, el siguiente está donde empezó el anterior y el
+     bucle no da ningún salto.
 
+     Cuántas copias hacen falta no se puede saber de antemano: depende
+     del ancho de los logos y del de la pantalla. Con dos logos
+     pequeños, un par de copias dejan medio ancho vacío cruzando la
+     franja. Así que se mide un juego ya dibujado y se repite hasta
+     cubrir el doble de la pantalla. */
+  const [copias, setCopias] = useState(2);
+
+  useEffect(() => {
+    const tira = tiraRef.current;
+    if (!tira || marcas.length === 0) return;
+
+    /* Sin animación no hay nada que rellenar: la tira se queda
+       quieta, las copias están ocultas y medirlas daría cero. */
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    function recalcular() {
+      const hijos = tira.children;
+      /* El ancho de un juego se mide entre el primer logo y el primero
+         del juego siguiente.
+
+         Dividir el ancho total entre las copias parecía más directo,
+         pero no da un número estable: los espacios entre logos no se
+         reparten igual al cambiar el número de copias, así que cada
+         medida pedía un número distinto, que cambiaba el ancho, que
+         pedía otra medida. La página se quedaba colgada recalculando. */
+      if (hijos.length <= marcas.length) return;
+      const anchoJuego = hijos[marcas.length].offsetLeft - hijos[0].offsetLeft;
+      if (anchoJuego <= 0) return;
+
+      /* Tope de 40 juegos: con un logo diminuto y una pantalla muy
+         ancha, el cálculo podría pedir cientos de copias. */
+      const necesarias = Math.min(40, Math.max(2, Math.ceil((window.innerWidth * 2) / anchoJuego)));
+      setCopias(c => (c === necesarias ? c : necesarias));
+    }
+
+    recalcular();
+    /* Los logos llegan después que el HTML y cambian el ancho, y la
+       ventana puede redimensionarse. */
+    const observador = new ResizeObserver(recalcular);
+    observador.observe(tira);
+    window.addEventListener('resize', recalcular);
+    return () => { observador.disconnect(); window.removeEventListener('resize', recalcular); };
+    /* Sin `copias` en las dependencias: el efecto no necesita
+       reinstalarse cuando cambia, y tenerlo ahí era parte del bucle. */
+  }, [marcas]);
+
+  const tira = Array.from({ length: copias }, () => marcas).flat();
+
+  /* Velocidad constante, unos 4 segundos por logo, en vez de una
+     duración fija que haría volar 20 logos y arrastrarse a 3. */
+  const duracion = `${Math.max(marcas.length * 4, 16)}s`;
+
+  /* Sin logos no hay franja: mejor eso que una banda vacía. Va
+     después de los hooks, que React exige que se llamen siempre en
+     el mismo orden y no pueden quedar detrás de un return. */
   if (marcas.length === 0) return null;
-
-  /* La tira se repite dos veces y la animación recorre justo la
-     mitad: al terminar, el segundo juego está donde empezó el
-     primero y el salto no se nota. */
-  const tira = [...marcas, ...marcas];
 
   return (
     <section className="franja-marcas" aria-label="Casas de perfumería">
@@ -69,12 +120,13 @@ export default function FranjaMarcas() {
           align-items: center;
           gap: 56px;
           width: max-content;
-          animation: franja-marcas-scroll 40s linear infinite;
+          animation: franja-marcas-scroll var(--duracion) linear infinite;
         }
         .franja-marcas:hover .franja-marcas__tira { animation-play-state: paused; }
+        /* Recorre un juego completo: -100% dividido entre las copias. */
         @keyframes franja-marcas-scroll {
           from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
+          to   { transform: translateX(calc(-100% / var(--copias))); }
         }
         .franja-marcas__item {
           background: none; border: none; padding: 0; cursor: pointer;
@@ -88,20 +140,18 @@ export default function FranjaMarcas() {
           transition: opacity 0.3s;
         }
         .franja-marcas__item:hover img { opacity: 1; }
-        .franja-marcas__nombre {
-          font-family: 'Cinzel', serif;
-          font-size: 13px;
-          letter-spacing: 0.14em;
-          color: #9A9180;
-          white-space: nowrap;
-          transition: color 0.3s;
-        }
-        .franja-marcas__item:hover .franja-marcas__nombre { color: #C9A84C; }
 
         /* Quien pide menos movimiento no debería ver una tira
-           desplazándose sin parar. */
+           desplazándose sin parar: se queda quieta y en varias filas.
+           Las copias se esconden, que si no saldría cada logo
+           repetido tantas veces como copias tenga la tira. */
         @media (prefers-reduced-motion: reduce) {
-          .franja-marcas__tira { animation: none; flex-wrap: wrap; justify-content: center; width: auto; }
+          .franja-marcas__tira {
+            animation: none; flex-wrap: wrap;
+            justify-content: center; width: auto;
+            gap: 40px 56px;
+          }
+          .franja-marcas__item[aria-hidden="true"] { display: none; }
           .franja-marcas__viewport { -webkit-mask-image: none; mask-image: none; }
         }
         @media (max-width: 700px) {
@@ -114,7 +164,8 @@ export default function FranjaMarcas() {
       <div className="franja-marcas__titulo">NUESTRAS CASAS</div>
 
       <div className="franja-marcas__viewport">
-        <div className="franja-marcas__tira">
+        <div className="franja-marcas__tira" ref={tiraRef}
+          style={{ '--copias': copias, '--duracion': duracion }}>
           {tira.map((m, i) => (
             <button
               key={`${m.id_marca}-${i}`}
@@ -126,9 +177,7 @@ export default function FranjaMarcas() {
               tabIndex={i >= marcas.length ? -1 : 0}
               title={m.nombre}
               aria-label={`Ver fragancias de ${m.nombre}`}>
-              {m.logo
-                ? <img src={m.logo} alt={m.nombre} loading="lazy" />
-                : <span className="franja-marcas__nombre">{m.nombre}</span>}
+              <img src={m.logo} alt={m.nombre} loading="lazy" />
             </button>
           ))}
         </div>
