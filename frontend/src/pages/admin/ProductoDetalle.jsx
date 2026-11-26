@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productoDetalleAPI, productosAPI, subirImagen } from '../../services/api';
 import { MensajeEstado, IconClose, IconCheck, IconArrowLeft, IconArrowRight, IconStar, IconStarFilled } from '../../components/Icons';
+import { FAMILIAS_NOTAS, TODAS_LAS_NOTAS, buscarNotas } from '../../datosNotas';
 
 const IconBottle = ({ size = 24 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -90,10 +91,22 @@ export default function ProductoDetalle() {
     setSubiendo(false);
   }
 
-  function agregarNota(tipo) {
-    const val = nuevaNota[tipo].trim();
+  /* Añade una nota concreta, venga del campo de texto o de la lista.
+
+     No se repite dentro del mismo nivel de la pirámide: tener dos
+     veces "Bergamota" en las notas de salida no significa nada y
+     ensucia la ficha. */
+  function agregarNotaDirecta(tipo, nota) {
+    const val = String(nota || '').trim();
     if (!val) return;
-    setNotas(prev => ({ ...prev, [tipo]: [...prev[tipo], val] }));
+
+    setNotas(prev => {
+      const existe = prev[tipo].some(
+        n => n.toLowerCase() === val.toLowerCase()
+      );
+      if (existe) return prev;
+      return { ...prev, [tipo]: [...prev[tipo], val] };
+    });
     setNuevaNota(prev => ({ ...prev, [tipo]: '' }));
   }
 
@@ -107,6 +120,22 @@ export default function ProductoDetalle() {
 
   function updateDupe(idx, key, val) {
     setDupes(prev => prev.map((d,i) => i===idx ? {...d,[key]:val} : d));
+  }
+
+  /* Vincular a un producto del catálogo rellena lo que falte.
+
+     Antes solo se guardaba el id: el nombre seguía vacío si no se
+     escribía a mano, y el servidor descartaba la línea en silencio.
+     Se elegía el perfume, se guardaba, y el dupe no aparecía. */
+  function vincularDupe(idx, idProducto) {
+    const prod = todosProductos.find(p => String(p.id_producto) === String(idProducto));
+    setDupes(prev => prev.map((d, i) => i !== idx ? d : {
+      ...d,
+      id_referencia: idProducto,
+      nombre: d.nombre?.trim() || prod?.nombre || '',
+      marca:  d.marca?.trim()  || prod?.marca  || '',
+      imagen: d.imagen?.trim() || prod?.imagen || '',
+    }));
   }
 
   async function handleDupeImg(idx, file) {
@@ -211,17 +240,23 @@ export default function ProductoDetalle() {
                   </span>
                 ))}
               </div>
-              {/* Input nueva nota */}
-              <div style={{ display:'flex', gap:6 }}>
-                <input style={{ ...inp, flex:1, fontSize:12 }} placeholder="Ej: Bergamota"
-                  value={nuevaNota[tipo]} onChange={e => setNuevaNota(p=>({...p,[tipo]:e.target.value}))}
-                  onKeyDown={e => e.key==='Enter' && (e.preventDefault(), agregarNota(tipo))} />
-                <button onClick={() => agregarNota(tipo)}
-                  style={{ background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'6px 10px', color:'#C9A84C', cursor:'pointer', fontSize:14 }}>+</button>
-              </div>
+              {/* Input nueva nota, con sugerencias del catálogo */}
+              <CampoNota
+                valor={nuevaNota[tipo]}
+                onCambiar={v => setNuevaNota(p => ({ ...p, [tipo]: v }))}
+                onAgregar={nota => agregarNotaDirecta(tipo, nota)}
+                yaPuestas={notas[tipo]}
+                inp={inp}
+              />
             </div>
           ))}
         </div>
+
+        {/* Elegir de la lista completa, por familias */}
+        <PaletaNotas
+          onAgregar={(tipo, nota) => agregarNotaDirecta(tipo, nota)}
+          notas={notas}
+        />
       </Card>
 
       {/* ── Dupes ── */}
@@ -286,21 +321,14 @@ export default function ProductoDetalle() {
                       </button>
                     </div>
                   ) : (
-                    /* Estado sin vincular: dropdown de selección */
-                    <select
-                      value=""
-                      onChange={e => { if (e.target.value) updateDupe(i, 'id_referencia', e.target.value); }}
-                      style={{ ...inp, fontSize:12 }}>
-                      <option value="">— Seleccionar producto del catálogo...</option>
-                      {todosProductos
-                        .filter(p => String(p.id_producto) !== String(id))
-                        .map(p => (
-                          <option key={p.id_producto} value={p.id_producto}>
-                            {p.nombre}{p.marca ? ` · ${p.marca}` : ''}
-                          </option>
-                        ))
-                      }
-                    </select>
+                    /* Buscador. Antes era un desplegable con el catálogo
+                       entero: con más de trescientas referencias,
+                       encontrar un perfume ahí es ir bajando a ciegas. */
+                    <BuscadorProducto
+                      productos={todosProductos.filter(p => String(p.id_producto) !== String(id))}
+                      onElegir={idProd => vincularDupe(i, idProd)}
+                      inp={inp}
+                    />
                   )}
                 </div>
               </div>
@@ -341,6 +369,198 @@ export default function ProductoDetalle() {
           ))
         }
       </Card>
+    </div>
+  );
+}
+
+/* Campo para escribir una nota, con sugerencias del catálogo.
+
+   Antes era un campo de texto a secas. El mismo ingrediente acababa
+   escrito de varias formas según el día —"Bergamota", "bergamota",
+   "Bergamotta"— y así no hay manera de agrupar ni de buscar por
+   notas más adelante. */
+function CampoNota({ valor, onCambiar, onAgregar, yaPuestas, inp }) {
+  const [conFoco, setConFoco] = useState(false);
+
+  const sugerencias = buscarNotas(valor, 6)
+    .filter(n => !yaPuestas.some(p => p.toLowerCase() === n.toLowerCase()));
+
+  /* Una nota que no está en el catálogo se puede añadir igual: hay
+     casas de nicho con ingredientes que no salen en ninguna lista. */
+  const texto      = valor.trim();
+  const esConocida = TODAS_LAS_NOTAS.some(n => n.toLowerCase() === texto.toLowerCase());
+
+  return (
+    <div style={{ position:'relative' }}>
+      <div style={{ display:'flex', gap:6 }}>
+        <input style={{ ...inp, flex:1, fontSize:12 }} placeholder="Escribe o elige abajo"
+          value={valor}
+          onFocus={() => setConFoco(true)}
+          onBlur={() => setTimeout(() => setConFoco(false), 150)}
+          onChange={e => onCambiar(e.target.value)}
+          onKeyDown={e => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            /* Enter toma la primera sugerencia si la hay: es lo que
+               espera quien escribe "berga" y ve "Bergamota" debajo. */
+            onAgregar(sugerencias[0] && !esConocida ? sugerencias[0] : valor);
+          }} />
+        <button onClick={() => onAgregar(valor)}
+          style={{ background:'transparent', border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'6px 10px', color:'#C9A84C', cursor:'pointer', fontSize:14 }}>+</button>
+      </div>
+
+      {conFoco && sugerencias.length > 0 && (
+        <div style={{
+          position:'absolute', top:'100%', left:0, right:0, zIndex:30, marginTop:4,
+          background:'#16160f', border:'1px solid rgba(201,168,76,0.3)',
+          borderRadius:6, overflow:'hidden', boxShadow:'0 10px 30px rgba(0,0,0,0.6)',
+        }}>
+          {sugerencias.map(n => (
+            <button key={n} onMouseDown={() => onAgregar(n)}
+              style={{ width:'100%', background:'none', border:'none', padding:'7px 10px', textAlign:'left', color:'#E8DCC8', fontSize:12, cursor:'pointer' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.12)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+              {n}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {texto !== '' && !esConocida && sugerencias.length === 0 && (
+        <div style={{ fontSize:10, color:'#6B6355', marginTop:4 }}>
+          No está en la lista; se añadirá tal cual
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Todas las notas, por familias, para elegir con el ratón.
+
+   Cada nota lleva tres botones, uno por nivel de la pirámide: lo
+   normal es saber que un perfume lleva bergamota y dudar de si va en
+   salida o en corazón, no al revés. */
+function PaletaNotas({ onAgregar, notas }) {
+  const [abierta, setAbierta] = useState(null);
+
+  function nivelesDe(nota) {
+    return ['salida', 'corazon', 'fondo'].filter(
+      t => notas[t].some(n => n.toLowerCase() === nota.toLowerCase())
+    );
+  }
+
+  return (
+    <div style={{ marginTop:22, borderTop:'1px solid rgba(201,168,76,0.12)', paddingTop:16 }}>
+      <div style={{ fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.15em', color:'#C9A84C', marginBottom:4 }}>
+        NOTAS FRECUENTES
+      </div>
+      <p style={{ fontSize:11, color:'#6B6355', margin:'0 0 12px' }}>
+        Abre una familia y pulsa S, C o F para ponerla en salida, corazón o fondo.
+      </p>
+
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {FAMILIAS_NOTAS.map(f => (
+          <button key={f.familia}
+            onClick={() => setAbierta(a => a === f.familia ? null : f.familia)}
+            style={{
+              background: abierta === f.familia ? `${f.color}22` : 'transparent',
+              border: `1px solid ${abierta === f.familia ? f.color : 'rgba(201,168,76,0.18)'}`,
+              borderRadius:20, padding:'5px 13px', cursor:'pointer',
+              color: abierta === f.familia ? f.color : '#9A9180', fontSize:11,
+            }}>
+            {f.familia}
+          </button>
+        ))}
+      </div>
+
+      {abierta && (
+        <div style={{ marginTop:12, display:'flex', flexWrap:'wrap', gap:7 }}>
+          {FAMILIAS_NOTAS.find(f => f.familia === abierta).notas.map(nota => {
+            const puesta = nivelesDe(nota);
+            return (
+              <div key={nota} style={{
+                display:'flex', alignItems:'center', gap:6,
+                background:'#0f0f0d', border:'1px solid rgba(201,168,76,0.12)',
+                borderRadius:18, padding:'3px 5px 3px 11px',
+              }}>
+                <span style={{ fontSize:12, color: puesta.length ? '#C9A84C' : '#C8C0B0' }}>{nota}</span>
+                <span style={{ display:'flex', gap:2 }}>
+                  {[['salida','S'], ['corazon','C'], ['fondo','F']].map(([tipo, letra]) => {
+                    const activa = puesta.includes(tipo);
+                    return (
+                      <button key={tipo}
+                        onClick={() => onAgregar(tipo, nota)}
+                        disabled={activa}
+                        title={activa ? `Ya está en ${tipo}` : `Añadir a ${tipo}`}
+                        style={{
+                          width:19, height:19, borderRadius:'50%',
+                          background: activa ? 'rgba(154,171,128,0.22)' : 'transparent',
+                          border: `1px solid ${activa ? 'rgba(154,171,128,0.5)' : 'rgba(201,168,76,0.3)'}`,
+                          color: activa ? '#9AAB80' : '#C9A84C',
+                          cursor: activa ? 'default' : 'pointer',
+                          fontSize:9, fontFamily:'Cinzel,serif', padding:0,
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                        }}>
+                        {letra}
+                      </button>
+                    );
+                  })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Buscador de productos del catálogo.
+
+   Reemplaza al desplegable que listaba las más de trescientas
+   referencias de golpe. Muestra como mucho ocho coincidencias: una
+   lista larga dentro de una tarjeta vuelve al mismo problema. */
+function BuscadorProducto({ productos, onElegir, inp }) {
+  const [texto, setTexto] = useState('');
+
+  const q = texto.trim().toLowerCase();
+  const encontrados = q.length < 2 ? [] : productos.filter(p =>
+    (p.nombre || '').toLowerCase().includes(q) ||
+    (p.marca  || '').toLowerCase().includes(q)
+  ).slice(0, 8);
+
+  return (
+    <div>
+      <input
+        style={{ ...inp, fontSize:12 }}
+        value={texto}
+        onChange={e => setTexto(e.target.value)}
+        placeholder="Escribe el nombre o la marca del perfume..." />
+
+      {q.length >= 2 && (
+        encontrados.length === 0 ? (
+          <div style={{ fontSize:11, color:'#6B6355', padding:'8px 2px' }}>
+            Ningún producto del catálogo coincide con “{texto}”
+          </div>
+        ) : (
+          <div style={{ marginTop:6, display:'flex', flexDirection:'column', gap:3 }}>
+            {encontrados.map(p => (
+              <button key={p.id_producto}
+                onClick={() => { onElegir(p.id_producto); setTexto(''); }}
+                style={{
+                  background:'rgba(201,168,76,0.05)', border:'1px solid rgba(201,168,76,0.15)',
+                  borderRadius:5, padding:'7px 10px', cursor:'pointer', textAlign:'left',
+                  color:'#E8DCC8', fontSize:12, display:'flex', justifyContent:'space-between', gap:8,
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.13)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(201,168,76,0.05)'}>
+                <span>{p.nombre}</span>
+                {p.marca && <span style={{ color:'#9A9180', fontSize:11, whiteSpace:'nowrap' }}>{p.marca}</span>}
+              </button>
+            ))}
+          </div>
+        )
+      )}
     </div>
   );
 }

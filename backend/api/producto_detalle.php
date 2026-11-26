@@ -154,11 +154,38 @@ try {
             if (isset($b['dupes'])) {
                 $pdo->prepare("DELETE FROM tbl_producto_dupes WHERE id_producto=:id")->execute([':id'=>$id]);
                 $sd = $pdo->prepare("INSERT INTO tbl_producto_dupes (id_producto,nombre,marca,imagen,id_referencia) VALUES (:id,:n,:m,:img,:ref)");
+                /* Para rellenar los datos de un dupe vinculado al catalogo
+                   sin que haya que escribirlos a mano. */
+                $buscar = $pdo->prepare("SELECT nombre, marca, imagen FROM tbl_productos WHERE id_producto = :id LIMIT 1");
+
                 foreach ($b['dupes'] as $dupe) {
-                    if (!empty($dupe['nombre'])) {
-                        $ref = !empty($dupe['id_referencia']) ? intval($dupe['id_referencia']) : null;
-                        $sd->execute([':id'=>$id,':n'=>$dupe['nombre'],':m'=>$dupe['marca']??'',':img'=>$dupe['imagen']??'',':ref'=>$ref]);
+                    $ref    = !empty($dupe['id_referencia']) ? intval($dupe['id_referencia']) : null;
+                    $nombre = trim((string) ($dupe['nombre'] ?? ''));
+                    $marca  = trim((string) ($dupe['marca']  ?? ''));
+                    $imagen = trim((string) ($dupe['imagen'] ?? ''));
+
+                    /* Si esta vinculado, lo que falte se toma del producto
+                       del catalogo.
+
+                       Antes se exigia un nombre escrito a mano y, si no
+                       lo habia, la linea se descartaba en silencio: el
+                       administrador elegia el perfume del desplegable,
+                       guardaba, el servidor contestaba "guardado
+                       correctamente" y el dupe no aparecia por ninguna
+                       parte. */
+                    if ($ref !== null && ($nombre === '' || $marca === '' || $imagen === '')) {
+                        $buscar->execute([':id' => $ref]);
+                        if ($ref_prod = $buscar->fetch()) {
+                            if ($nombre === '') $nombre = (string) $ref_prod['nombre'];
+                            if ($marca  === '') $marca  = (string) $ref_prod['marca'];
+                            if ($imagen === '') $imagen = (string) $ref_prod['imagen'];
+                        }
                     }
+
+                    /* Sin nombre y sin vinculo no hay nada que guardar */
+                    if ($nombre === '') continue;
+
+                    $sd->execute([':id'=>$id,':n'=>$nombre,':m'=>$marca,':img'=>$imagen,':ref'=>$ref]);
                 }
             }
 
