@@ -99,9 +99,15 @@ export default function SearchBar() {
 
   function formatCOP(v) { return '$ ' + Number(v||0).toLocaleString('es-CO'); }
 
+  /* Elegir un perfume lleva a SU ficha.
+
+     Antes llevaba a /coleccion?categoria=..., es decir, a la lista
+     entera de su categoría: buscabas "Vulcan Feu", lo veías con su
+     foto y su precio, lo pulsabas, y acababas en una parrilla de
+     cincuenta frascos entre los que había que buscarlo otra vez. */
   function irAProducto(p) {
     setOpen(false); setQuery('');
-    navigate(`/coleccion?categoria=${encodeURIComponent(p.nombre_categoria || '')}`);
+    navigate(`/producto/${p.id_producto}`);
   }
 
   function irACategoria(c) {

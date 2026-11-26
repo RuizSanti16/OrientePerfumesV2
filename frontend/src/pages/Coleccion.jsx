@@ -63,7 +63,14 @@ export default function Coleccion() {
   const [params]  = useSearchParams();
   const navigate  = useNavigate();
   const categoria = params.get('categoria') || '';
-  const info      = INFO[categoria] || { eyebrow: 'Colección', desc: '' };
+  /* La búsqueda ya mandaba ?marca= al elegir una casa, pero aquí solo
+     se leía ?categoria=: el filtro se ignoraba y salía el catálogo
+     entero, como si la búsqueda no hubiera hecho nada. */
+  const marca     = params.get('marca') || '';
+
+  const info = marca
+    ? { eyebrow: 'Casa de Perfumería', desc: `Todas las fragancias de ${marca}` }
+    : (INFO[categoria] || { eyebrow: 'Colección', desc: '' });
 
   const [productos,    setProductos]    = useState([]);
   const [loading,      setLoading]      = useState(true);
@@ -91,7 +98,15 @@ export default function Coleccion() {
     Promise.all([productosAPI.listar(), categoriasAPI.listar()])
       .then(([resProd, resCat]) => {
         if (resProd.ok) {
-          if (!categoria) {
+          if (marca) {
+            /* Por casa: se compara el nombre de la marca sin
+               distinguir mayúsculas ni espacios de sobra, porque
+               viene de la URL y puede llegar de cualquier forma. */
+            const buscada = marca.trim().toLowerCase();
+            setProductos(resProd.data.filter(
+              p => (p.marca || '').trim().toLowerCase() === buscada
+            ));
+          } else if (!categoria) {
             /* Sin filtro → mostrar todos */
             setProductos(resProd.data);
           } else {
@@ -106,7 +121,7 @@ export default function Coleccion() {
         }
         setLoading(false);
       }).catch(() => setLoading(false));
-  }, [categoria]);
+  }, [categoria, marca]);
 
   /* Sombra de header al scroll */
   useEffect(() => {
@@ -130,8 +145,21 @@ export default function Coleccion() {
       {/* Hero */}
       <div style={{ padding: '80px 24px 48px', textAlign: 'center', background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%)', borderBottom: '1px solid rgba(201,168,76,0.08)' }}>
         <div style={{ fontFamily: 'Cinzel, serif', fontSize: 11, letterSpacing: '0.2em', color: '#C9A84C', marginBottom: 12 }}>{info.eyebrow}</div>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(36px,6vw,64px)', color: '#E8DCC8', margin: '0 0 16px', fontWeight: 400 }}>{categoria}</h1>
+        {/* El título mostraba solo la categoría, así que al filtrar
+            por casa, o al entrar sin filtro, quedaba en blanco. */}
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(36px,6vw,64px)', color: '#E8DCC8', margin: '0 0 16px', fontWeight: 400 }}>
+          {marca || categoria || 'Todas las fragancias'}
+        </h1>
         <p style={{ color: '#9A9180', fontSize: 14, maxWidth: 480, margin: '0 auto' }}>{info.desc}</p>
+
+        {/* Con un filtro puesto hay que poder quitarlo sin tener que
+            borrar la dirección a mano. */}
+        {(marca || categoria) && (
+          <button onClick={() => navigate('/coleccion')}
+            style={{ marginTop: 20, background: 'none', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 20, padding: '7px 16px', color: '#9A9180', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.12em', cursor: 'pointer' }}>
+            VER TODO EL CATÁLOGO
+          </button>
+        )}
       </div>
 
       {/* Área de productos */}
