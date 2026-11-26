@@ -106,6 +106,12 @@ export default function ColeccionesAdmin() {
         <p style={{ color: '#6B6355', fontSize: 12, margin: '6px 0 0' }}>
           Cada cambio se guarda solo, no hace falta pulsar nada al final.
         </p>
+        <p style={{ color: '#6B6355', fontSize: 12, margin: '10px 0 0', lineHeight: 1.6 }}>
+          Mejor <strong style={{ color: '#9A9180' }}>PNG o SVG con fondo transparente</strong>, y el logo
+          en color claro o blanco: la tienda tiene el fondo oscuro. Un JPG trae
+          siempre fondo, normalmente blanco, y se verá como un recuadro.
+          La vista previa de aquí abajo es la misma que verá el cliente.
+        </p>
       </div>
 
       {msg && <MensajeEstado ok={msg.ok} texto={msg.texto} style={{ marginBottom: 16 }} />}
@@ -177,7 +183,12 @@ function TarjetaMarca({ marca, inp, ocupada, onArchivo, onUrl, onQuitar }) {
         ) : marca.logo && !imgError ? (
           <img src={marca.logo} alt={marca.nombre}
             onError={() => setImgError(true)}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'brightness(0) invert(1)', opacity: 0.85 }} />
+            /* Sin filtros: la vista previa tiene que enseñar lo que se
+               va a ver en la tienda, sobre este mismo fondo oscuro.
+               Antes pintaba de blanco toda la imagen, así que un logo
+               con fondo blanco se veía aquí como un cuadrado blanco y
+               no había forma de saber si estaba bien subido. */
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
         ) : (
           <div style={{ textAlign: 'center', color: imgError ? '#C4664C' : '#5a5448' }}>
             <span style={{ opacity: 0.8 }}><IconUpload /></span>

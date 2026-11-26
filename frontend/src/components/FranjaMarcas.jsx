@@ -133,10 +133,18 @@ export default function FranjaMarcas() {
           flex-shrink: 0; display: flex; align-items: center; justify-content: center;
           height: 46px;
         }
+        /* El logo se muestra tal como se sube.
+
+           Aquí había un filter: brightness(0) invert(1), que pinta de
+           blanco todos los píxeles de la imagen, no solo el dibujo.
+           Con un PNG de fondo transparente quedaba el logo en blanco,
+           que era la idea; con un JPG, o con un PNG de fondo blanco,
+           quedaba un rectángulo blanco y el logo desaparecía. Como el
+           que sube la imagen no tiene por qué saber eso, ahora manda
+           la imagen y no el filtro. */
         .franja-marcas__item img {
           max-height: 46px; max-width: 130px; object-fit: contain;
-          filter: brightness(0) invert(1);
-          opacity: 0.45;
+          opacity: 0.8;
           transition: opacity 0.3s;
         }
         .franja-marcas__item:hover img { opacity: 1; }
