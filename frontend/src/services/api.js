@@ -136,6 +136,15 @@ export const productosAPI = {
   eliminar:   (id)   => apiFetch(`productos.php?id=${id}`, 'DELETE'),
 };
 
+/* La lista de notas que el panel sugiere al rellenar la pirámide
+   olfativa. Vivía en el código, así que añadir una exigía publicar
+   una versión nueva. */
+export const notasCatalogoAPI = {
+  listar:   ()     => apiFetch('notas_catalogo.php'),
+  crear:    (data) => apiFetch('notas_catalogo.php', 'POST', data),
+  eliminar: (id)   => apiFetch(`notas_catalogo.php?id=${id}`, 'DELETE'),
+};
+
 export const categoriasAPI = {
   listar:     ()     => apiFetch('categorias.php'),
   crear:      (data) => apiFetch('categorias.php', 'POST', data),

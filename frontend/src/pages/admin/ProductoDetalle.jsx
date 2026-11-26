@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { productoDetalleAPI, productosAPI, subirImagen } from '../../services/api';
+import { productoDetalleAPI, productosAPI, notasCatalogoAPI, subirImagen } from '../../services/api';
 import { MensajeEstado, IconClose, IconCheck, IconArrowLeft, IconArrowRight, IconStar, IconStarFilled } from '../../components/Icons';
-import { FAMILIAS_NOTAS, TODAS_LAS_NOTAS, buscarNotas } from '../../datosNotas';
+/* El catálogo de notas ya no se importa del código: lo sirve
+   notas_catalogo.php, para poder ampliarlo y recortarlo desde aquí
+   sin publicar una versión nueva del sitio. */
 
 const IconBottle = ({ size = 24 }) => (
   <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.1" width={size} height={size * 1.33} aria-hidden="true" style={{ opacity: 0.2 }}>
@@ -25,6 +27,10 @@ export default function ProductoDetalle() {
   const [subiendo,     setSubiendo]     = useState(false);
   const [subiendoDupe, setSubiendoDupe] = useState({});
   const [todosProductos, setTodosProductos] = useState([]);
+  /* El catálogo de notas que se sugieren. Viene del servidor para que
+     se pueda ampliar sin publicar una versión nueva. */
+  const [familiasNotas, setFamiliasNotas] = useState([]);
+  const catalogoPlano = familiasNotas.flatMap(f => f.notas.map(n => n.nombre));
 
   /* Form state */
   const [descripcion, setDescripcion] = useState('');
@@ -55,7 +61,51 @@ export default function ProductoDetalle() {
     productosAPI.listar().then(res => {
       if (res.ok) setTodosProductos(res.data);
     });
+    cargarNotasCatalogo();
   }, [id]);
+
+  function cargarNotasCatalogo() {
+    return notasCatalogoAPI.listar()
+      .then(r => { if (r.ok) setFamiliasNotas(r.data || []); })
+      .catch(() => {});
+  }
+
+  /* Crear y quitar notas del catálogo de sugerencias. Devuelven si
+     salió bien, para que el campo se vacíe solo al acertar. */
+  async function crearNotaCatalogo(nombre, familia) {
+    const r = await notasCatalogoAPI.crear({ nombre, familia });
+    if (!r?.ok) {
+      setMsg({ ok: false, texto: r?.mensaje || 'No se pudo crear la nota' });
+      setTimeout(() => setMsg(null), 4000);
+      return false;
+    }
+    await cargarNotasCatalogo();
+    setMsg({ ok: true, texto: `“${nombre}” añadida a ${familia}` });
+    setTimeout(() => setMsg(null), 3000);
+    return true;
+  }
+
+  async function eliminarNotaCatalogo(nota) {
+    if (!confirm(
+      `¿Quitar “${nota.nombre}” de la lista de sugerencias?\n\n` +
+      `Los perfumes que ya la tengan la conservan: solo deja de ofrecerse al escribir.`
+    )) return;
+
+    const r = await notasCatalogoAPI.eliminar(nota.id);
+    if (!r?.ok) {
+      setMsg({ ok: false, texto: r?.mensaje || 'No se pudo quitar' });
+      setTimeout(() => setMsg(null), 4000);
+      return;
+    }
+    await cargarNotasCatalogo();
+    setMsg({
+      ok: true,
+      texto: r.usos > 0
+        ? `“${nota.nombre}” fuera de la lista. Sigue en ${r.usos} perfume${r.usos === 1 ? '' : 's'}.`
+        : `“${nota.nombre}” fuera de la lista`,
+    });
+    setTimeout(() => setMsg(null), 4000);
+  }
 
   async function guardar() {
     setGuardando(true);
@@ -246,6 +296,7 @@ export default function ProductoDetalle() {
                 onCambiar={v => setNuevaNota(p => ({ ...p, [tipo]: v }))}
                 onAgregar={nota => agregarNotaDirecta(tipo, nota)}
                 yaPuestas={notas[tipo]}
+                catalogo={catalogoPlano}
                 inp={inp}
               />
             </div>
@@ -256,6 +307,9 @@ export default function ProductoDetalle() {
         <PaletaNotas
           onAgregar={(tipo, nota) => agregarNotaDirecta(tipo, nota)}
           notas={notas}
+          familias={familiasNotas}
+          onCrear={crearNotaCatalogo}
+          onEliminar={eliminarNotaCatalogo}
         />
       </Card>
 
@@ -373,22 +427,29 @@ export default function ProductoDetalle() {
   );
 }
 
+function sinTildes(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
 /* Campo para escribir una nota, con sugerencias del catálogo.
 
    Antes era un campo de texto a secas. El mismo ingrediente acababa
    escrito de varias formas según el día —"Bergamota", "bergamota",
    "Bergamotta"— y así no hay manera de agrupar ni de buscar por
    notas más adelante. */
-function CampoNota({ valor, onCambiar, onAgregar, yaPuestas, inp }) {
+function CampoNota({ valor, onCambiar, onAgregar, yaPuestas, catalogo, inp }) {
   const [conFoco, setConFoco] = useState(false);
 
-  const sugerencias = buscarNotas(valor, 6)
-    .filter(n => !yaPuestas.some(p => p.toLowerCase() === n.toLowerCase()));
+  const q = sinTildes(valor.trim().toLowerCase());
+  const sugerencias = !q ? [] : catalogo
+    .filter(n => sinTildes(n.toLowerCase()).includes(q))
+    .filter(n => !yaPuestas.some(p => p.toLowerCase() === n.toLowerCase()))
+    .slice(0, 6);
 
   /* Una nota que no está en el catálogo se puede añadir igual: hay
      casas de nicho con ingredientes que no salen en ninguna lista. */
   const texto      = valor.trim();
-  const esConocida = TODAS_LAS_NOTAS.some(n => n.toLowerCase() === texto.toLowerCase());
+  const esConocida = catalogo.some(n => n.toLowerCase() === texto.toLowerCase());
 
   return (
     <div style={{ position:'relative' }}>
@@ -439,14 +500,29 @@ function CampoNota({ valor, onCambiar, onAgregar, yaPuestas, inp }) {
 
    Cada nota lleva tres botones, uno por nivel de la pirámide: lo
    normal es saber que un perfume lleva bergamota y dudar de si va en
-   salida o en corazón, no al revés. */
-function PaletaNotas({ onAgregar, notas }) {
-  const [abierta, setAbierta] = useState(null);
+   salida o en corazón, no al revés.
+
+   La lista se puede ampliar y recortar desde aquí mismo: es mientras
+   se rellena una ficha cuando se descubre que falta un ingrediente,
+   no en otra pantalla a la que habría que ir y volver. */
+function PaletaNotas({ onAgregar, notas, familias, onCrear, onEliminar }) {
+  const [abierta,   setAbierta]   = useState(null);
+  const [nueva,     setNueva]     = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   function nivelesDe(nota) {
     return ['salida', 'corazon', 'fondo'].filter(
       t => notas[t].some(n => n.toLowerCase() === nota.toLowerCase())
     );
+  }
+
+  async function crear() {
+    const nombre = nueva.trim();
+    if (!nombre || !abierta) return;
+    setGuardando(true);
+    const ok = await onCrear(nombre, abierta);
+    setGuardando(false);
+    if (ok) setNueva('');
   }
 
   return (
@@ -459,9 +535,9 @@ function PaletaNotas({ onAgregar, notas }) {
       </p>
 
       <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
-        {FAMILIAS_NOTAS.map(f => (
+        {familias.map(f => (
           <button key={f.familia}
-            onClick={() => setAbierta(a => a === f.familia ? null : f.familia)}
+            onClick={() => { setAbierta(a => a === f.familia ? null : f.familia); setNueva(''); }}
             style={{
               background: abierta === f.familia ? `${f.color}22` : 'transparent',
               border: `1px solid ${abierta === f.familia ? f.color : 'rgba(201,168,76,0.18)'}`,
@@ -469,27 +545,29 @@ function PaletaNotas({ onAgregar, notas }) {
               color: abierta === f.familia ? f.color : '#9A9180', fontSize:11,
             }}>
             {f.familia}
+            <span style={{ marginLeft:6, opacity:0.6, fontSize:10 }}>{f.notas.length}</span>
           </button>
         ))}
       </div>
 
       {abierta && (
+        <>
         <div style={{ marginTop:12, display:'flex', flexWrap:'wrap', gap:7 }}>
-          {FAMILIAS_NOTAS.find(f => f.familia === abierta).notas.map(nota => {
-            const puesta = nivelesDe(nota);
+          {(familias.find(f => f.familia === abierta)?.notas || []).map(nota => {
+            const puesta = nivelesDe(nota.nombre);
             return (
-              <div key={nota} style={{
+              <div key={nota.id} style={{
                 display:'flex', alignItems:'center', gap:6,
                 background:'#0f0f0d', border:'1px solid rgba(201,168,76,0.12)',
                 borderRadius:18, padding:'3px 5px 3px 11px',
               }}>
-                <span style={{ fontSize:12, color: puesta.length ? '#C9A84C' : '#C8C0B0' }}>{nota}</span>
+                <span style={{ fontSize:12, color: puesta.length ? '#C9A84C' : '#C8C0B0' }}>{nota.nombre}</span>
                 <span style={{ display:'flex', gap:2 }}>
                   {[['salida','S'], ['corazon','C'], ['fondo','F']].map(([tipo, letra]) => {
                     const activa = puesta.includes(tipo);
                     return (
                       <button key={tipo}
-                        onClick={() => onAgregar(tipo, nota)}
+                        onClick={() => onAgregar(tipo, nota.nombre)}
                         disabled={activa}
                         title={activa ? `Ya está en ${tipo}` : `Añadir a ${tipo}`}
                         style={{
@@ -505,11 +583,50 @@ function PaletaNotas({ onAgregar, notas }) {
                       </button>
                     );
                   })}
+                  {/* Quitar del catálogo de sugerencias */}
+                  <button onClick={() => onEliminar(nota)}
+                    title="Quitar de la lista de sugerencias"
+                    style={{
+                      width:19, height:19, borderRadius:'50%', background:'transparent',
+                      border:'1px solid rgba(196,102,76,0.25)', color:'#C4664C',
+                      cursor:'pointer', padding:0, marginLeft:2,
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                    }}>
+                    <IconClose size={9} />
+                  </button>
                 </span>
               </div>
             );
           })}
         </div>
+
+        {/* Añadir una nota nueva a esta familia */}
+        <div style={{ marginTop:12, display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
+          <input
+            value={nueva}
+            onChange={e => setNueva(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); crear(); } }}
+            placeholder={`Nueva nota en ${abierta}...`}
+            style={{
+              flex:'1 1 200px', background:'#151513', border:'1px solid rgba(201,168,76,0.18)',
+              borderRadius:6, padding:'7px 11px', color:'#E8DCC8', fontSize:12, outline:'none',
+            }} />
+          <button onClick={crear} disabled={!nueva.trim() || guardando}
+            style={{
+              background: nueva.trim() ? 'rgba(201,168,76,0.12)' : 'transparent',
+              border:'1px solid rgba(201,168,76,0.3)', borderRadius:6, padding:'7px 15px',
+              color:'#C9A84C', cursor: nueva.trim() ? 'pointer' : 'not-allowed',
+              fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.08em',
+              opacity: nueva.trim() ? 1 : 0.5, whiteSpace:'nowrap',
+            }}>
+            {guardando ? 'GUARDANDO...' : '+ CREAR NOTA'}
+          </button>
+        </div>
+        <p style={{ fontSize:10, color:'#5a5448', margin:'8px 0 0', lineHeight:1.5 }}>
+          Las notas que crees quedan disponibles para todos los perfumes. Quitar
+          una de la lista no la borra de los perfumes que ya la tienen.
+        </p>
+        </>
       )}
     </div>
   );
