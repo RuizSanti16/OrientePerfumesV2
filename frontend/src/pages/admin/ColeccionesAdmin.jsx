@@ -108,9 +108,10 @@ export default function ColeccionesAdmin() {
         </p>
         <p style={{ color: '#6B6355', fontSize: 12, margin: '10px 0 0', lineHeight: 1.6 }}>
           Mejor <strong style={{ color: '#9A9180' }}>PNG o SVG con fondo transparente</strong>, y el logo
-          en color claro o blanco: la tienda tiene el fondo oscuro. Un JPG trae
-          siempre fondo, normalmente blanco, y se verá como un recuadro.
-          La vista previa de aquí abajo es la misma que verá el cliente.
+          en <strong style={{ color: '#9A9180' }}>negro u oscuro</strong>: la franja de la tienda tiene
+          fondo claro. Un JPG también vale si su fondo es blanco. La vista previa
+          de cada tarjeta usa ese mismo fondo, así que lo que veas ahí es lo que
+          verá el cliente.
         </p>
       </div>
 
@@ -173,8 +174,14 @@ function TarjetaMarca({ marca, inp, ocupada, onArchivo, onUrl, onQuitar }) {
     <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 8, overflow: 'hidden', opacity: ocupada ? 0.6 : 1, transition: 'opacity 0.2s' }}>
 
       {/* Vista previa, o zona para soltar el archivo */}
+      {/* El mismo fondo claro que la franja de la tienda: la vista
+          previa no sirve de nada si enseña el logo sobre un fondo
+          distinto del que va a tener. */}
       <label style={{
-        background: '#0f0f0d', height: 100, display: 'flex', alignItems: 'center',
+        background: marca.logo && !imgError
+          ? 'linear-gradient(180deg, #EFE9DD 0%, #F7F3EA 45%, #EFE9DD 100%)'
+          : '#0f0f0d',
+        height: 100, display: 'flex', alignItems: 'center',
         justifyContent: 'center', padding: 14, cursor: ocupada ? 'wait' : 'pointer',
         borderBottom: '1px solid rgba(201,168,76,0.08)', position: 'relative',
       }}>

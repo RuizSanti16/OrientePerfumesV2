@@ -93,11 +93,18 @@ export default function FranjaMarcas() {
   return (
     <section className="franja-marcas" aria-label="Casas de perfumería">
       <style>{`
+        /* Banda clara a propósito.
+
+           Los logos de las casas se consiguen casi siempre en negro,
+           y sobre el fondo oscuro de la tienda no se veían: quedaban
+           dos manchas apenas distinguibles. Darles un fondo claro es
+           lo que hacen las tiendas que muestran marcas ajenas, y
+           además separa esta franja del resto de la página. */
         .franja-marcas {
           padding: 44px 0;
-          border-top: 1px solid rgba(201,168,76,0.08);
-          border-bottom: 1px solid rgba(201,168,76,0.08);
-          background: linear-gradient(180deg, transparent, rgba(201,168,76,0.02), transparent);
+          border-top: 1px solid rgba(201,168,76,0.25);
+          border-bottom: 1px solid rgba(201,168,76,0.25);
+          background: linear-gradient(180deg, #EFE9DD 0%, #F7F3EA 45%, #EFE9DD 100%);
           overflow: hidden;
         }
         .franja-marcas__titulo {
@@ -105,7 +112,8 @@ export default function FranjaMarcas() {
           font-family: 'Cinzel', serif;
           font-size: 10px;
           letter-spacing: 0.25em;
-          color: #9A9180;
+          /* Sobre el fondo claro el texto tiene que ser oscuro */
+          color: #8A7B4C;
           margin-bottom: 28px;
         }
         .franja-marcas__viewport {
@@ -144,10 +152,14 @@ export default function FranjaMarcas() {
            la imagen y no el filtro. */
         .franja-marcas__item img {
           max-height: 46px; max-width: 130px; object-fit: contain;
-          opacity: 0.8;
-          transition: opacity 0.3s;
+          /* Sobre claro, bajar la opacidad lava el logo en vez de
+             atenuarlo con elegancia, así que el reposo se marca con
+             un gris suave y el ratón devuelve el color de la marca. */
+          filter: grayscale(1);
+          opacity: 0.72;
+          transition: opacity 0.3s, filter 0.3s;
         }
-        .franja-marcas__item:hover img { opacity: 1; }
+        .franja-marcas__item:hover img { opacity: 1; filter: grayscale(0); }
 
         /* Quien pide menos movimiento no debería ver una tira
            desplazándose sin parar: se queda quieta y en varias filas.
