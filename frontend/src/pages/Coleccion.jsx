@@ -59,6 +59,13 @@ const INFO = {
 
 function formatCOP(v) { return '$ ' + Number(v || 0).toLocaleString('es-CO'); }
 
+/* Para comparar notas escritas de cualquier forma: "Pachulí",
+   "pachuli" y "PACHULI" son la misma. */
+function sinTildes(s) {
+  return String(s || '').trim().normalize('NFD')
+    .replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
 export default function Coleccion() {
   const [params]  = useSearchParams();
   const navigate  = useNavigate();
@@ -67,10 +74,15 @@ export default function Coleccion() {
      se leía ?categoria=: el filtro se ignoraba y salía el catálogo
      entero, como si la búsqueda no hubiera hecho nada. */
   const marca     = params.get('marca') || '';
+  /* Buscar por ingrediente: quien busca "vainilla" quiere todos los
+     perfumes que la lleven, estén en la categoría que estén. */
+  const nota      = params.get('nota') || '';
 
-  const info = marca
-    ? { eyebrow: 'Casa de Perfumería', desc: `Todas las fragancias de ${marca}` }
-    : (INFO[categoria] || { eyebrow: 'Colección', desc: '' });
+  const info = nota
+    ? { eyebrow: 'Nota Olfativa', desc: `Fragancias con ${nota}` }
+    : marca
+      ? { eyebrow: 'Casa de Perfumería', desc: `Todas las fragancias de ${marca}` }
+      : (INFO[categoria] || { eyebrow: 'Colección', desc: '' });
 
   const [productos,    setProductos]    = useState([]);
   const [loading,      setLoading]      = useState(true);
@@ -95,10 +107,17 @@ export default function Coleccion() {
 
   /* Carga de productos */
   useEffect(() => {
-    Promise.all([productosAPI.listar(), categoriasAPI.listar()])
+    Promise.all([productosAPI.listarConNotas(), categoriasAPI.listar()])
       .then(([resProd, resCat]) => {
         if (resProd.ok) {
-          if (marca) {
+          if (nota) {
+            /* Sin tildes y sin distinguir mayúsculas: la nota llega
+               de la URL y puede venir escrita de cualquier forma. */
+            const buscada = sinTildes(nota);
+            setProductos(resProd.data.filter(
+              p => (p.notas || []).some(n => sinTildes(n) === buscada)
+            ));
+          } else if (marca) {
             /* Por casa: se compara el nombre de la marca sin
                distinguir mayúsculas ni espacios de sobra, porque
                viene de la URL y puede llegar de cualquier forma. */
@@ -121,7 +140,7 @@ export default function Coleccion() {
         }
         setLoading(false);
       }).catch(() => setLoading(false));
-  }, [categoria, marca]);
+  }, [categoria, marca, nota]);
 
   /* Sombra de header al scroll */
   useEffect(() => {
@@ -148,13 +167,13 @@ export default function Coleccion() {
         {/* El título mostraba solo la categoría, así que al filtrar
             por casa, o al entrar sin filtro, quedaba en blanco. */}
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(36px,6vw,64px)', color: '#E8DCC8', margin: '0 0 16px', fontWeight: 400 }}>
-          {marca || categoria || 'Todas las fragancias'}
+          {nota || marca || categoria || 'Todas las fragancias'}
         </h1>
         <p style={{ color: '#9A9180', fontSize: 14, maxWidth: 480, margin: '0 auto' }}>{info.desc}</p>
 
         {/* Con un filtro puesto hay que poder quitarlo sin tener que
             borrar la dirección a mano. */}
-        {(marca || categoria) && (
+        {(nota || marca || categoria) && (
           <button onClick={() => navigate('/coleccion')}
             style={{ marginTop: 20, background: 'none', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 20, padding: '7px 16px', color: '#9A9180', fontSize: 11, fontFamily: 'Cinzel, serif', letterSpacing: '0.12em', cursor: 'pointer' }}>
             VER TODO EL CATÁLOGO

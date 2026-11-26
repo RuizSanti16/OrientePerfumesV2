@@ -41,10 +41,14 @@ export default function SearchBar() {
   const wrapRef    = useRef(null);
   const listaRef   = useRef(null);
 
-  /* Cargar todos los datos una sola vez */
+  /* Cargar todos los datos una sola vez.
+
+     Con las notas de cada perfume: buscar "vainilla" tiene que
+     encontrar los perfumes que la llevan, no solo los que la tengan
+     en el nombre. */
   useEffect(() => {
     Promise.all([
-      productosAPI.listar(),
+      productosAPI.listarConNotas(),
       categoriasAPI.listar(),
       marcasAPI.listar(),
     ]).then(([p, c, m]) => {
@@ -75,7 +79,10 @@ export default function SearchBar() {
       const productos  = todos.productos.filter(p =>
         (p.nombre||'').toLowerCase().includes(q) ||
         (p.marca||'').toLowerCase().includes(q) ||
-        (p.descripcion||'').toLowerCase().includes(q)
+        (p.descripcion||'').toLowerCase().includes(q) ||
+        /* Por nota: quien escribe "vainilla" busca los perfumes que
+           la llevan, no los que la tengan en el nombre. */
+        (p.notas||[]).some(n => (n||'').toLowerCase().includes(q))
       ).slice(0, 5);
 
       const categorias = todos.categorias.filter(c =>
