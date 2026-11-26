@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCarrito }    from '../hooks/useCarrito';
 import { useWishlist }   from '../hooks/useWishlist';
-import { destacadosAPI, noticiasAPI, carruselAPI, lanzamientosAPI } from '../services/api';
+import { destacadosAPI, testimoniosAPI, carruselAPI, lanzamientosAPI } from '../services/api';
 import Header            from '../components/Header';
 import Footer           from '../components/Footer';
 import { CategoriasSection } from '../components/CategoryCard';
@@ -77,11 +77,12 @@ export default function Home() {
     setTestimonioEnviando(true);
     setTestimonioError('');
     try {
-      const res = await noticiasAPI.enviar({
-        nombre:     session.nombre || session.username || 'Cliente',
-        texto:      testimonioTexto.trim(),
-        id_cliente: session.id,
-        estrellas:  testimonioEstrellas,
+      /* El nombre y la cuenta ya no se mandan: los pone el servidor a
+         partir de la sesión. Enviarlos desde aquí dejaba firmar con
+         el nombre de cualquiera. */
+      const res = await testimoniosAPI.enviar({
+        texto:     testimonioTexto.trim(),
+        estrellas: testimonioEstrellas,
       });
       if (res.ok) {
         setTestimonioExito(true);
@@ -109,8 +110,10 @@ export default function Home() {
       .then(r => { if (r.ok && r.data) setLanzamientos(r.data); })
       .catch(() => {});
 
-    /* Testimonios aprobados */
-    noticiasAPI.listarAprobados().then(res => {
+    /* Testimonios aprobados. Endpoint propio: antes se pedian a
+       noticias.php y salia en la portada cualquier comentario
+       aprobado de una noticia. */
+    testimoniosAPI.listar().then(res => {
       if (res.ok && res.data) setTestimonios(res.data.slice(0, 6));
     }).catch(() => {});
 
@@ -281,6 +284,15 @@ export default function Home() {
       <div className="section-divider"><span className="section-divider__gem"/></div>
 
       {/* ── Noticias Preview ── */}
+      {/* Sin publicaciones no hay sección.
+
+          Antes, con el panel vacío, se dibujaban cuatro tarjetas de
+          relleno que decían "Nuevo Lanzamiento · Próximamente" y no
+          llevaban a ninguna parte: al visitante le parecían productos
+          que existen, y daban la impresión de una tienda a medio
+          montar. */}
+      {lanzamientos.length > 0 && (
+      <>
       <section className="home-noticias" id="noticias-preview">
         <div className="section__header">
           <div className="section__eyebrow">Actualidad</div>
@@ -288,22 +300,7 @@ export default function Home() {
           <p className="section__subtitle">Nuevos lanzamientos y últimas novedades de OrientPerfumes</p>
         </div>
         <div className="home-noticias__grid" id="home-lanzamientos-grid" role="list">
-          {lanzamientos.length === 0
-            ? [0,1,2,3].map(i => (
-              <article key={i} className="home-launch-card" role="listitem">
-                <div className="home-launch-card__img-placeholder" aria-hidden="true">
-                    <svg viewBox="0 0 24 32" fill="none" stroke="#C9A84C" strokeWidth="1.2" width="40" height="54" style={{ opacity:0.25 }}>
-                      <rect x="5" y="11" width="14" height="20" rx="3"/><rect x="8" y="5" width="8" height="6" rx="1.5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/><circle cx="12" cy="21" r="2" strokeWidth="0.9"/>
-                    </svg>
-                  </div>
-                <div className="home-launch-card__info">
-                  <div className="home-launch-card__badge">Próximamente</div>
-                  <div className="home-launch-card__name">Nuevo Lanzamiento</div>
-                  <p className="home-launch-card__desc">Disponible próximamente en OrientPerfumes</p>
-                </div>
-              </article>
-            ))
-            : lanzamientos.slice(0,4).map((item,i) => (
+          {lanzamientos.slice(0,4).map((item,i) => (
               <article key={i} className="home-launch-card" role="listitem" tabIndex="0" onClick={() => navigate('/noticias')} style={{cursor:'pointer'}}>
                 {item.imagen
                   ? <img className="home-launch-card__img" src={item.imagen} alt={item.nombre} loading="lazy"/>
@@ -325,6 +322,8 @@ export default function Home() {
           <a href="/noticias" className="btn-secondary home-noticias__btn">Ver todas las noticias <IconArrowRight size={13}/></a>
         </div>
       </section>
+      </>
+      )}
 
       {/* ── Testimonios ── */}
       <section style={{ background:'#0d0d0b', borderTop:'1px solid rgba(201,168,76,0.07)', padding:'72px 24px' }}>
@@ -335,13 +334,17 @@ export default function Home() {
             <p className="section__subtitle">Experiencias reales de quienes ya confían en OrientPerfumes</p>
           </div>
 
-          {/* Tarjetas */}
+          {/* Tarjetas. Solo las de verdad.
+
+              Aquí había tres testimonios inventados —Ana M., Carlos
+              R. y Sofía L.— que se mostraban cuando no había
+              ninguno real. Como relleno de maqueta pasa; en una
+              tienda abierta son opiniones falsas atribuidas a
+              clientes que no existen. Si no hay testimonios
+              aprobados no se muestra ninguno. */}
+          {testimonios.length > 0 && (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:20, marginTop:40 }}>
-            {(testimonios.length > 0 ? testimonios : [
-              { nombre:'Ana M.',    texto:'Una fragancia que me transportó a otro mundo. La calidad es simplemente excepcional.', estrellas:5 },
-              { nombre:'Carlos R.', texto:'El mejor lugar para encontrar perfumes orientales únicos. Servicio impecable y entrega rápida.', estrellas:5 },
-              { nombre:'Sofía L.',  texto:'Encontré el perfume de mis sueños y el precio fue mucho mejor de lo esperado.', estrellas:5 },
-            ]).map((t, i) => (
+            {testimonios.map((t, i) => (
               <div key={i} style={{ background:'#111', border:'1px solid rgba(201,168,76,0.1)', borderRadius:12, padding:'24px 22px', display:'flex', flexDirection:'column', gap:14 }}>
                 {/* Estrellas */}
                 <div style={{ display:'flex', gap:4 }}>
@@ -365,6 +368,7 @@ export default function Home() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Formulario / CTA */}
           <div style={{ marginTop:48, maxWidth:600, margin:'48px auto 0' }}>

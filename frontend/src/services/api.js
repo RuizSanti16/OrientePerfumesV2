@@ -201,6 +201,20 @@ export const destacadosAPI = {
   guardar: (items) => apiFetch('destacados.php', 'POST', { ids: items }),
 };
 
+/* Opiniones de clientes sobre la tienda.
+
+   Tienen endpoint propio porque no son lo mismo que los comentarios
+   de una noticia: antes compartian tabla y moderacion, y cualquier
+   comentario aprobado en una noticia salia en la portada como
+   testimonio. */
+export const testimoniosAPI = {
+  listar:       ()     => apiFetch('testimonios.php'),
+  listarAdmin:  ()     => apiFetch('testimonios.php?admin=1'),
+  enviar:       (data) => apiFetch('testimonios.php', 'POST', data, 'cliente'),
+  moderar:      (data) => apiFetch('testimonios.php', 'PUT',  data),
+  eliminar:     (id)   => apiFetch(`testimonios.php?id=${id}`, 'DELETE'),
+};
+
 export const noticiasAPI = {
   listarAprobados: ()     => apiFetch('noticias.php'),
   listarAdmin:     ()     => apiFetch('noticias.php?admin=1'),

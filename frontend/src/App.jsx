@@ -24,6 +24,7 @@ import Inventory       from './pages/admin/Inventory';
 import Destacados      from './pages/admin/Destacados';
 import Carrusel        from './pages/admin/Carrusel';
 import NoticiasAdmin   from './pages/admin/NoticiasAdmin';
+import Testimonios     from './pages/admin/Testimonios';
 import Ajustes         from './pages/admin/Ajustes';
 import ColeccionesAdmin from './pages/admin/ColeccionesAdmin';
 import Producto        from './pages/Producto';
@@ -138,6 +139,7 @@ export default function App() {
           <Route path="destacados"      element={<Destacados />} />
           <Route path="carrusel"        element={<Carrusel />} />
           <Route path="noticias"        element={<NoticiasAdmin />} />
+          <Route path="testimonios"     element={<Testimonios />} />
           <Route path="ajustes"         element={<Ajustes />} />
           <Route path="colecciones"     element={<ColeccionesAdmin />} />
           <Route path="cupones"         element={<Cupones />} />
