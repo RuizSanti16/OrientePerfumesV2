@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useCarrito } from '../hooks/useCarrito';
 import { pedidosAPI, cuponesAPI, haySesionCliente } from '../services/api';
 import { CIUDADES_CON_EFECTIVO, OTRA_CIUDAD } from '../datosCobertura';
+import { useSettings } from '../hooks/useSettings';
 
 /* ── helpers ────────────────────────────────────────────── */
 function fmt(n) {
@@ -117,6 +118,7 @@ function PantallaBienvenida({ codigo, nombre, navigate }) {
 export default function Checkout() {
   const navigate = useNavigate();
   const { carrito, vaciar, total: totalCarrito } = useCarrito();
+  const ajustes = useSettings();
 
   const [form, setForm] = useState({
     nombre: '', correo: '', telefono: '',
@@ -160,7 +162,23 @@ export default function Checkout() {
   }, [carrito, codigoOk, saliendoAPagar, navigate]);
 
   const descuento  = cuponData?.descuento || 0;
-  const totalFinal = Math.max(0, totalCarrito - descuento);
+  const productos  = Math.max(0, totalCarrito - descuento);
+
+  /* El envío se calcula igual que en el servidor, que es quien manda:
+     esto solo sirve para que el cliente vea lo que va a pagar antes
+     de confirmar, no para decidir el importe. Las tarifas vienen de
+     los Ajustes del panel. */
+  const minimoGratis = Number(ajustes.freeShippingMin) || 0;
+  const envioGratis  = minimoGratis > 0 && productos >= minimoGratis;
+
+  /* Sin ciudad todavía no se sabe cuánto cuesta, así que no se suma:
+     mostrar un total que cambia al elegir la ciudad, sin avisar de
+     por qué, es peor que mostrarlo incompleto y decirlo. */
+  const envio = (!form.ciudad || envioGratis)
+    ? 0
+    : Number(CIUDADES_CON_EFECTIVO.includes(form.ciudad) ? ajustes.envioLocal : ajustes.envioNacional) || 0;
+
+  const totalFinal = productos + envio;
 
   function cambiar(e) {
     const { name, value } = e.target;
@@ -476,6 +494,27 @@ export default function Checkout() {
                   <span>Descuento</span><span>-{fmt(descuento)}</span>
                 </div>
               )}
+
+              {/* Envío. Sin ciudad elegida todavía no se puede saber
+                  cuánto cuesta, y decir una cifra que luego cambia es
+                  peor que decir que falta un dato. */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: envioGratis ? '#6BC48C' : '#9A9180', marginBottom: 6 }}>
+                <span>Envío</span>
+                <span>
+                  {!form.ciudad
+                    ? <span style={{ color: '#6B6355' }}>Elige tu ciudad</span>
+                    : envioGratis ? 'Gratis' : fmt(envio)}
+                </span>
+              </div>
+
+              {/* Cuánto falta para que salga gratis: es el empujón más
+                  barato que tiene una tienda. */}
+              {form.ciudad && !envioGratis && minimoGratis > 0 && (
+                <div style={{ fontSize: 11, color: '#C9A84C', background: 'rgba(201,168,76,0.07)', borderRadius: 5, padding: '7px 10px', marginBottom: 8, lineHeight: 1.45 }}>
+                  Te faltan {fmt(minimoGratis - productos)} para el envío gratis
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 700, color: '#C9A84C', marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(201,168,76,0.1)' }}>
                 <span style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em', fontSize: 11 }}>TOTAL</span>
                 <span>{fmt(totalFinal)}</span>

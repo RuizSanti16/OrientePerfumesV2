@@ -19,6 +19,12 @@
    precio, el descuento y el total se calculan aqui.
 ============================================================= */
 
+/* El costo del envio depende de la ciudad, y la lista de municipios
+   de reparto propio vive en cobertura.php, que es tambien quien
+   decide donde se acepta el pago en efectivo: una sola lista, para
+   que no acaben diciendo cosas distintas. */
+require_once __DIR__ . '/cobertura.php';
+
 if (!function_exists('calcularTotalesPedido')) {
 
     /**
@@ -77,7 +83,7 @@ if (!function_exists('calcularTotalesPedido')) {
      * @param  string|null $cupon  codigo de cupon, opcional
      * @return array  [ok, mensaje, items, subtotal, descuento, total, cupon]
      */
-    function calcularTotalesPedido(PDO $pdo, array $items, $cupon = null) {
+    function calcularTotalesPedido(PDO $pdo, array $items, $cupon = null, $ciudad = '') {
         if (!$items) {
             return ['ok' => false, 'mensaje' => 'El pedido no tiene productos.'];
         }
@@ -201,15 +207,25 @@ if (!function_exists('calcularTotalesPedido')) {
            cobra un entero de centavos: se redondea aqui para que el
            importe cobrado y el guardado sean exactamente el mismo. */
         $subtotal = round($subtotal, 0);
-        $total    = max(0, $subtotal - $descuento);
+        $productos = max(0, $subtotal - $descuento);
+
+        /* El envio se suma al final y se cobra siempre, salvo que el
+           pedido llegue al minimo para que salga gratis. Se mira
+           contra lo que de verdad paga el cliente por los productos,
+           es decir ya con el cupon descontado. */
+        list($envio, $motivoEnvio) = calcularEnvio($pdo, $ciudad, $productos);
+
+        $total = $productos + $envio;
 
         return [
-            'ok'        => true,
-            'items'     => $lineas,
-            'subtotal'  => $subtotal,
-            'descuento' => $descuento,
-            'total'     => $total,
-            'cupon'     => $cuponAplicado,
+            'ok'           => true,
+            'items'        => $lineas,
+            'subtotal'     => $subtotal,
+            'descuento'    => $descuento,
+            'envio'        => $envio,
+            'envio_motivo' => $motivoEnvio,
+            'total'        => $total,
+            'cupon'        => $cuponAplicado,
         ];
     }
 }

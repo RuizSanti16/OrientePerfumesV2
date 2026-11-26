@@ -68,7 +68,71 @@ if (!function_exists('ciudadesConEfectivo')) {
      * ¿Se puede pagar en efectivo en esta ciudad?
      */
     function permiteEfectivo($ciudad) {
+        return esZonaLocal($ciudad);
+    }
+
+    /**
+     * ¿La ciudad esta en la zona de reparto propio?
+     *
+     * Es la misma lista que la del efectivo, y por el mismo motivo:
+     * son los municipios a los que se llega en persona. De ahi que el
+     * envio cueste menos.
+     */
+    function esZonaLocal($ciudad) {
         return in_array(normalizarCiudad($ciudad), ciudadesConEfectivo(), true);
+    }
+
+    /* ── Envio ───────────────────────────────────────────────
+
+       Las tarifas se guardan en tbl_ajustes y se cambian desde el
+       panel, no aqui: el precio del envio es cosa del negocio y no
+       deberia hacer falta tocar codigo cada vez que suba.
+
+       Estos valores son solo el respaldo para cuando el ajuste no
+       exista todavia. */
+    defined('ENVIO_LOCAL_POR_DEFECTO')     || define('ENVIO_LOCAL_POR_DEFECTO', 15000);
+    defined('ENVIO_NACIONAL_POR_DEFECTO')  || define('ENVIO_NACIONAL_POR_DEFECTO', 20000);
+    defined('ENVIO_GRATIS_POR_DEFECTO')    || define('ENVIO_GRATIS_POR_DEFECTO', 150000);
+
+    /**
+     * Lee un ajuste numerico de tbl_ajustes.
+     *
+     * Si la tabla no existe todavia, o el valor esta vacio, devuelve
+     * el respaldo: un pedido no puede fallar porque falte un ajuste.
+     */
+    function ajusteNumerico(PDO $pdo, $clave, $porDefecto) {
+        try {
+            $s = $pdo->prepare("SELECT valor FROM tbl_ajustes WHERE clave = :c LIMIT 1");
+            $s->execute([':c' => $clave]);
+            $v = $s->fetchColumn();
+        } catch (PDOException $e) {
+            return (float) $porDefecto;
+        }
+        if ($v === false || trim((string) $v) === '') return (float) $porDefecto;
+        $n = (float) $v;
+        return $n >= 0 ? $n : (float) $porDefecto;
+    }
+
+    /**
+     * Cuanto cuesta el envio de un pedido.
+     *
+     * @param float $base importe de los productos, ya con el descuento
+     *                    del cupon aplicado: es lo que de verdad paga
+     *                    el cliente, y sobre eso se mira si llega al
+     *                    minimo para el envio gratis.
+     * @return array [costo(float), motivo(string)]
+     */
+    function calcularEnvio(PDO $pdo, $ciudad, $base) {
+        $minimoGratis = ajusteNumerico($pdo, 'freeShippingMin', ENVIO_GRATIS_POR_DEFECTO);
+
+        if ($minimoGratis > 0 && $base >= $minimoGratis) {
+            return [0.0, 'gratis'];
+        }
+
+        if (esZonaLocal($ciudad)) {
+            return [round(ajusteNumerico($pdo, 'envioLocal', ENVIO_LOCAL_POR_DEFECTO), 0), 'local'];
+        }
+        return [round(ajusteNumerico($pdo, 'envioNacional', ENVIO_NACIONAL_POR_DEFECTO), 0), 'nacional'];
     }
 
     /**

@@ -153,7 +153,9 @@ try {
                que permitiría pagar 1 peso por un pedido de 500.000 en
                cuanto haya una pasarela cobrando de verdad. Del cliente
                solo se acepta qué producto y cuántas unidades. */
-            $calculo = calcularTotalesPedido($pdo, $b['items'], $b['cupon'] ?? null);
+            /* La ciudad entra en el calculo porque de ella depende el
+               costo del envio. */
+            $calculo = calcularTotalesPedido($pdo, $b['items'], $b['cupon'] ?? null, $b['ciudad'] ?? '');
             if (!$calculo['ok']) {
                 echo json_encode(['ok' => false, 'mensaje' => $calculo['mensaje']]);
                 exit;
@@ -187,10 +189,10 @@ try {
             $ins = $pdo->prepare("
                 INSERT INTO tbl_pedidos
                     (codigo_seguimiento, id_cliente, nombre, correo, telefono, direccion, ciudad,
-                     notas, estado, total, descuento, cupon, metodo_pago)
+                     notas, estado, total, descuento, envio, cupon, metodo_pago)
                 VALUES
                     (:codigo, :cliente, :nombre, :correo, :tel, :dir, :ciudad,
-                     :notas, 'pendiente', :total, :desc, :cupon, :metodo)
+                     :notas, 'pendiente', :total, :desc, :envio, :cupon, :metodo)
             ");
             $ins->execute([
                 ':codigo'  => $codigo,
@@ -203,6 +205,7 @@ try {
                 ':notas'   => trim($b['notas']     ?? ''),
                 ':total'   => $calculo['total'],
                 ':desc'    => $calculo['descuento'],
+                ':envio'   => $calculo['envio'],
                 ':cupon'   => $calculo['cupon'],
                 ':metodo'  => $metodo,
             ]);

@@ -43,6 +43,10 @@ $PERMITIDOS = [
     'instagram'       => '',
     'facebook'        => '',
     'tiktok'          => '',
+    /* Envio. freeShippingMin es el importe de productos a partir del
+       cual sale gratis; con 0 nunca lo es. */
+    'envioLocal'      => 15000,
+    'envioNacional'   => 20000,
     'freeShippingMin' => 150000,
     'stockThreshold'  => 20,
     'currency'        => 'COP',

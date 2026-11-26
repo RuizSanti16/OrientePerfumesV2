@@ -16,6 +16,8 @@ const DEFAULT = {
   instagram:        '',
   facebook:         '',
   tiktok:           '',
+  envioLocal:       15000,
+  envioNacional:    20000,
   freeShippingMin:  150000,
   stockThreshold:   20,
   currency:         'COP',
@@ -244,10 +246,10 @@ export default function Ajustes() {
                 </FieldIcon>
               </div>
               <div>
-                <Label>Mínimo envío gratis (COP)</Label>
-                <FieldIcon icon={IC.shipping} size={13}>
-                  <input style={inpIcon} type="number" value={settings.freeShippingMin}
-                    onChange={e => set('freeShippingMin', parseInt(e.target.value) || 0)} />
+                <Label>Descripción corta</Label>
+                <FieldIcon icon={IC.edit} size={13}>
+                  <input style={inpIcon} value={settings.storeDesc}
+                    onChange={e => set('storeDesc', e.target.value)} />
                 </FieldIcon>
               </div>
             </div>
@@ -349,6 +351,51 @@ export default function Ajustes() {
 
         {/* ── Columna derecha ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Envíos */}
+          <Card icon={IC.shipping} titulo="Envíos">
+            <p style={{ fontSize: 12, color: '#6B6355', margin: '0 0 16px', lineHeight: 1.6 }}>
+              El envío se suma al pedido y se cobra siempre, salvo que el
+              importe de los productos llegue al mínimo de abajo. La zona
+              cercana son Medellín, el resto del Valle de Aburrá, Rionegro
+              y los municipios del Oriente cercano.
+            </p>
+
+            {[
+              ['envioLocal',      'Medellín y cercanías (COP)', 'Valle de Aburrá y Oriente cercano'],
+              ['envioNacional',   'Resto del país (COP)',       'Cualquier otra ciudad'],
+              ['freeShippingMin', 'Envío gratis desde (COP)',   'Con 0 nunca es gratis'],
+            ].map(([key, etiqueta, nota]) => (
+              <div key={key} style={{ marginBottom: 14 }}>
+                <Label>{etiqueta}</Label>
+                <FieldIcon icon={IC.shipping} size={13}>
+                  <input style={inpIcon} type="number" min="0" value={settings[key]}
+                    onChange={e => set(key, Math.max(0, parseInt(e.target.value) || 0))} />
+                </FieldIcon>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>{nota}</div>
+              </div>
+            ))}
+
+            {/* Lo que verá el cliente, con los números puestos arriba:
+                tres cifras sueltas no dicen cómo quedan juntas. */}
+            <div style={{ background: 'rgba(201,168,76,0.05)', border: '1px solid rgba(201,168,76,0.15)', borderRadius: 6, padding: '12px 14px', marginTop: 4 }}>
+              <div style={{ fontFamily: 'Cinzel, serif', fontSize: 9, letterSpacing: '0.15em', color: '#C9A84C', marginBottom: 8 }}>
+                CÓMO QUEDA
+              </div>
+              {[
+                [`Pedido de $100.000 en Medellín`, settings.freeShippingMin > 0 && 100000 >= settings.freeShippingMin ? 0 : settings.envioLocal],
+                [`Pedido de $100.000 en Bogotá`,   settings.freeShippingMin > 0 && 100000 >= settings.freeShippingMin ? 0 : settings.envioNacional],
+                [`Pedido de $${Number(settings.freeShippingMin || 0).toLocaleString('es-CO')} o más`, 0],
+              ].map(([texto, costo], i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, color: '#9A9180', padding: '3px 0' }}>
+                  <span>{texto}</span>
+                  <strong style={{ color: costo === 0 ? '#9AAB80' : '#E8DCC8', whiteSpace: 'nowrap' }}>
+                    {costo === 0 ? 'Envío gratis' : `+ $${Number(costo).toLocaleString('es-CO')}`}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          </Card>
 
           {/* Notificaciones */}
           <Card icon={IC.bell} titulo="Notificaciones">
