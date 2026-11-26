@@ -97,6 +97,14 @@ export const estadoAPI = {
   consultar: () => apiFetch('estado.php'),
 };
 
+/* Ajustes de la tienda: nombre, contacto, redes y envío gratis.
+   Leerlos es público, porque la tienda los necesita para pintar los
+   botones; guardarlos exige sesión de administrador. */
+export const ajustesAPI = {
+  leer:     ()      => apiFetch('ajustes.php'),
+  guardar:  (datos) => apiFetch('ajustes.php', 'PUT', datos),
+};
+
 /* Pasarela de pago (Bold).
 
    iniciar() solo manda el codigo del pedido: el importe y la firma los

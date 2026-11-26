@@ -1,4 +1,4 @@
-import { useSettings, getWhatsappUrl } from '../hooks/useSettings';
+import { useSettings, getWhatsappUrl, getRedUrl } from '../hooks/useSettings';
 
 /* ── Iconos SVG ── */
 const IconWA = () => (
@@ -64,10 +64,10 @@ export default function SocialButtons() {
   const waUrl    = getWhatsappUrl(settings);
 
   const buttons = [
-    { href: waUrl && settings.whatsappVisible ? waUrl : null,                              icon: <IconWA />, color: '#25D366', title: 'WhatsApp'  },
-    { href: settings.instagram ? `https://instagram.com/${settings.instagram}` : null,    icon: <IconIG />, color: '#E1306C', title: 'Instagram' },
-    { href: settings.facebook  ? `https://facebook.com/${settings.facebook}`   : null,    icon: <IconFB />, color: '#1877F2', title: 'Facebook'  },
-    { href: settings.tiktok    ? `https://tiktok.com/@${settings.tiktok}`      : null,    icon: <IconTK />, color: '#ffffff', title: 'TikTok'    },
+    { href: waUrl && settings.whatsappVisible ? waUrl : null, icon: <IconWA />, color: '#25D366', title: 'WhatsApp'  },
+    { href: getRedUrl('instagram', settings.instagram),       icon: <IconIG />, color: '#E1306C', title: 'Instagram' },
+    { href: getRedUrl('facebook',  settings.facebook),        icon: <IconFB />, color: '#1877F2', title: 'Facebook'  },
+    { href: getRedUrl('tiktok',    settings.tiktok),          icon: <IconTK />, color: '#ffffff', title: 'TikTok'    },
   ].filter(b => b.href);
 
   /* Sin redes configuradas → íconos fantasma como guía visual */

@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { authAPI } from '../../services/api';
+import { useState, useEffect } from 'react';
+import { authAPI, ajustesAPI } from '../../services/api';
+import { recargarAjustes } from '../../hooks/useSettings';
 import { MensajeEstado } from '../../components/Icons';
 
 const KEY = 'op_admin_settings';
@@ -57,29 +58,72 @@ function Ic({ d, size = 14, color = '#9A9180', stroke = 1.6 }) {
 }
 
 export default function Ajustes() {
-  const [settings, setSettings] = useState(() => {
-    try {
-      const r = localStorage.getItem(KEY);
-      return r ? { ...DEFAULT, ...JSON.parse(r) } : DEFAULT;
-    } catch { return DEFAULT; }
-  });
+  const [settings, setSettings] = useState(DEFAULT);
   const [msg, setMsg] = useState('');
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+
+  /* Se parte de lo que hay en el servidor, no de lo que quedara en
+     este navegador. Si en este equipo habia ajustes viejos de la
+     epoca de localStorage, se usan solo mientras llega la respuesta
+     y como ultimo recurso si el servidor no contesta. */
+  useEffect(() => {
+    let vigente = true;
+    ajustesAPI.leer()
+      .then(r => {
+        if (!vigente) return;
+        if (r?.ok && r.data) {
+          setSettings({ ...DEFAULT, ...r.data });
+        } else {
+          try {
+            const viejo = localStorage.getItem(KEY);
+            if (viejo) setSettings({ ...DEFAULT, ...JSON.parse(viejo) });
+          } catch { /* se queda con los valores por defecto */ }
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (vigente) setCargando(false); });
+    return () => { vigente = false; };
+  }, []);
 
   function set(key, val) { setSettings(s => ({ ...s, [key]: val })); }
 
-  function guardar() {
-    localStorage.setItem(KEY, JSON.stringify(settings));
+  async function guardar() {
+    setGuardando(true);
+    const r = await ajustesAPI.guardar(settings);
+    setGuardando(false);
+
+    if (!r?.ok) {
+      setMsg('error');
+      setTimeout(() => setMsg(''), 5000);
+      return;
+    }
+
+    /* Lo que devuelve el servidor es la verdad; el panel se queda con
+       eso y no con lo que creia haber mandado. */
+    if (r.data) setSettings({ ...DEFAULT, ...r.data });
+    recargarAjustes(r.data);
+
+    /* Los ajustes viejos de este navegador ya no pintan nada y solo
+       podrian confundir si alguien los mira. */
+    try { localStorage.removeItem(KEY); } catch { /* da igual */ }
+
     setMsg('ok');
     setTimeout(() => setMsg(''), 3000);
   }
 
   function resetData() {
-    if (!confirm('¿Restablecer todos los datos? Esta acción no se puede deshacer.')) return;
+    /* Decía "no se puede deshacer" y en realidad solo vaciaba datos
+       de este navegador. Ahora los ajustes viven en el servidor, así
+       que esto deja el formulario en los valores por defecto y no
+       cambia nada hasta que se pulse Guardar: se dice tal cual, para
+       que nadie crea que ya se aplicó. */
+    if (!confirm('¿Devolver los ajustes a sus valores por defecto?\n\nSe aplicarán cuando pulses GUARDAR CAMBIOS.')) return;
     ['op_carrusel','op_productos_destacados','op_lanzamientos','op_video','op_comentarios','op_admin_settings']
-      .forEach(k => localStorage.removeItem(k));
+      .forEach(k => { try { localStorage.removeItem(k); } catch { /* da igual */ } });
     setSettings(DEFAULT);
     setMsg('reset');
-    setTimeout(() => setMsg(''), 3000);
+    setTimeout(() => setMsg(''), 4000);
   }
 
   const waUrl = settings.whatsappNumber
@@ -144,17 +188,27 @@ export default function Ajustes() {
               background: 'rgba(224,164,88,0.1)', border: '1px solid rgba(224,164,88,0.3)',
               borderRadius: 6, fontSize: 12, color: '#E0A458' }}>
               <Ic d={IC.check} size={13} color="#E0A458" stroke={2.5} />
-              Datos restablecidos
+              Valores por defecto puestos. Pulsa Guardar para aplicarlos.
             </div>
           )}
-          <button onClick={guardar} style={{
+          {msg === 'error' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+              background: 'rgba(196,102,76,0.1)', border: '1px solid rgba(196,102,76,0.35)',
+              borderRadius: 6, fontSize: 12, color: '#C4664C' }}>
+              <Ic d={IC.warn} size={13} color="#C4664C" stroke={2.2} />
+              No se pudieron guardar. Revisa tu conexión.
+            </div>
+          )}
+          <button onClick={guardar} disabled={cargando || guardando} style={{
             background: '#C9A84C', border: 'none', borderRadius: 6,
-            padding: '9px 24px', color: '#0a0a08', cursor: 'pointer',
+            padding: '9px 24px', color: '#0a0a08',
+            cursor: (cargando || guardando) ? 'default' : 'pointer',
+            opacity: (cargando || guardando) ? 0.6 : 1,
             fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.12em',
             fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <Ic d={IC.check} size={13} color="#0a0a08" stroke={2.5} />
-            GUARDAR CAMBIOS
+            {cargando ? 'CARGANDO...' : guardando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
           </button>
         </div>
       </div>
@@ -267,7 +321,7 @@ export default function Ajustes() {
                     onChange={e => set('instagram', e.target.value)}
                     placeholder="orientperfumes" />
                 </FieldIcon>
-                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Sin @</div>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Usuario o enlace del perfil</div>
               </div>
               <div>
                 <Label>Facebook</Label>
@@ -277,7 +331,7 @@ export default function Ajustes() {
                     onChange={e => set('facebook', e.target.value)}
                     placeholder="orientperfumes" />
                 </FieldIcon>
-                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Usuario o página</div>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Usuario o enlace del perfil</div>
               </div>
               <div>
                 <Label>TikTok</Label>
@@ -287,7 +341,7 @@ export default function Ajustes() {
                     onChange={e => set('tiktok', e.target.value)}
                     placeholder="orientperfumes" />
                 </FieldIcon>
-                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Sin @</div>
+                <div style={{ fontSize: 10, color: '#5a5448', marginTop: 4 }}>Usuario o enlace del perfil</div>
               </div>
             </div>
           </Card>
