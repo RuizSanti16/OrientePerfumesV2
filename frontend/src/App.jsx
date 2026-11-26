@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { estadoAPI } from './services/api';
 import Proximamente from './pages/Proximamente';
+import WhatsAppFlotante from './components/WhatsAppFlotante';
 import PoliticaDatos from './pages/PoliticaDatos';
 import Terminos from './pages/Terminos';
 import Pago from './pages/Pago';
@@ -146,6 +147,12 @@ export default function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+
+      {/* Fuera de <Routes> a propósito: así acompaña al visitante por
+          todas las páginas sin tener que acordarse de ponerlo en cada
+          una. Él mismo se esconde en el panel y en el login, y cuando
+          no hay número de WhatsApp configurado en Ajustes. */}
+      <WhatsAppFlotante />
     </BrowserRouter>
   );
 }
