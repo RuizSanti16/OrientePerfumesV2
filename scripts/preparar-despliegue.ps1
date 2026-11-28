@@ -102,6 +102,37 @@ Get-ChildItem (Join-Path $raiz 'backend\configuracion') -File -Force |
     Where-Object { $excluidos -notcontains $_.Name } |
     ForEach-Object { Copy-Item $_.FullName -Destination (Join-Path $destino 'configuracion') -Force }
 
+# ── 2b. Versionar las hojas de estilo sueltas ──────────────
+#
+# Los bundles que genera Vite llevan un hash en el nombre, asi que
+# un cambio en ellos llega al navegador en cuanto se sube. Las hojas
+# de public/ (style.css y companeras) se sirven tal cual, y Hostinger
+# las manda con Cache-Control de un ano: quien ya hubiera visitado la
+# tienda se quedaba con la version vieja indefinidamente. Un arreglo
+# de estilos podia no verse nunca.
+#
+# Se le anade a cada enlace el momento del despliegue, de modo que al
+# cambiar el archivo cambia tambien la direccion y el navegador lo
+# vuelve a pedir. Se hace aqui y no a mano en index.html para no
+# depender de que alguien se acuerde.
+$indexPath = Join-Path $destino 'index.html'
+# -Encoding UTF8 no es opcional: sin el, PowerShell 5.1 lee el archivo
+# con la pagina de codigos del sistema y al volver a escribirlo en
+# UTF-8 duplica los bytes de cada acento. El titulo de la pagina paso
+# a decir "Disenador" con media palabra rota hasta que se corrigio.
+$html = Get-Content $indexPath -Raw -Encoding UTF8
+$version = (Get-Date).ToString('yyyyMMddHHmm')
+$htmlNuevo = [regex]::Replace(
+    $html,
+    'href="/([A-Za-z0-9_-]+\.css)(\?v=\d+)?"',
+    { param($m) 'href="/' + $m.Groups[1].Value + '?v=' + $version + '"' }
+)
+if ($htmlNuevo -ne $html) {
+    [System.IO.File]::WriteAllText($indexPath, $htmlNuevo, (New-Object System.Text.UTF8Encoding $false))
+    $cuantas = ([regex]::Matches($htmlNuevo, '\.css\?v=')).Count
+    Write-Host "  Hojas de estilo versionadas: $cuantas (v=$version)"
+}
+
 # ── 3. Comprobaciones ──────────────────────────────────────
 Write-Host '[3/4] Comprobando...' -ForegroundColor Yellow
 
