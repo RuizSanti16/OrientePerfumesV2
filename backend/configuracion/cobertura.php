@@ -122,7 +122,10 @@ if (!function_exists('ciudadesConEfectivo')) {
      *                    minimo para el envio gratis.
      * @return array [costo(float), motivo(string)]
      */
-    function calcularEnvio(PDO $pdo, $ciudad, $base) {
+    function calcularEnvio(PDO $pdo, $ciudad, $base, $entrega = 'domicilio') {
+        /* Recoger en la tienda no cuesta envio: no hay envio. */
+        if ($entrega === 'tienda') return [0.0, 'recoge'];
+
         $minimoGratis = ajusteNumerico($pdo, 'freeShippingMin', ENVIO_GRATIS_POR_DEFECTO);
 
         if ($minimoGratis > 0 && $base >= $minimoGratis) {
@@ -140,7 +143,7 @@ if (!function_exists('ciudadesConEfectivo')) {
      *
      * Devuelve [true, metodoLimpio] o [false, mensaje para el cliente].
      */
-    function validarMetodoPago($metodo, $ciudad) {
+    function validarMetodoPago($metodo, $ciudad, $entrega = 'domicilio') {
         $metodo = strtolower(trim((string) $metodo));
 
         if ($metodo === 'bold') {
@@ -148,6 +151,11 @@ if (!function_exists('ciudadesConEfectivo')) {
         }
 
         if ($metodo === 'efectivo') {
+            /* Quien recoge en la tienda paga alli en mano, viva donde
+               viva: la restriccion de zona existe porque el reparto a
+               domicilio solo llega hasta cierto punto. */
+            if ($entrega === 'tienda') return [true, 'efectivo'];
+
             if (!permiteEfectivo($ciudad)) {
                 return [false,
                     'El pago en efectivo solo esta disponible en Medellin, ' .

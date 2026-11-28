@@ -83,7 +83,7 @@ if (!function_exists('calcularTotalesPedido')) {
      * @param  string|null $cupon  codigo de cupon, opcional
      * @return array  [ok, mensaje, items, subtotal, descuento, total, cupon]
      */
-    function calcularTotalesPedido(PDO $pdo, array $items, $cupon = null, $ciudad = '') {
+    function calcularTotalesPedido(PDO $pdo, array $items, $cupon = null, $ciudad = '', $entrega = 'domicilio') {
         if (!$items) {
             return ['ok' => false, 'mensaje' => 'El pedido no tiene productos.'];
         }
@@ -213,7 +213,7 @@ if (!function_exists('calcularTotalesPedido')) {
            pedido llegue al minimo para que salga gratis. Se mira
            contra lo que de verdad paga el cliente por los productos,
            es decir ya con el cupon descontado. */
-        list($envio, $motivoEnvio) = calcularEnvio($pdo, $ciudad, $productos);
+        list($envio, $motivoEnvio) = calcularEnvio($pdo, $ciudad, $productos, $entrega);
 
         $total = $productos + $envio;
 

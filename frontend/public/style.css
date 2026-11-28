@@ -2128,3 +2128,17 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .action-btn,
   .menu-btn { width: 36px; height: 36px; }
 }
+
+/* ── Panel de administracion en movil ─────────────────────
+
+   La ficha de producto del panel usa rejillas de ancho fijo. En un
+   telefono de 375px los tres niveles de la piramide olfativa
+   quedaban en columnas de 79px, donde no cabe escribir el nombre de
+   una nota, y los campos de un perfume similar en 130. */
+.adm-notas-grid { grid-template-columns: repeat(3, 1fr); }
+.adm-dupe-grid  { grid-template-columns: 1fr 1fr; }
+
+@media (max-width: 700px) {
+  .adm-notas-grid { grid-template-columns: 1fr; }
+  .adm-dupe-grid  { grid-template-columns: 1fr; }
+}

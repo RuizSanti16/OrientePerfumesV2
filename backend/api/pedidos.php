@@ -33,6 +33,7 @@ require_once '../configuracion/auth.php';
 require_once '../configuracion/precios.php';
 require_once __DIR__ . '/../configuracion/cobertura.php';
 require_once __DIR__ . '/../configuracion/avisos.php';
+require_once __DIR__ . '/../configuracion/inventario.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
@@ -140,7 +141,19 @@ try {
 
             $b = json_decode(file_get_contents('php://input'), true);
 
-            $required = ['nombre', 'correo', 'direccion', 'items'];
+            /* Recoger en la tienda o envio a domicilio. Cualquier otro
+               valor se trata como domicilio, que es lo que no abarata
+               nada por error. Se resuelve antes de validar porque de
+               ello depende que campos son obligatorios. */
+            $entrega = ($b['entrega'] ?? '') === 'tienda' ? 'tienda' : 'domicilio';
+
+            /* La direccion solo hace falta si hay que llevarlo: a
+               quien recoge en la tienda no se le pide, y exigirsela
+               rechazaba el pedido con "Campo requerido: direccion"
+               aunque el formulario ni siquiera mostrara el campo. */
+            $required = $entrega === 'tienda'
+                ? ['nombre', 'correo', 'items']
+                : ['nombre', 'correo', 'direccion', 'items'];
             foreach ($required as $f) {
                 if (empty($b[$f])) {
                     echo json_encode(['ok' => false, 'mensaje' => "Campo requerido: {$f}"]);
@@ -154,8 +167,8 @@ try {
                cuanto haya una pasarela cobrando de verdad. Del cliente
                solo se acepta qué producto y cuántas unidades. */
             /* La ciudad entra en el calculo porque de ella depende el
-               costo del envio. */
-            $calculo = calcularTotalesPedido($pdo, $b['items'], $b['cupon'] ?? null, $b['ciudad'] ?? '');
+               costo del envio, y la entrega porque recoger no lo paga. */
+            $calculo = calcularTotalesPedido($pdo, $b['items'], $b['cupon'] ?? null, $b['ciudad'] ?? '', $entrega);
             if (!$calculo['ok']) {
                 echo json_encode(['ok' => false, 'mensaje' => $calculo['mensaje']]);
                 exit;
@@ -168,7 +181,8 @@ try {
                donde se entrega en persona. */
             list($metodoOk, $metodo) = validarMetodoPago(
                 $b['metodo_pago'] ?? '',
-                $b['ciudad'] ?? ''
+                $b['ciudad'] ?? '',
+                $entrega
             );
             if (!$metodoOk) {
                 echo json_encode(['ok' => false, 'mensaje' => $metodo]);
@@ -189,10 +203,10 @@ try {
             $ins = $pdo->prepare("
                 INSERT INTO tbl_pedidos
                     (codigo_seguimiento, id_cliente, nombre, correo, telefono, direccion, ciudad,
-                     notas, estado, total, descuento, envio, cupon, metodo_pago)
+                     notas, estado, total, descuento, envio, cupon, metodo_pago, entrega)
                 VALUES
                     (:codigo, :cliente, :nombre, :correo, :tel, :dir, :ciudad,
-                     :notas, 'pendiente', :total, :desc, :envio, :cupon, :metodo)
+                     :notas, 'pendiente', :total, :desc, :envio, :cupon, :metodo, :entrega)
             ");
             $ins->execute([
                 ':codigo'  => $codigo,
@@ -206,6 +220,7 @@ try {
                 ':total'   => $calculo['total'],
                 ':desc'    => $calculo['descuento'],
                 ':envio'   => $calculo['envio'],
+                ':entrega' => $entrega,
                 ':cupon'   => $calculo['cupon'],
                 ':metodo'  => $metodo,
             ]);
@@ -229,6 +244,13 @@ try {
                     ':pres'   => $item['presentacion'],
                 ]);
             }
+
+            /* Descontar inventario.
+
+               Va dentro de la transacción: si falla, el pedido no se
+               crea. Lo contrario sería despachar algo que el stock
+               nunca registró como salido. */
+            moverStockDePedido($pdo, $calculo['items'], -1);
 
             $pdo->commit();
 
@@ -293,10 +315,44 @@ try {
                 exit;
             }
 
-            $upd = $pdo->prepare("UPDATE tbl_pedidos SET estado = :e WHERE id = :id");
-            $upd->execute([':e' => $b['estado'], ':id' => $b['id']]);
+            /* Cancelar devuelve el stock, y sacar un pedido de
+               cancelado vuelve a descontarlo.
 
-            echo json_encode(['ok' => true, 'mensaje' => 'Estado actualizado']);
+               El stock se reserva al confirmar el pedido, asi que un
+               pedido cancelado que no lo devolviera dejaria frascos
+               apartados para siempre. Se mira el estado anterior para
+               no devolver dos veces si se pulsa cancelar sobre un
+               pedido ya cancelado. */
+            $anterior = $pdo->prepare("SELECT estado FROM tbl_pedidos WHERE id = :id");
+            $anterior->execute([':id' => $b['id']]);
+            $estadoAnterior = $anterior->fetchColumn();
+
+            $nuevo = $b['estado'];
+            $pasaACancelado  = $nuevo === 'cancelado' && $estadoAnterior !== 'cancelado';
+            $saleDeCancelado = $estadoAnterior === 'cancelado' && $nuevo !== 'cancelado';
+
+            $pdo->beginTransaction();
+            try {
+                $pdo->prepare("UPDATE tbl_pedidos SET estado = :e WHERE id = :id")
+                    ->execute([':e' => $nuevo, ':id' => $b['id']]);
+
+                if ($pasaACancelado || $saleDeCancelado) {
+                    $li = $pdo->prepare("SELECT id_producto, cantidad, presentacion FROM tbl_pedido_items WHERE id_pedido = :id");
+                    $li->execute([':id' => $b['id']]);
+                    moverStockDePedido($pdo, $li->fetchAll(PDO::FETCH_ASSOC), $pasaACancelado ? 1 : -1);
+                }
+                $pdo->commit();
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+
+            echo json_encode([
+                'ok'      => true,
+                'mensaje' => $pasaACancelado
+                    ? 'Pedido cancelado. El stock se devolvio al inventario.'
+                    : 'Estado actualizado',
+            ]);
             break;
 
         /* ── DELETE (admin) ───────────────────────────────── */

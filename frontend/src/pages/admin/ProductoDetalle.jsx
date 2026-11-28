@@ -275,7 +275,11 @@ export default function ProductoDetalle() {
 
       {/* ── Notas olfativas ── */}
       <Card titulo="Pirámide Olfativa (Notas)">
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+        {/* Los tres niveles de la pirámide, cada uno con su campo.
+            En tres columnas fijas, un móvil de 375px los deja en 79px
+            cada uno: ahí no cabe escribir "Flor de Azahar". Se apilan
+            por debajo de 700. */}
+        <div className="adm-notas-grid" style={{ display:'grid', gap:16 }}>
           {['salida','corazon','fondo'].map(tipo => (
             <div key={tipo}>
               <div style={{ fontFamily:'Cinzel,serif', fontSize:10, letterSpacing:'0.15em', color:'#C9A84C', marginBottom:10 }}>
@@ -336,7 +340,7 @@ export default function ProductoDetalle() {
                   <input type="file" accept="image/*" style={{ display:'none' }} onChange={e => handleDupeImg(i, e.target.files[0])} disabled={subiendoDupe[i]} />
                 </label>
               </div>
-              <div style={{ flex:1, display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+              <div className="adm-dupe-grid" style={{ flex:1, display:'grid', gap:8 }}>
                 <input style={{ ...inp, fontSize:12 }} placeholder="Nombre del perfume *" value={d.nombre} onChange={e => updateDupe(i,'nombre',e.target.value)} />
                 <input style={{ ...inp, fontSize:12 }} placeholder="Marca" value={d.marca} onChange={e => updateDupe(i,'marca',e.target.value)} />
                 <input style={{ ...inp, fontSize:12, gridColumn:'1/-1' }} placeholder="URL imagen externa (opcional)" value={d.imagen.startsWith('data:') || d.imagen.startsWith('/OrientPerfumes') ? '' : d.imagen} onChange={e => updateDupe(i,'imagen',e.target.value)} />

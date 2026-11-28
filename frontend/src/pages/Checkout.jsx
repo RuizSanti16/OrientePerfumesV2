@@ -124,6 +124,9 @@ export default function Checkout() {
     nombre: '', correo: '', telefono: '',
     direccion: '', ciudad: '', notas: '',
     metodo_pago: 'bold',
+    /* 'domicilio' o 'tienda'. Recoger no paga envío y permite pagar
+       en efectivo viva donde viva el cliente, porque paga en mano. */
+    entrega: 'domicilio',
   });
 
   /* El desplegable de ciudad y el campo para escribirla van por
@@ -168,13 +171,14 @@ export default function Checkout() {
      esto solo sirve para que el cliente vea lo que va a pagar antes
      de confirmar, no para decidir el importe. Las tarifas vienen de
      los Ajustes del panel. */
+  const recoge       = form.entrega === 'tienda';
   const minimoGratis = Number(ajustes.freeShippingMin) || 0;
-  const envioGratis  = minimoGratis > 0 && productos >= minimoGratis;
+  const envioGratis  = !recoge && minimoGratis > 0 && productos >= minimoGratis;
 
   /* Sin ciudad todavía no se sabe cuánto cuesta, así que no se suma:
      mostrar un total que cambia al elegir la ciudad, sin avisar de
      por qué, es peor que mostrarlo incompleto y decirlo. */
-  const envio = (!form.ciudad || envioGratis)
+  const envio = (recoge || !form.ciudad || envioGratis)
     ? 0
     : Number(CIUDADES_CON_EFECTIVO.includes(form.ciudad) ? ajustes.envioLocal : ajustes.envioNacional) || 0;
 
@@ -188,7 +192,10 @@ export default function Checkout() {
 
   /* ¿Se puede pagar en efectivo con la ciudad elegida?
      Esto decide solo lo que se ve; quien manda es el servidor. */
-  const hayEfectivo = CIUDADES_CON_EFECTIVO.includes(form.ciudad);
+  /* Recogiendo en la tienda se paga en mano, viva donde viva: la
+     restricción por zona existe porque el reparto a domicilio solo
+     llega hasta cierto punto. */
+  const hayEfectivo = recoge || CIUDADES_CON_EFECTIVO.includes(form.ciudad);
 
   function cambiarCiudad(e) {
     const elegida = e.target.value;
@@ -223,10 +230,15 @@ export default function Checkout() {
     if (!form.nombre.trim())    err.nombre    = 'Requerido';
     if (!form.correo.trim())    err.correo    = 'Requerido';
     if (!/\S+@\S+\.\S+/.test(form.correo)) err.correo = 'Correo inválido';
-    if (!form.direccion.trim()) err.direccion = 'Requerido';
-    /* La ciudad era opcional, pero ahora decide si cabe el efectivo
-       y hasta dónde se entrega: sin ella no se puede despachar. */
-    if (!form.ciudad.trim())    err.ciudad    = 'Requerido';
+    /* Dirección y ciudad solo hacen falta si hay que llevarlo: a
+       quien recoge en la tienda no se le piden datos que no vamos a
+       usar. */
+    if (!recoge) {
+      if (!form.direccion.trim()) err.direccion = 'Requerido';
+      /* La ciudad decide si cabe el efectivo y hasta dónde se
+         entrega: sin ella no se puede despachar. */
+      if (!form.ciudad.trim())    err.ciudad    = 'Requerido';
+    }
     return err;
   }
 
@@ -332,6 +344,57 @@ export default function Checkout() {
             Datos de <span style={{ color: '#C9A84C' }}>entrega</span>
           </div>
 
+          {/* Cómo recibe el pedido. Va lo primero porque condiciona
+              todo lo de abajo: recoger no paga envío y permite pagar
+              en efectivo aunque el cliente viva lejos. */}
+          <div style={{ marginBottom: 22 }}>
+            <Field label="¿Cómo quieres recibirlo?" required>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {[
+                  { valor: 'domicilio', titulo: 'Envío a domicilio', nota: 'Te lo llevamos a tu dirección' },
+                  { valor: 'tienda',    titulo: 'Recoger en la tienda', nota: 'Sin costo de envío' },
+                ].map(op => {
+                  const activa = form.entrega === op.valor;
+                  return (
+                    <label key={op.valor}
+                      style={{
+                        flex: '1 1 180px', display: 'flex', gap: 10, alignItems: 'flex-start',
+                        padding: '12px 14px', cursor: 'pointer', borderRadius: 8,
+                        background: activa ? 'rgba(201,168,76,0.1)' : '#1A1A18',
+                        border: `1px solid ${activa ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.12)'}`,
+                      }}>
+                      <input type="radio" name="entrega" value={op.valor} checked={activa}
+                        onChange={cambiar} style={{ accentColor: '#C9A84C', marginTop: 2 }} />
+                      <span>
+                        <span style={{ display: 'block', fontSize: 13, color: activa ? '#C9A84C' : '#E8DCC8' }}>
+                          {op.titulo}
+                        </span>
+                        <span style={{ display: 'block', fontSize: 11, color: '#6B6355', marginTop: 2 }}>
+                          {op.nota}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </Field>
+
+            {recoge && (
+              <div style={{ marginTop: 12, padding: '14px 16px', background: 'rgba(154,171,128,0.07)', border: '1px solid rgba(154,171,128,0.25)', borderRadius: 8 }}>
+                <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, letterSpacing: '0.15em', color: '#9AAB80', marginBottom: 6 }}>
+                  RECOGES EN
+                </div>
+                <p style={{ fontSize: 13, color: '#C8C0B0', margin: 0, lineHeight: 1.6 }}>
+                  {ajustes.storeAddress || 'Consulta la dirección con nosotros'}
+                </p>
+                <p style={{ fontSize: 11, color: '#6B6355', margin: '8px 0 0', lineHeight: 1.5 }}>
+                  Te avisamos cuando esté listo. Puedes pagar en línea ahora o en
+                  efectivo al recogerlo.
+                </p>
+              </div>
+            )}
+          </div>
+
           {!conCuenta && (
             <div style={{
               marginBottom: 24, padding: '18px 20px',
@@ -374,6 +437,9 @@ export default function Checkout() {
             <Field label="Teléfono">
               <input name="telefono" value={form.telefono} onChange={cambiar} placeholder="+57 300 000 0000" style={INPUT_STYLE} />
             </Field>
+            {/* A quien recoge no se le piden ciudad ni dirección: no
+                se van a usar para nada y alargan el formulario. */}
+            {!recoge && (
             <Field label="Ciudad" required>
               <select value={ciudadSelect} onChange={cambiarCiudad}
                 style={{ ...INPUT_STYLE, borderColor: errores.ciudad ? '#e74c3c' : 'rgba(201,168,76,0.18)' }}>
@@ -388,14 +454,17 @@ export default function Checkout() {
               )}
               {errores.ciudad && <span style={{ fontSize: 11, color: '#e74c3c' }}>{errores.ciudad}</span>}
             </Field>
+            )}
           </div>
 
+          {!recoge && (
           <div style={{ marginBottom: 16 }}>
             <Field label="Dirección de entrega" required>
               <input name="direccion" value={form.direccion} onChange={cambiar} placeholder="Calle, número, barrio, apartamento..." style={{ ...INPUT_STYLE, borderColor: errores.direccion ? '#e74c3c' : 'rgba(201,168,76,0.18)' }} />
               {errores.direccion && <span style={{ fontSize: 11, color: '#e74c3c' }}>{errores.direccion}</span>}
             </Field>
           </div>
+          )}
 
           <div style={{ marginBottom: 16 }}>
             <Field label="Notas adicionales">
@@ -430,11 +499,13 @@ export default function Checkout() {
                 ))}
               </div>
               <p style={{ fontSize: 11, color: '#6B6355', marginTop: 8, lineHeight: 1.5 }}>
-                {!form.ciudad
-                  ? 'Elige tu ciudad para ver los métodos de pago disponibles.'
-                  : hayEfectivo
-                    ? `En ${form.ciudad} puedes pagar en efectivo al recibir el pedido.`
-                    : 'El pago en efectivo solo está disponible en Medellín, Rionegro y municipios cercanos, donde entregamos en persona.'}
+                {recoge
+                  ? 'Puedes pagar ahora en línea o en efectivo cuando recojas el pedido.'
+                  : !form.ciudad
+                    ? 'Elige tu ciudad para ver los métodos de pago disponibles.'
+                    : hayEfectivo
+                      ? `En ${form.ciudad} puedes pagar en efectivo al recibir el pedido.`
+                      : 'El pago en efectivo solo está disponible en Medellín, Rionegro y municipios cercanos, donde entregamos en persona.'}
               </p>
             </Field>
           </div>
@@ -521,18 +592,20 @@ export default function Checkout() {
               {/* Envío. Sin ciudad elegida todavía no se puede saber
                   cuánto cuesta, y decir una cifra que luego cambia es
                   peor que decir que falta un dato. */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: envioGratis ? '#6BC48C' : '#9A9180', marginBottom: 6 }}>
-                <span>Envío</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: (envioGratis || recoge) ? '#6BC48C' : '#9A9180', marginBottom: 6 }}>
+                <span>{recoge ? 'Recogida' : 'Envío'}</span>
                 <span>
-                  {!form.ciudad
-                    ? <span style={{ color: '#6B6355' }}>Elige tu ciudad</span>
-                    : envioGratis ? 'Gratis' : fmt(envio)}
+                  {recoge
+                    ? 'Sin costo'
+                    : !form.ciudad
+                      ? <span style={{ color: '#6B6355' }}>Elige tu ciudad</span>
+                      : envioGratis ? 'Gratis' : fmt(envio)}
                 </span>
               </div>
 
               {/* Cuánto falta para que salga gratis: es el empujón más
-                  barato que tiene una tienda. */}
-              {form.ciudad && !envioGratis && minimoGratis > 0 && (
+                  barato que tiene una tienda. No aplica al recoger. */}
+              {!recoge && form.ciudad && !envioGratis && minimoGratis > 0 && (
                 <div style={{ fontSize: 11, color: '#C9A84C', background: 'rgba(201,168,76,0.07)', borderRadius: 5, padding: '7px 10px', marginBottom: 8, lineHeight: 1.45 }}>
                   Te faltan {fmt(minimoGratis - productos)} para el envío gratis
                 </div>
