@@ -300,8 +300,31 @@ export default function Checkout() {
         </div>
       </header>
 
+      {/* La página se maquetaba con rejillas fijas y sin ningún punto
+          de corte: en un móvil de 375px, la columna del resumen de
+          340px se salía casi 200 y aparecía barra horizontal justo en
+          la pantalla donde se paga. */}
+      <style>{`
+        .checkout-grid  { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+        .checkout-2col  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        @media (max-width: 860px) {
+          .checkout-grid { grid-template-columns: 1fr; gap: 22px; }
+          /* El resumen deja de ir pegado: en una sola columna queda
+             debajo del formulario y seguirlo mientras se baja es más
+             molesto que útil. */
+          .checkout-resumen { position: static !important; }
+        }
+        @media (max-width: 560px) {
+          /* Dos campos por fila dejan cajas de 150px donde no cabe
+             una dirección ni un correo. */
+          .checkout-2col { grid-template-columns: 1fr; gap: 14px; }
+          .checkout-wrap { padding: 24px 16px !important; }
+        }
+      `}</style>
+
       {/* Content */}
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 20px', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 28, alignItems: 'start' }}>
+      <div className="checkout-grid checkout-wrap" style={{ maxWidth: 900, margin: '0 auto', padding: '32px 20px' }}>
 
         {/* ── Formulario ── */}
         <form onSubmit={handleSubmit}>
@@ -336,7 +359,7 @@ export default function Checkout() {
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div className="checkout-2col" style={{ marginBottom: 16 }}>
             <Field label="Nombre completo" required>
               <input name="nombre" value={form.nombre} onChange={cambiar} placeholder="Tu nombre" style={{ ...INPUT_STYLE, borderColor: errores.nombre ? '#e74c3c' : 'rgba(201,168,76,0.18)' }} />
               {errores.nombre && <span style={{ fontSize: 11, color: '#e74c3c' }}>{errores.nombre}</span>}
@@ -347,7 +370,7 @@ export default function Checkout() {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          <div className="checkout-2col" style={{ marginBottom: 16 }}>
             <Field label="Teléfono">
               <input name="telefono" value={form.telefono} onChange={cambiar} placeholder="+57 300 000 0000" style={INPUT_STYLE} />
             </Field>
@@ -424,7 +447,7 @@ export default function Checkout() {
         </form>
 
         {/* ── Resumen del pedido ── */}
-        <div style={{ position: 'sticky', top: 20 }}>
+        <div className="checkout-resumen" style={{ position: 'sticky', top: 20 }}>
           <div style={{ background: '#111', border: '1px solid rgba(201,168,76,0.15)', borderRadius: 10, padding: '22px 20px' }}>
             <div style={{ fontFamily: 'Cinzel, serif', fontSize: 10, color: '#6B6355', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>Resumen del pedido</div>
 

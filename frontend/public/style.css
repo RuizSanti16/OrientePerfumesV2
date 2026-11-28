@@ -2089,3 +2089,42 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 @media (max-width: 768px) {
   .prod-reviews-grid { grid-template-columns: 1fr !important; }
 }
+
+/* ── Tamaño de toque en móvil ─────────────────────────────
+
+   Varios controles quedaban por debajo de lo que un dedo acierta
+   con comodidad. Medido en un móvil de 375px: la barra de volver
+   tenía 14px de alto, las pastillas de presentación 20, y los
+   iconos del header bajaban a 32. La referencia habitual son 44px,
+   y aquí se busca al menos 36 sin rehacer el diseño: se gana con
+   relleno, que agranda la zona sensible sin mover nada de sitio. */
+@media (max-width: 768px) {
+
+  /* Volver: 14px de alto es casi imposible de acertar al primer
+     intento, y es el control que más se usa al navegar. */
+  .mobile-back-btn {
+    padding: 11px 4px;
+    margin: -11px -4px;
+  }
+  .mobile-back-bar { padding-top: 2px; padding-bottom: 2px; }
+
+  /* Elegir la presentación es el paso previo a añadir al carrito:
+     fallar aquí significa comprar el tamaño equivocado. */
+  .product-card__pres-pill {
+    padding: 9px 12px;
+    font-size: 9px;
+  }
+
+  /* El corazón de la lista de deseos sobre la tarjeta */
+  .product-card__wish {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Por debajo de 480px los iconos del header caían a 32px. Se
+   quedan en 36, que sigue entrando en una pantalla estrecha. */
+@media (max-width: 480px) {
+  .action-btn,
+  .menu-btn { width: 36px; height: 36px; }
+}

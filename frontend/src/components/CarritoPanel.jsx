@@ -4,12 +4,16 @@ import { IconClose } from './Icons';
 
 const formatCOP = n => '$' + Number(n || 0).toLocaleString('es-CO');
 
-/* Botón redondo de − y + */
+/* Botón redondo de − y +.
+
+   30px en vez de los 24 de antes: con el dedo, dos círculos de 24
+   separados por el número se fallan con facilidad, y fallar aquí
+   cambia lo que se compra. */
 function BotonCantidad({ signo, onClick, disabled, etiqueta }) {
   return (
     <button onClick={onClick} disabled={disabled} aria-label={etiqueta}
       style={{
-        width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
         background: 'none', border: '1px solid rgba(201,168,76,0.3)',
         color: disabled ? '#4A463D' : '#C9A84C',
         cursor: disabled ? 'default' : 'pointer',
