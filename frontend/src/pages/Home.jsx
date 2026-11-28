@@ -264,6 +264,7 @@ export default function Home() {
                 enWishlist={estaEn(p.id)}
                 onWishlist={() => toggleWish(p)}
                 onCarrito={(presentacion, precioPres) => agregarCarrito({ ...p, precio: precioPres || parsePrecio(p.precio), presentacion })}
+                onVer={() => navigate(`/producto/${p.id}`)}
                 formatCOP={formatCOP}
               />
             ))}
@@ -478,7 +479,7 @@ export default function Home() {
 }
 
 /* ── Sub-componentes ── */
-function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP }) {
+function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP, onVer }) {
   const [added, setAdded] = useState(false);
   const [presIdx, setPresIdx] = useState(0);
   const pres = p.presentaciones || [];
@@ -496,9 +497,18 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
   return (
     <article className="product-card" role="listitem" tabIndex="0">
       <div className="product-card__img-wrap">
-        {p.imagen
-          ? <img src={p.imagen} alt={p.nombre} className="product-card__img" style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}}/>
-          : <span className="product-card__placeholder" aria-hidden="true"><IconBottle /></span>}
+        {/* La imagen lleva a la ficha, como en Colección.
+
+            Los destacados eran lo único del catálogo que no se podía
+            abrir: desde la portada solo se podía añadirlos al carrito
+            a ciegas, sin ver sus notas ni su descripción. La capa va
+            antes que los botones, así que el corazón y el de añadir
+            siguen quedando por encima y no se los traga. */}
+        <div onClick={onVer} style={{ position:'absolute', inset:0, cursor: onVer ? 'pointer' : 'default' }}>
+          {p.imagen
+            ? <img src={p.imagen} alt={p.nombre} className="product-card__img" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+            : <span className="product-card__placeholder" aria-hidden="true"><IconBottle /></span>}
+        </div>
         {badge.label && <span className={`product-card__badge ${badge.cls}`}>{badge.label}</span>}
         <button className="product-card__wish" onClick={onWishlist} data-active={enWishlist} aria-label="Lista de deseos">
           {enWishlist ? <IconHeartFilled /> : <IconHeart />}
@@ -513,7 +523,10 @@ function ProductCard({ producto: p, enWishlist, onWishlist, onCarrito, formatCOP
         {p.nombre_categoria && (
           <div className="product-card__category">{p.nombre_categoria}</div>
         )}
-        <div className="product-card__name">{p.nombre}</div>
+        <div className="product-card__name" onClick={onVer}
+          style={onVer ? { cursor:'pointer' } : undefined}>
+          {p.nombre}
+        </div>
         <div className="product-card__price">
           {p.badge==='sale' && p.precioAnterior ? <><s>{p.precioAnterior}</s> {p.precio}</> : p.precio}
         </div>
